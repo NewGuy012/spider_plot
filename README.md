@@ -1,3 +1,4 @@
+# spider_plot
 spider_plot(P, P_labels, axes_interval, axes_precision, varargin)
 creates a spider web or radar plot with an axes specified for each column
 
