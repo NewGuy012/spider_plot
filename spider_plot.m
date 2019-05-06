@@ -10,7 +10,7 @@ function spider_plot(P, P_labels, axes_interval, axes_precision, varargin)
 % specified by axes_precision.
 % 
 % P - [vector | matrix]
-% P_labels - [cell of strings]
+% P_labels - [cell of string]
 % axes_interval - [integer]
 % axes_precision - [integer]
 %
