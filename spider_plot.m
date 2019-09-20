@@ -27,6 +27,8 @@ function spider_plot(P, varargin)
 %
 %   To input use default value for optional arguments, specify as empty [].
 %
+% Examples:
+%
 %   % Example 1: Minimal number of arguments. Optional arguments are set to
 %                the default values. Axes limits are automatically set.
 %
