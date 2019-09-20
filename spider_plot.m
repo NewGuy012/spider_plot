@@ -97,25 +97,25 @@ default_args(1:numvarargs) = varargin;
 % Check if axes_labels is empty
 if isempty(axes_labels)
     % Set to default values
-    axes_labels = default_labels;
+    axes_labels = default_args{1};
 end
 
 % Check if axes_interval is empty
 if isempty(axes_interval)
     % Set to default values
-    axes_interval = 3;
+    axes_interval = default_args{2};
 end
 
 % Check if axes_precision is empty
 if isempty(axes_precision)
     % Set to default values
-    axes_precision = 1;
+    axes_precision = default_args{3};
 end
 
 % Check if axes_limits is empty
 if isempty(axes_limits)
     % Set to default values
-    axes_limits = [];
+    axes_limits = default_args{4};
 else
     % Check if the axes limits same length as the number of points
     if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
