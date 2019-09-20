@@ -62,7 +62,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at jyoo dot com)
-%   2019-09-17: Major revision and overhaul to improve speed and clarity
+%   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade & Andrés Garcia for their
@@ -112,13 +112,23 @@ if isempty(axes_precision)
     axes_precision = 1;
 end
 
-% Check if axes_limitss is empty
+% Check if axes_limits is empty
 if isempty(axes_limits)
     % Set to default values
     axes_limits = [];
+else
+    % Check if the axes limits same length as the number of points
+    if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
+        error('Error: Please make sure the min and max axes limits match the number of data points.');
+    end
 end
 
 %%% Error Check %%%
+% Check if the axes labels are the same number as the number of points
+if length(axes_labels) ~= num_data_points
+    error('Error: Please make sure the number of labels is the same as the number of points.');
+end
+
 % Check if axes precision is string
 if ~ischar(axes_precision)
     % Check if axes properties are an integer
@@ -129,11 +139,6 @@ if ~ischar(axes_precision)
     % Check if axes properties are positive
     if axes_interval < 1 || axes_precision < 1
         error('Error: Please enter value greater than one for the axes properties.');
-    end
-    
-    % Check if the labels are the same number as the number of points
-    if length(axes_labels) ~= num_data_points
-        error('Error: Please make sure the number of labels is the same as the number of points.');
     end
     
 else
