@@ -36,7 +36,7 @@ Create a spider or radar plot with individual axes.
   To input use default value for optional arguments, specify as empty [].
   
 ## Examples:
-  % Example 1: Minimal number of arguments. Optional arguments are set to
+  ### % Example 1: Minimal number of arguments. Optional arguments are set to
                the default values. Axes limits are automatically set.
 
   D1 = [5 3 9 1 2];   % Initialize data points
@@ -51,13 +51,13 @@ Create a spider or radar plot with individual axes.
   
   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 
-  % Example 2: Manually setting the axes limits. Other optional arguments
+  ### % Example 2: Manually setting the axes limits. Other optional arguments
                are set to the default values.
 
   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
   spider_plot(P, [], [] ,[], axes_limits);
 
-  % Example 3: Partial number of arguments. Non-specified optional
+  ### % Example 3: Partial number of arguments. Non-specified optional
                arguments are set to the default values.
 
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
@@ -66,7 +66,7 @@ Create a spider or radar plot with individual axes.
   
   spider_plot(P, axes_labels, axes_interval);
 
-  % Example 4: Maximum number of arguments.
+  ### % Example 4: Maximum number of arguments.
 
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
   
