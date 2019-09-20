@@ -196,6 +196,11 @@ for ii = 1:num_data_points
         max_value = axes_limits(2, ii);
         range = max_value - min_value;
         
+        % Check if the axes limits are within range of points
+        if min_value > min(group_points) || max_value < max(group_points)
+            error('Error: Please make the manually specified axes limits are within range of the data points.');
+        end
+        
         % Scale points to range from [rho_increment, 1]
         P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
     end
