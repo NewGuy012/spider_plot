@@ -72,6 +72,14 @@ function spider_plot(P, varargin)
 % Point properties
 [num_data_groups, num_data_points] = size(P);
 
+% Number of optional arguments
+numvarargs = length(varargin);
+
+% Check if optional arguments are greater than 4
+if numvarargs > 4
+    error('Error: Too many inputs. Can handle up to 4 optional inputs');
+end
+
 % Create default labels
 default_labels = cell(1, num_data_points);
 
@@ -81,52 +89,52 @@ for ii = 1:num_data_points
     default_labels{ii} = sprintf('Label %i', ii);
 end
 
-% Number of optional arguments
-numvarargs = length(varargin);
-
-% Check if optional arguments are greater than 4
-if numvarargs > 4
-    error('Error: Too many inputs. Can handle up to 4 optional inputs');
-end
-
 % Default arguments
-default_args = {default_labels, 3, 1, []};
+default_interval = 3;
+default_precision = 1;
+default_limits = [];
+default_args = cell(1, 4);
 default_args(1:numvarargs) = varargin;
+
+% Check if arguments are empty
+if isempty(default_args{1})
+    % Set to default values
+    default_args{1} = default_labels;
+end
+
+% Check if arguments are empty
+if isempty(default_args{2})
+    % Set to default values
+    default_args{2} = default_interval;
+end
+
+% Check if arguments are empty
+if isempty(default_args{3})
+    % Set to default values
+    default_args{3} = default_precision;
+end
+
+% Check if arguments are empty
+if isempty(default_args{4})
+    % Set to default values
+    default_args{4} = default_limits;
+end
+
+% Initialize variables
 [axes_labels, axes_interval, axes_precision, axes_limits] = default_args{:};
-
-% Check if axes_labels is empty
-if isempty(axes_labels)
-    % Set to default values
-    axes_labels = default_labels;
-end
-
-% Check if axes_interval is empty
-if isempty(axes_interval)
-    % Set to default values
-    axes_interval = 3;
-end
-
-% Check if axes_precision is empty
-if isempty(axes_precision)
-    % Set to default values
-    axes_precision = 2;
-end
-
-% Check if axes_limits is empty
-if isempty(axes_limits)
-    % Set to default values
-    axes_limits = [];
-else
-    % Check if the axes limits same length as the number of points
-    if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
-        error('Error: Please make sure the min and max axes limits match the number of data points.');
-    end
-end
 
 %%% Error Check %%%
 % Check if the axes labels are the same number as the number of points
 if length(axes_labels) ~= num_data_points
     error('Error: Please make sure the number of labels is the same as the number of points.');
+end
+
+% Check if axes limits is not empty
+if ~isempty(axes_limits)
+    % Check if the axes limits same length as the number of points
+    if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
+        error('Error: Please make sure the min and max axes limits match the number of data points.');
+    end
 end
 
 % Check if axes precision is string
