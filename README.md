@@ -3,10 +3,15 @@ Create a spider or radar plot with individual axes.
 
 ## Syntax:
   spider_plot(P)
+  
   spider_plot(P, axes_labels)
+  
   spider_plot(P, axes_labels, axes_interval)
+  
   spider_plot(P, axes_labels, axes_interval, axes_precision)
+  
   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits)
+  
   spider_plot(P, [], [], [], axes_limits);
 
 ## Input Arguments:
@@ -17,10 +22,13 @@ Create a spider or radar plot with individual axes.
 
   (Optional)
   axes_labels    - Used to label each of the axes. [cell of strings]
+  
   axes_interval  - Used to change the number of intervals displayed
                    between the webs. [integer]
+                   
   axes_precision - Used to change the precision level on the value
                    displayed on the axes. [integer]
+                   
   axes_limits    - Used to manually set the axes limits. A matrix of
                    2 x size(P, 2). The top row is the minimum axes limits
                    and the bottow row are the maximum axes limits. [matrix]
@@ -32,10 +40,15 @@ Create a spider or radar plot with individual axes.
                the default values. Axes limits are automatically set.
 
   D1 = [5 3 9 1 2];   % Initialize data points
+  
   D2 = [5 8 7 2 9];
+  
   D3 = [8 2 1 4 6];
+  
   P =  [D1; D2; D3];
+  
   spider_plot(P);
+  
   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 
   % Example 2: Manually setting the axes limits. Other optional arguments
@@ -48,19 +61,26 @@ Create a spider or radar plot with individual axes.
                arguments are set to the default values.
 
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+  
   axes_interval = 2;
+  
   spider_plot(P, axes_labels, axes_interval);
 
   % Example 4: Maximum number of arguments.
 
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+  
   axes_interval = 4;
+  
   axes_precision = 'none';
-  axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; 
+  
+  axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
+  
   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
 
 ## Author:
   Moses Yoo, (jyoo at jyoo dot com)
+  
   2019-09-17: Major revision and overhaul to improve speed and clarity
 
 ## Special Thanks:
