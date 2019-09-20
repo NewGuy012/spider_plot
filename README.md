@@ -20,16 +20,15 @@ Create a spider or radar plot with individual axes.
                    rows are the groups of data and the columns are the
                    data points. [vector | matrix]
 
-  (Optional)
-  axes_labels    - Used to label each of the axes. [cell of strings]
+  (Optional) axes_labels    - Used to label each of the axes. [cell of strings]
   
-  axes_interval  - Used to change the number of intervals displayed
+  (Optional) axes_interval  - Used to change the number of intervals displayed
                    between the webs. [integer]
                    
-  axes_precision - Used to change the precision level on the value
+  (Optional) axes_precision - Used to change the precision level on the value
                    displayed on the axes. [integer]
                    
-  axes_limits    - Used to manually set the axes limits. A matrix of
+  (Optional) axes_limits    - Used to manually set the axes limits. A matrix of
                    2 x size(P, 2). The top row is the minimum axes limits
                    and the bottow row are the maximum axes limits. [matrix]
 
