@@ -20,6 +20,7 @@ Create a spider or radar plot with individual axes.
                    rows are the groups of data and the columns are the
                    data points. [vector | matrix]
 
+
   (Optional)
   axes_labels    - Used to label each of the axes. [cell of strings]
   
@@ -32,6 +33,7 @@ Create a spider or radar plot with individual axes.
   axes_limits    - Used to manually set the axes limits. A matrix of
                    2 x size(P, 2). The top row is the minimum axes limits
                    and the bottow row are the maximum axes limits. [matrix]
+
 
   To input use default value for optional arguments, specify as empty [].
   
