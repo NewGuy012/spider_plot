@@ -1,5 +1,5 @@
 # spider_plot
-spider_plot Create a spider or radar plot with individual axes.
+Create a spider or radar plot with individual axes.
 
 ## Syntax:
   spider_plot(P)
