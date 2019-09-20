@@ -1,178 +1,157 @@
-function spider_plot(P, P_labels, axes_interval, axes_precision, varargin)
-% Create a spider web or radar plot with an axes specified for each column
+function spider_plot(P, varargin)
+%spider_plot Create a spider or radar plot with individual axes.
 %
-% spider_plot(P, P_labels, axes_interval, axes_precision) creates a spider
-% web plot using the points specified in the array P. The column of P
-% contains the data points and the rows of P contain the multiple sets of
-% data points. Each point must be accompanied by a label specified in the
-% cell P_labels. The number of intervals that separate the axes is
-% specified by axes_interval. The number of decimal precision points is
-% specified by axes_precision.
-% 
-% P - [vector | matrix]
-% P_labels - [cell of string]
-% axes_interval - [integer]
-% axes_precision - [integer]
+% Syntax:
+%   spider_plot(P)
+%   spider_plot(P, axes_labels)
+%   spider_plot(P, axes_labels, axes_interval)
+%   spider_plot(P, axes_labels, axes_interval, axes_precision)
+%   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits)
+%   spider_plot(P, [], [], [], axes_limits);
 %
-% spider_plot(P, P_labels, axes_interval, axes_precision, line_spec) works
-% the same as the function above. Additional line properties can be added
-% in the same format as the default "plot" function in MATLAB.
+% Input Arguments:
+%   (Required)
+%   P              - The data points used to plot the spider chart. The
+%                    rows are the groups of data and the columns are the
+%                    data points. [vector | matrix]
 %
-% line_spec - [character vector]
+%   (Optional)
+%   axes_labels    - Used to label each of the axes. [cell of strings]
+%   axes_interval  - Used to change the number of intervals displayed
+%                    between the webs. [integer]
+%   axes_precision - Used to change the precision level on the value
+%                    displayed on the axes. [integer]
+%   axes_limits    - Used to manually set the axes limits. A matrix of
+%                    2 x size(P, 2). The top row is the minimum axes limits
+%                    and the bottow row are the maximum axes limits. [matrix]
 %
-% %%%%%%%%%%%%%%%%%%% Example of a Generic Spider Plot %%%%%%%%%%%%%%%%%%%
-% % Clear workspace
-% close all;
-% clearvars;
-% clc;
-% 
-% % Point properties
-% num_of_points = 6;
-% row_of_points = 4;
+%   To input use default value for optional arguments, specify as empty [].
 %
-% % Random data
-% P = rand(row_of_points, num_of_points);
+%   % Example 1: Minimal number of arguments. Optional arguments are set to
+%                the default values. Axes limits are automatically set.
 %
-% % Scale points by a factor
-% P(:, 2) = P(:, 2) * 2;
-% P(:, 3) = P(:, 3) * 3;
-% P(:, 4) = P(:, 4) * 4;
-% P(:, 5) = P(:, 5) * 5;
+%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
+%   spider_plot(P);
+% 
+%   % Example 2: Manually setting the axes limits. Other optional arguments
+%                are set to the default values.
 %
-% % Make random values negative
-% P(1:3, 3) = P(1:3, 3) * -1;
-% P(:, 5) = P(:, 5) * -1;
+%   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
+%   spider_plot(P, [], [] ,[], axes_limits);
 % 
-% % Create generic labels
-% P_labels = cell(num_of_points, 1);
+%   % Example 3: Partial number of arguments. Non-specified optional
+%                arguments are set to the default values.
+%
+%   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+%   axes_interval = 2;
+%   spider_plot(P, axes_labels, axes_interval);
 % 
-% for ii = 1:num_of_points
-%     P_labels{ii} = sprintf('Label %i', ii);
-% end
-% 
-% % Figure properties
-% figure('units', 'normalized', 'outerposition', [0 0.05 1 0.95]);
-% 
-% % Axes properties
-% axes_interval = 2;
-% axes_precision = 1;
-% 
-% % Spider plot
-% spider_plot(P, P_labels, axes_interval, axes_precision,...
-%     'Marker', 'o',...
-%     'LineStyle', '-',...
-%     'LineWidth', 2,...
-%     'MarkerSize', 5);
-% 
-% % Title properties
-% title('Sample Spider Plot',...
-%     'Fontweight', 'bold',...
-%     'FontSize', 12);
-% 
-% % Legend properties
-% legend('show', 'Location', 'southoutside');
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   % Example 4: Maximum number of arguments.
+%
+%   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+%   axes_interval = 4;
+%   axes_precision = 'none';
+%   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; 
+%   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
+%
+% Author:
+%   Moses Yoo, (jyoo at jyoo dot com)
+%   2019-09-17: Major revision and overhaul to improve speed and clarity
+%
+% Special Thanks:
+%   Special thanks to Gabriela Andrade & Andrés Garcia for their
+%   feature recommendations and suggested bug fixes.
 
-%%% Point Properties %%%
-% Number of points
-[row_of_points, num_of_points] = size(P);
+%%% Data Properties %%%
+% Point properties
+[num_data_groups, num_data_points] = size(P);
+
+% Create default labels
+default_labels = cell(1, num_data_points);
+
+% Iterate through number of data points
+for ii = 1:num_data_points
+    % Default axes labels
+    default_labels{ii} = sprintf('Label %i', ii);
+end
+
+% Number of optional arguments
+numvarargs = length(varargin);
+
+% Check if optional arguments are greater than 4
+if numvarargs > 4
+    error('Error: Too many inputs. Can handle up to 4 optional inputs');
+end
+
+% Default arguments
+default_args = {default_labels, 3, 1, []};
+default_args(1:numvarargs) = varargin;
+[axes_labels, axes_interval, axes_precision, axes_limits] = default_args{:};
+
+% Check if axes_labels is empty
+if isempty(axes_labels)
+    % Set to default values
+    axes_labels = default_labels;
+end
+
+% Check if axes_interval is empty
+if isempty(axes_interval)
+    % Set to default values
+    axes_interval = 3;
+end
+
+% Check if axes_precision is empty
+if isempty(axes_precision)
+    % Set to default values
+    axes_precision = 1;
+end
+
+% Check if axes_limitss is empty
+if isempty(axes_limits)
+    % Set to default values
+    axes_limits = [];
+end
 
 %%% Error Check %%%
-% Check if axes properties are an integer
-if floor(axes_interval) ~= axes_interval || floor(axes_precision) ~= axes_precision
-    error('Error: Please enter in an integer for the axes properties.');
-end
-
-% Check if axes properties are positive
-if axes_interval < 1 || axes_precision < 1
-    error('Error: Please enter value greater than one for the axes properties.');
-end
-
-% Check if the labels are the same number as the number of points
-if length(P_labels) ~= num_of_points
-    error('Error: Please make sure the number of labels is the same as the number of points.');
-end
-
-% Pre-allocation
-max_values = zeros(1, num_of_points);
-min_values = zeros(1, num_of_points);
-axis_increment = zeros(1, num_of_points);
-
-% Normalized axis increment
-normalized_axis_increment = 1/axes_interval;
-
-% Iterate through number of points
-for ii = 1:num_of_points
-    % Group of points
-    group_points = P(:, ii);
+% Check if axes precision is string
+if ~ischar(axes_precision)
+    % Check if axes properties are an integer
+    if floor(axes_interval) ~= axes_interval || floor(axes_precision) ~= axes_precision
+        error('Error: Please enter in an integer for the axes properties.');
+    end
     
-    % Max and min value of each group
-    max_values(ii) = max(group_points);
-    min_values(ii) = min(group_points);
-    range = max_values(ii) - min_values(ii);
+    % Check if axes properties are positive
+    if axes_interval < 1 || axes_precision < 1
+        error('Error: Please enter value greater than one for the axes properties.');
+    end
     
-    % Axis increment
-    axis_increment(ii) = range/axes_interval;
+    % Check if the labels are the same number as the number of points
+    if length(axes_labels) ~= num_data_points
+        error('Error: Please make sure the number of labels is the same as the number of points.');
+    end
     
-    % Normalize points to range from [0, 1]
-    P(:, ii) = (P(:, ii)-min(group_points))/range;
-    
-    % Shift points by one axis increment
-    P(:, ii) = P(:, ii) + normalized_axis_increment;
-end
-
-%%% Polar Axes %%%
-% Polar increments
-polar_increments = 2*pi/num_of_points;
-
-% Normalized  max limit of axes
-axes_limit = 1;
-
-% Shift axes limit by one axis increment
-axes_limit = axes_limit + normalized_axis_increment;
-
-% Polar points
-radius = [0; axes_limit];
-theta = 0:polar_increments:2*pi;
-
-% Convert polar to cartesian coordinates
-[x_axes, y_axes] = pol2cart(theta, radius);
-
-% Plot polar axes
-grey = [1, 1, 1] * 0.5;
-h = line(x_axes, y_axes,...
-    'LineWidth', 1,...
-    'Color', grey);
-
-% Iterate through all the line handles
-for ii = 1:length(h)
-    % Remove polar axes from legend
-    h(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
-end
-
-%%% Polar Isocurves %%%
-% Shifted axes interval
-shifted_axes_interval = axes_interval+1;
-
-% Incremental radius
-radius = (0:axes_limit/shifted_axes_interval:axes_limit)';
-
-% Convert polar to cartesian coordinates
-[x_isocurves, y_isocurves] = pol2cart(theta, radius);
-
-% Plot polar isocurves
-hold on;
-h = plot(x_isocurves', y_isocurves',...
-    'LineWidth', 1,...
-    'Color', grey);
-
-% Iterate through all the plot handles
-for ii = 1:length(h)
-    % Remove polar isocurves from legend
-    h(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
+else
+    % Check if axes precision is valid string entry
+    if ~strcmp(axes_precision, 'none')
+        error('Error: Invalid axes precision entry. Please enter in "none" to remove axes precision.');
+    end
 end
 
 %%% Figure Properties %%%
+% Figure background
+fig = figure;
+fig.Color = 'white';
+
+% Axis limits
+hold on;
+axis square;
+axis off;
+
+% Plot colors
+grey = [0.5, 0.5, 0.5];
 colors = [0, 0.4470, 0.7410;...
     0.8500, 0.3250, 0.0980;...
     0.9290, 0.6940, 0.1250;...
@@ -182,60 +161,117 @@ colors = [0, 0.4470, 0.7410;...
     0.6350, 0.0780, 0.1840];
 
 % Repeat colors is necessary
-repeat_colors = fix(row_of_points/size(colors, 1))+1;
+repeat_colors = fix(num_data_points/size(colors, 1))+1;
 colors = repmat(colors, repeat_colors, 1);
 
-%%% Data Points %%%
-% Iterate through all the rows
-for ii = 1:row_of_points
+% Polar increments
+theta_increment = 2*pi/num_data_points;
+rho_increment = 1/(axes_interval+1);
+
+%%% Scale Data %%%
+% Pre-allocation
+P_scaled = zeros(size(P));
+axes_range = zeros(3, num_data_points);
+
+% Iterate through number of data points
+for ii = 1:num_data_points
+    % Group of points
+    group_points = P(:, ii);
+    
+    % Automatically the range of each group
+    min_value = min(group_points);
+    max_value = max(group_points);
+    range = max_value - min_value;
+    
+    % Check if axes_limits is empty
+    if isempty(axes_limits)
+        % Scale points to range from [rho_increment, 1]
+        P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
+    else
+        % Manually set the range of each group
+        min_value = axes_limits(1, ii);
+        max_value = axes_limits(2, ii);
+        range = max_value - min_value;
+        
+        % Scale points to range from [rho_increment, 1]
+        P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
+    end
+    
+    % Store to array
+    axes_range(:, ii) = [min_value; max_value; range];
+end
+
+%%% Polar Axes %%%
+% Polar coordinates
+rho = 0:rho_increment:1;
+theta = 0:theta_increment:2*pi;
+
+% Iterate through each theta
+for ii = 1:length(theta)-1
     % Convert polar to cartesian coordinates
-    [x_points, y_points] = pol2cart(theta(1:end-1), P(ii, :));
+    [x_axes, y_axes] = pol2cart(theta(ii), rho);
+    
+    % Plot
+    plot(x_axes, y_axes,...
+        'Color', grey);
+    
+    % Check if axes_labels is empty
+    if ~strcmp(axes_precision, 'none')
+        % Iterate through points on isocurve
+        for jj = 2:length(rho)
+            % Axes increment value
+            min_value = axes_range(1, ii);
+            range = axes_range(3, ii);
+            axes_value = min_value + (range/axes_interval) * (jj-2);
+            
+            % Display axes text
+            text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
+            text(x_axes(jj), y_axes(jj), text_str,...
+                'Units', 'Data',...
+                'Color', 'k',...
+                'FontSize', 10,...
+                'HorizontalAlignment', 'center',...
+                'VerticalAlignment', 'middle');
+        end
+    end
+end
+
+% Iterate through each rho
+for ii = 2:length(rho)
+    % Convert polar to cartesian coordinates
+    [x_axes, y_axes] = pol2cart(theta, rho(ii));
+    
+    % Plot
+    plot(x_axes, y_axes,...
+        'Color', grey);
+end
+
+%%% Plot %%%
+% Iterate through number of data groups
+for ii = 1:num_data_groups
+    % Convert polar to cartesian coordinates
+    [x_points, y_points] = pol2cart(theta(1:end-1), P_scaled(ii, :));
     
     % Make points circular
     x_circular = [x_points, x_points(1)];
     y_circular = [y_points, y_points(1)];
     
     % Plot data points
-    plot(x_circular, y_circular,...
+    h = plot(x_circular, y_circular,...
+        '-o',...
         'Color', colors(ii, :),...
-        'MarkerFaceColor', colors(ii, :),...
-        varargin{:});
+        'LineWidth', 2,...
+        'MarkerSize', 8,...
+        'MarkerFaceColor', colors(ii, :));
+    uistack(h, 'bottom');
 end
 
-%%% Axis Properties %%%
-% Figure background
-fig = gcf;
-fig.Color = 'white';
-
-% Iterate through all the number of points
-for hh = 1:num_of_points
-    % Shifted min value
-    shifted_min_value = min_values(hh)-axis_increment(hh);
-    
-    % Axis label for each row
-    row_axis_labels = (shifted_min_value:axis_increment(hh):max_values(hh))';
-    
-    % Iterate through all the isocurve radius
-    for ii = 2:length(radius)
-        % Display axis text for each isocurve
-        text(x_isocurves(ii, hh), y_isocurves(ii, hh), sprintf(sprintf('%%.%if', axes_precision), row_axis_labels(ii)),...
-            'Units', 'Data',...
-            'Color', 'k',...
-            'FontSize', 10,...
-            'HorizontalAlignment', 'center',...
-            'VerticalAlignment', 'middle');
-    end
-end
-
-% Label points
-x_label = x_isocurves(end, :);
-y_label = y_isocurves(end, :);
-
+%%% Labels %%%
 % Shift axis label
-shift_pos = 0.07;
+shift_pos = 0.075;
 
-% Iterate through each label
-for ii = 1:num_of_points
+% Iterate through number of data points
+for ii = 1:num_data_points
     % Angle of point in radians
     theta_point = theta(ii);
     
@@ -260,7 +296,7 @@ for ii = 1:num_of_points
         quadrant = 4;
     end
     
-    % Adjust text alignment information depending on quadrant
+    % Adjust label alignment depending on quadrant
     switch quadrant
         case 0
             horz_align = 'left';
@@ -305,16 +341,10 @@ for ii = 1:num_of_points
     end
     
     % Display text label
-    text(x_label(ii)+x_pos, y_label(ii)+y_pos, P_labels{ii},...
+    text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, axes_labels{ii},...
         'Units', 'Data',...
         'HorizontalAlignment', horz_align,...
         'VerticalAlignment', vert_align,...
         'EdgeColor', 'k',...
         'BackgroundColor', 'w');
-end
-
-% Axis limits
-axis square;
-axis([-axes_limit, axes_limit, -axes_limit, axes_limit]);
-axis off;
 end
