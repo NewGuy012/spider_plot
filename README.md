@@ -1,7 +1,7 @@
 # spider_plot
 spider_plot Create a spider or radar plot with individual axes.
 
-Syntax:
+## Syntax:
   spider_plot(P)
   spider_plot(P, axes_labels)
   spider_plot(P, axes_labels, axes_interval)
@@ -9,7 +9,7 @@ Syntax:
   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits)
   spider_plot(P, [], [], [], axes_limits);
 
-Input Arguments:
+## Input Arguments:
   (Required)
   P              - The data points used to plot the spider chart. The
                    rows are the groups of data and the columns are the
@@ -26,7 +26,8 @@ Input Arguments:
                    and the bottow row are the maximum axes limits. [matrix]
 
   To input use default value for optional arguments, specify as empty [].
-
+  
+## Examples:
   % Example 1: Minimal number of arguments. Optional arguments are set to
                the default values. Axes limits are automatically set.
 
@@ -57,10 +58,10 @@ Input Arguments:
   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; 
   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
 
-Author:
+## Author:
   Moses Yoo, (jyoo at jyoo dot com)
   2019-09-17: Major revision and overhaul to improve speed and clarity
 
-Special Thanks:
+## Special Thanks:
   Special thanks to Gabriela Andrade & Andrés Garcia for their
   feature recommendations and suggested bug fixes.
