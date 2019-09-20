@@ -36,6 +36,7 @@ spider_plot Create a spider or radar plot with individual axes.
   D3 = [8 2 1 4 6];
   P =  [D1; D2; D3];
   spider_plot(P);
+  legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 
   % Example 2: Manually setting the axes limits. Other optional arguments
                are set to the default values.
