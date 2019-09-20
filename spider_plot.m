@@ -96,27 +96,27 @@ default_limits = [];
 default_args = cell(1, 4);
 default_args(1:numvarargs) = varargin;
 
-% Check if arguments are empty
+% Check if first optional argument is empty
 if isempty(default_args{1})
-    % Set to default values
+    % Set to default value
     default_args{1} = default_labels;
 end
 
-% Check if arguments are empty
+% Check if second optional argument is empty
 if isempty(default_args{2})
-    % Set to default values
+    % Set to default value
     default_args{2} = default_interval;
 end
 
-% Check if arguments are empty
+% Check if third optional argument is empty
 if isempty(default_args{3})
-    % Set to default values
+    % Set to default value
     default_args{3} = default_precision;
 end
 
-% Check if arguments are empty
+% Check if fourth optional argument is empty
 if isempty(default_args{4})
-    % Set to default values
+    % Set to default value
     default_args{4} = default_limits;
 end
 
