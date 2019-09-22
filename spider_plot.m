@@ -20,7 +20,8 @@ function spider_plot(P, varargin)
 %   axes_interval  - Used to change the number of intervals displayed
 %                    between the webs. [integer]
 %   axes_precision - Used to change the precision level on the value
-%                    displayed on the axes. [integer]
+%                    displayed on the axes. Enter in 'none' to remove
+%                    axes text. [integer or char]
 %   axes_limits    - Used to manually set the axes limits. A matrix of
 %                    2 x size(P, 2). The top row is the minimum axes limits
 %                    and the bottow row are the maximum axes limits. [matrix]
