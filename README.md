@@ -76,7 +76,7 @@ Create a spider or radar plot with individual axes.
   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
 
 ## Author:
-  Moses Yoo, (jyoo at jyoo dot com)
+  Moses Yoo, (jyoo at hatci dot com)
   
   2019-09-17: Major revision and overhaul to improve speed and clarity
 
