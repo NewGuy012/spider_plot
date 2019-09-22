@@ -62,7 +62,7 @@ function spider_plot(P, varargin)
 %   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
 %
 % Author:
-%   Moses Yoo, (jyoo at jyoo dot com)
+%   Moses Yoo, (jyoo at hatci dot com)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
