@@ -290,7 +290,7 @@ end
 
 %%% Labels %%%
 % Shift axis label
-shift_pos = 0.1;
+shift_pos = 0.13;
 
 % Iterate through number of data points
 for ii = 1:num_data_points
