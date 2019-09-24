@@ -234,6 +234,7 @@ for ii = 1:length(theta)-1
     
     % Plot
     plot(x_axes, y_axes,...
+        'LineWidth', 1.5,...
         'Color', grey);
     
     % Check if axes_labels is empty
