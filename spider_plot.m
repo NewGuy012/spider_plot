@@ -152,7 +152,7 @@ if ~ischar(axes_precision)
 else
     % Check if axes precision is valid string entry
     if ~strcmp(axes_precision, 'none')
-        error('Error: Invalid axes precision entry. Please enter in "none" to remove axes precision.');
+        error('Error: Invalid axes precision entry. Please enter in "none" to remove axes text.');
     end
 end
 
