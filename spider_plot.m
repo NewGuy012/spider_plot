@@ -270,7 +270,7 @@ end
 
 %%% Plot %%%
 % Iterate through number of data groups
-for ii = 1:num_data_groups
+for ii = num_data_groups:-1:1
     % Convert polar to cartesian coordinates
     [x_points, y_points] = pol2cart(theta(1:end-1), P_scaled(ii, :));
     
