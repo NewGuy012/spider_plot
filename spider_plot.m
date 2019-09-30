@@ -176,7 +176,7 @@ colors = [0, 0.4470, 0.7410;...
     0.3010, 0.7450, 0.9330;...
     0.6350, 0.0780, 0.1840];
 
-% Repeat colors is necessary
+% Repeat colors as necessary
 repeat_colors = fix(num_data_points/size(colors, 1))+1;
 colors = repmat(colors, repeat_colors, 1);
 
