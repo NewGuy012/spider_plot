@@ -190,6 +190,11 @@ if ~ismember(fill_option, {'off', 'on'})
     error('Error: Please enter either "off" or "on" for fill option.');
 end
 
+% Check if fill transparency is valid
+if fill_transparency < 0 || fill_transparency > 1
+    error('Error: Please enter a transparency value between [0, 1].');
+end
+
 %%% Figure Properties %%%
 % Figure background
 fig = figure;
