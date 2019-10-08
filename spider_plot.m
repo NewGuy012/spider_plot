@@ -54,7 +54,8 @@ function spider_plot(P, varargin)
 %                arguments are set to their default values.
 %
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
-%   spider_plot(P, 'AxesLimits', axes_limits);
+%   spider_plot(P,...
+%       'AxesLimits', axes_limits);
 % 
 %   % Example 3: Set fill option on.
 %
