@@ -66,7 +66,7 @@ Create a spider or radar plot with individual axes.
   
       'AxesLimits', axes_limits);
 
-  ### Example 3: Set fill option on.
+  ### Example 3: Set fill option on. The fill transparency can be adjusted.
 
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
   
