@@ -3,34 +3,45 @@ function spider_plot(P, varargin)
 %
 % Syntax:
 %   spider_plot(P)
-%   spider_plot(P, axes_labels)
-%   spider_plot(P, axes_labels, axes_interval)
-%   spider_plot(P, axes_labels, axes_interval, axes_precision)
-%   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits)
-%   spider_plot(P, [], [], [], axes_limits);
+%   spider_plot(___, Name, Value)
 %
 % Input Arguments:
 %   (Required)
-%   P              - The data points used to plot the spider chart. The
-%                    rows are the groups of data and the columns are the
-%                    data points. [vector | matrix]
+%   P                - The data points used to plot the spider chart. The
+%                      rows are the groups of data and the columns are the
+%                      data points. The axes labels and axes limits are
+%                      automatically generated if not specified.
+%                      [vector | matrix]
 %
+% Name-Value Pair Arguments:
 %   (Optional)
-%   axes_labels    - Used to label each of the axes. [cell of strings]
-%   axes_interval  - Used to change the number of intervals displayed
-%                    between the webs. [integer]
-%   axes_precision - Used to change the precision level on the value
-%                    displayed on the axes. Enter in 'none' to remove
-%                    axes text. [integer or char]
-%   axes_limits    - Used to manually set the axes limits. A matrix of
-%                    2 x size(P, 2). The top row is the minimum axes limits
-%                    and the bottow row are the maximum axes limits. [matrix]
+%   AxesLabels       - Used to specify the label each of the axes.
+%                      [cell of strings]
 %
-%   To input use default value for optional arguments, specify as empty [].
+%   AxesInterval     - Used to change the number of intervals displayed
+%                      between the webs. Set to 3 by default.
+%                      [integer]
+%
+%   AxesPrecision    - Used to change the precision level on the value
+%                      displayed on the axes. Enter in 'none' to remove
+%                      axes text. Set to 1 by default.
+%                      [integer | 'none']
+%
+%   AxesLimits       - Used to manually set the axes limits. A matrix of
+%                      2 x size(P, 2). The top row is the minimum axes
+%                      limits and the bottow row are the maximum axes limits.
+%                      [matrix]
+%
+%   FillOption       - Used to toggle color fill option. Set off by default.
+%                      ['on' | 'off']
+%
+%   FillTransparency - Used to set color fill transparency. Set to 0.1 by default.
+%                      [scalar in range (0, 1)]
 %
 % Examples:
-%   % Example 1: Minimal number of arguments. Optional arguments are set to
-%                the default values. Axes limits are automatically set.
+%   % Example 1: Minimal number of arguments. All optional arguments are
+%                set to their default values. Axes labels and limits are
+%                automatically set.
 %
 %   D1 = [5 3 9 1 2];   % Initialize data points
 %   D2 = [5 8 7 2 9];
@@ -39,30 +50,45 @@ function spider_plot(P, varargin)
 %   spider_plot(P);
 %   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 % 
-%   % Example 2: Manually setting the axes limits. Other optional arguments
-%                are set to the default values.
+%   % Example 2: Manually setting the axes limits. All other optional
+%                arguments are set to their default values.
 %
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
-%   spider_plot(P, [], [] ,[], axes_limits);
+%   spider_plot(P, 'AxesLimits', axes_limits);
 % 
-%   % Example 3: Partial number of arguments. Non-specified optional
-%                arguments are set to the default values.
+%   % Example 3: Set fill option on.
 %
 %   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   axes_interval = 2;
-%   spider_plot(P, axes_labels, axes_interval);
+%   fill_option = 'on';
+%   fill_transparency = 0.1;
+%   spider_plot(P,...
+%       'AxesLabels', axes_labels,...
+%       'AxesInterval', axes_interval,...
+%       'FillOption', fill_option,...
+%       'FillTransparency', fill_transparency);
 % 
 %   % Example 4: Maximum number of arguments.
 %
 %   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   axes_interval = 4;
 %   axes_precision = 'none';
-%   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; 
-%   spider_plot(P, axes_labels, axes_interval, axes_precision, axes_limits);
-%
+%   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
+%   fill_option = 'on';
+%   fill_transparency = 0.2;
+%   spider_plot(P,...
+%       'AxesLabels', axes_labels,...
+%       'AxesInterval', axes_interval,...
+%       'AxesPrecision', axes_precision,...
+%       'AxesLimits', axes_limits,...
+%       'FillOption', fill_option,...
+%       'FillTransparency', fill_transparency);
+% 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
+%   2019-10-08: Another major revision to convert to name-value pairs and
+%               add color fill option.
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade & Andrés Garcia for their
@@ -75,53 +101,55 @@ function spider_plot(P, varargin)
 % Number of optional arguments
 numvarargs = length(varargin);
 
-% Check if optional arguments are greater than 4
-if numvarargs > 4
-    error('Error: Too many inputs. Can handle up to 4 optional inputs');
+% Check for even number of name-value pair argments
+if mod(numvarargs, 2) == 1
+    error('Error: Please check name-value pair arguments');
 end
 
 % Create default labels
-default_labels = cell(1, num_data_points);
+axes_labels = cell(1, num_data_points);
 
 % Iterate through number of data points
 for ii = 1:num_data_points
     % Default axes labels
-    default_labels{ii} = sprintf('Label %i', ii);
+    axes_labels{ii} = sprintf('Label %i', ii);
 end
 
 % Default arguments
-default_interval = 3;
-default_precision = 1;
-default_limits = [];
-default_args = cell(1, 4);
-default_args(1:numvarargs) = varargin;
+axes_interval = 3;
+axes_precision = 1;
+axes_limits = [];
+fill_option = 'off';
+fill_transparency = 0.2;
 
-% Check if first optional argument is empty
-if isempty(default_args{1})
-    % Set to default value
-    default_args{1} = default_labels;
+% Check if optional arguments were specified
+if numvarargs > 1
+    % Initialze name-value arguments
+    name_arguments = varargin(1:2:end);
+    value_arguments = varargin(2:2:end);
+    
+    % Iterate through name-value arguments
+    for ii = 1:length(name_arguments)
+        % Set value arguments depending on name
+        switch lower(name_arguments{ii})
+            case 'axeslabels'
+                axes_labels = value_arguments{ii};
+            case 'axesinterval'
+                axes_interval = value_arguments{ii};
+            case 'axesprecision'
+                axes_precision = value_arguments{ii};
+            case 'axeslimits'
+                axes_limits = value_arguments{ii};
+            case 'filloption'
+                fill_option = value_arguments{ii};
+            case 'filltransparency'
+                fill_transparency = value_arguments{ii};
+            otherwise
+                error('Error: Please enter in a valid name-value pair.');
+        end
+    end
+    
 end
-
-% Check if second optional argument is empty
-if isempty(default_args{2})
-    % Set to default value
-    default_args{2} = default_interval;
-end
-
-% Check if third optional argument is empty
-if isempty(default_args{3})
-    % Set to default value
-    default_args{3} = default_precision;
-end
-
-% Check if fourth optional argument is empty
-if isempty(default_args{4})
-    % Set to default value
-    default_args{4} = default_limits;
-end
-
-% Initialize variables
-[axes_labels, axes_interval, axes_precision, axes_limits] = default_args{:};
 
 %%% Error Check %%%
 % Check if the axes labels are the same number as the number of points
@@ -154,6 +182,11 @@ else
     if ~strcmp(axes_precision, 'none')
         error('Error: Invalid axes precision entry. Please enter in "none" to remove axes text.');
     end
+end
+
+% Check if not a valid fill option arguement
+if ~ismember(fill_option, {'off', 'on'})
+    error('Error: Please enter either "off" or "on" for fill option.');
 end
 
 %%% Figure Properties %%%
@@ -285,7 +318,17 @@ for ii = num_data_groups:-1:1
         'LineWidth', 2,...
         'MarkerSize', 8,...
         'MarkerFaceColor', colors(ii, :));
+    
+    % Change stack order to bottom
     uistack(h, 'bottom');
+    
+    % Check if fill option is toggled on
+    if strcmp(fill_option, 'on')
+        % Fill area within polygon
+        patch(x_circular, y_circular, colors(ii, :),...
+            'EdgeColor', colors(ii, :),...
+            'FaceAlpha', fill_transparency);
+    end
 end
 
 %%% Labels %%%
