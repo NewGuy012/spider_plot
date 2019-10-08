@@ -9,6 +9,7 @@ Create a spider or radar plot with individual axes.
 
 ## Input Arguments:
   (Required)
+  
   P                - The data points used to plot the spider chart. The
                      rows are the groups of data and the columns are the
                      data points. The axes labels and axes limits are
@@ -17,6 +18,7 @@ Create a spider or radar plot with individual axes.
 
 ## Name-Value Pair Arguments:
   (Optional)
+  
   AxesLabels       - Used to specify the label each of the axes.
                      [cell of strings]
 
