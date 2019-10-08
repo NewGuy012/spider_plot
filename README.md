@@ -20,12 +20,10 @@ Create a spider or radar plot with individual axes.
   (Optional)
   
   AxesLabels       - Used to specify the label each of the axes.
-  
                      [cell of strings]
 
   AxesInterval     - Used to change the number of intervals displayed
                      between the webs. Set to 3 by default.
-                     
                      [integer]
 
   AxesPrecision    - Used to change the precision level on the value
