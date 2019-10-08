@@ -39,9 +39,9 @@ function spider_plot(P, varargin)
 %                      [scalar in range (0, 1)]
 %
 % Examples:
-%   % Example 1: Minimal number of arguments. All optional arguments are
-%                set to their default values. Axes labels and limits are
-%                automatically set.
+%   % Example 1: Minimal number of arguments. All non-specified, optional
+%                arguments are set to their default values. Axes labels
+%                and limits are automatically set.
 %
 %   D1 = [5 3 9 1 2];   % Initialize data points
 %   D2 = [5 8 7 2 9];
@@ -50,8 +50,8 @@ function spider_plot(P, varargin)
 %   spider_plot(P);
 %   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 % 
-%   % Example 2: Manually setting the axes limits. All other optional
-%                arguments are set to their default values.
+%   % Example 2: Manually setting the axes limits. All non-specified,
+%                optional arguments are set to their default values.
 %
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
 %   spider_plot(P,...
