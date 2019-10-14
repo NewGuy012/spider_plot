@@ -29,7 +29,7 @@ function spider_plot(P, varargin)
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
-%                      limits and the bottow row are the maximum axes limits.
+%                      limits and the bottow row is the maximum axes limits.
 %                      [matrix]
 %
 %   FillOption       - Used to toggle color fill option. Set off by default.
