@@ -41,6 +41,24 @@ Create a spider or radar plot with individual axes.
 
   FillTransparency - Used to set color fill transparency. Set to 0.1 by default.
                      [scalar in range (0, 1)]
+                     
+  Color            - Used to specify the line color, specified as an RGB
+                     triplet. The intensities must be in the range (0, 1).
+                     [MATLAB colors (default) | RGB triplet]
+
+  LineStyle        - Used to change the line style of the plots.
+                     ['-' (default) | '--' | ':' | '-.' | 'none']
+
+  LineWidth        - Used to change the line width, where 1 point is 
+                     1/72 of an inch.
+                     [0.5 (default) | positive value]
+
+  Marker           - Used to change the marker symbol of the plots.
+                     ['o' (default) | 'none' | '*' | 's' | 'd' | ...
+
+  MarkerSize       - Used to change the marker size, where 1 point is
+                     1/72 of an inch.
+                     [8 (default) | positive value]
 
   
 ## Examples:
@@ -100,6 +118,16 @@ Create a spider or radar plot with individual axes.
   
   fill_transparency = 0.2;
   
+  colors = [1, 0, 0; 0, 1, 0; 0, 0, 1];
+  
+  line_style = '--';
+  
+  line_width = 3;
+  
+  marker_type = 'd';
+  
+  marker_size = 10;
+  
   spider_plot(P,...
   
       'AxesLabels', axes_labels,...
@@ -112,8 +140,17 @@ Create a spider or radar plot with individual axes.
       
       'FillOption', fill_option,...
       
-      'FillTransparency', fill_transparency);
-
+      'FillTransparency', fill_transparency,...
+      
+      'Color', colors,...
+      
+      'LineStyle', line_style,...
+      
+      'LineWidth', line_width,...
+      
+      'Marker', marker_type,...
+      
+      'MarkerSize', marker_size);
 
 ## Author:
   Moses Yoo, (jyoo at hatci dot com)
