@@ -16,32 +16,50 @@ function spider_plot(P, varargin)
 % Name-Value Pair Arguments:
 %   (Optional)
 %   AxesLabels       - Used to specify the label each of the axes.
-%                      [cell of strings]
+%                      [auto-generated (default) | cell of strings]
 %
 %   AxesInterval     - Used to change the number of intervals displayed
-%                      between the webs. Set to 3 by default.
-%                      [integer]
+%                      between the webs.
+%                      [3 (default) | integer]
 %
 %   AxesPrecision    - Used to change the precision level on the value
 %                      displayed on the axes. Enter in 'none' to remove
-%                      axes text. Set to 1 by default.
-%                      [integer | 'none']
+%                      axes text.
+%                      [1 (default) | integer | 'none']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
 %                      limits and the bottow row is the maximum axes limits.
-%                      [matrix]
+%                      [auto-scaled (default) | matrix]
 %
-%   FillOption       - Used to toggle color fill option. Set off by default.
-%                      ['on' | 'off']
+%   FillOption       - Used to toggle color fill option.
+%                      ['off' (default) | 'on']
 %
-%   FillTransparency - Used to set color fill transparency. Set to 0.1 by default.
-%                      [scalar in range (0, 1)]
+%   FillTransparency - Used to set color fill transparency.
+%                      [0.1 (default) | scalar in range (0, 1)]
+%
+%   Color            - Used to specify the line color, specified as an RGB
+%                      triplet. The intensities must be in the range (0, 1).
+%                      [MATLAB colors (default) | RGB triplet]
+%
+%   LineStyle        - Used to change the line style of the plots.
+%                      ['-' (default) | '--' | ':' | '-.' | 'none']
+%
+%   LineWidth        - Used to change the line width, where 1 point is 
+%                      1/72 of an inch.
+%                      [0.5 (default) | positive value]
+%
+%   Marker           - Used to change the marker symbol of the plots.
+%                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...
+%
+%   MarkerSize       - Used to change the marker size, where 1 point is
+%                      1/72 of an inch.
+%                      [8 (default) | positive value]
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
-%                and limits are automatically set.
+%                and limits are automatically generated and set.
 %
 %   D1 = [5 3 9 1 2];   % Initialize data points
 %   D2 = [5 8 7 2 9];
@@ -77,16 +95,28 @@ function spider_plot(P, varargin)
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
 %   fill_option = 'on';
 %   fill_transparency = 0.2;
+%   colors = [1, 0, 0; 0, 1, 0; 0, 0, 1];
+%   line_style = '--';
+%   line_width = 3;
+%   marker_type = 'd';
+%   marker_size = 10;
 %   spider_plot(P,...
 %       'AxesLabels', axes_labels,...
 %       'AxesInterval', axes_interval,...
 %       'AxesPrecision', axes_precision,...
 %       'AxesLimits', axes_limits,...
 %       'FillOption', fill_option,...
-%       'FillTransparency', fill_transparency);
+%       'FillTransparency', fill_transparency,...
+%       'Color', colors,...
+%       'LineStyle', line_style,...
+%       'LineWidth', line_width,...
+%       'Marker', marker_type,...
+%       'MarkerSize', marker_size);
 % 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2019-10-16: Minor revision to add name-value pairs for customizing
+%               color, marker, and line settings.
 %   2019-10-08: Another major revision to convert to name-value pairs and
 %               add color fill option.
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
@@ -122,6 +152,17 @@ axes_precision = 1;
 axes_limits = [];
 fill_option = 'off';
 fill_transparency = 0.2;
+colors = [0, 0.4470, 0.7410;...
+    0.8500, 0.3250, 0.0980;...
+    0.9290, 0.6940, 0.1250;...
+    0.4940, 0.1840, 0.5560;...
+    0.4660, 0.6740, 0.1880;...
+    0.3010, 0.7450, 0.9330;...
+    0.6350, 0.0780, 0.1840];
+line_style = '-';
+line_width = 2;
+marker_type = 'o';
+marker_size = 8;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -145,6 +186,16 @@ if numvarargs > 1
                 fill_option = value_arguments{ii};
             case 'filltransparency'
                 fill_transparency = value_arguments{ii};
+            case 'color'
+                colors = value_arguments{ii};
+            case 'linestyle'
+                line_style = value_arguments{ii};
+            case 'linewidth'
+                line_width = value_arguments{ii};
+            case 'marker'
+                marker_type = value_arguments{ii};
+            case 'markersize'
+                marker_size = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -207,13 +258,6 @@ axis off;
 
 % Plot colors
 grey = [0.5, 0.5, 0.5];
-colors = [0, 0.4470, 0.7410;...
-    0.8500, 0.3250, 0.0980;...
-    0.9290, 0.6940, 0.1250;...
-    0.4940, 0.1840, 0.5560;...
-    0.4660, 0.6740, 0.1880;...
-    0.3010, 0.7450, 0.9330;...
-    0.6350, 0.0780, 0.1840];
 
 % Repeat colors as necessary
 repeat_colors = fix(num_data_points/size(colors, 1))+1;
@@ -319,10 +363,11 @@ for ii = num_data_groups:-1:1
     
     % Plot data points
     h = plot(x_circular, y_circular,...
-        '-o',...
+        'LineStyle', line_style,...
+        'Marker', marker_type,...
         'Color', colors(ii, :),...
-        'LineWidth', 2,...
-        'MarkerSize', 8,...
+        'LineWidth', line_width,...
+        'MarkerSize', marker_size,...
         'MarkerFaceColor', colors(ii, :));
     
     % Change stack order to bottom
