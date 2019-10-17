@@ -37,7 +37,7 @@ Create a spider or radar plot with individual axes.
                      [auto-scaled (default) | matrix]
 
   FillOption       - Used to toggle color fill option.
-                     ['off' (default) | 'off']
+                     ['off' (default) | 'on']
 
   FillTransparency - Used to set color fill transparency.
                      [0.1 (default) | scalar in range (0, 1)]
