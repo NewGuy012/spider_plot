@@ -20,7 +20,7 @@ Create a spider or radar plot with individual axes.
   (Optional)
   
   AxesLabels       - Used to specify the label each of the axes.
-                     [cell of strings]
+                     [cell of strings | 'none']
 
   AxesInterval     - Used to change the number of intervals displayed
                      between the webs. Set to 3 by default.
@@ -59,8 +59,11 @@ Create a spider or radar plot with individual axes.
   MarkerSize       - Used to change the marker size, where 1 point is
                      1/72 of an inch.
                      [8 (default) | positive value]
+                     
+  FontSize         - Used to change the font size of the labels and
+                     values displayed on the axes.
+                     [scalar value greater than zero]
 
-  
 ## Examples:
   ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
 
@@ -128,6 +131,8 @@ Create a spider or radar plot with individual axes.
   
   marker_size = 10;
   
+  font_size = 12;
+  
   spider_plot(P,...
   
       'AxesLabels', axes_labels,...
@@ -150,7 +155,9 @@ Create a spider or radar plot with individual axes.
       
       'Marker', marker_type,...
       
-      'MarkerSize', marker_size);
+      'MarkerSize', marker_size,...
+      
+      'FontSize', font_size);
 
 ## Author:
   Moses Yoo, (jyoo at hatci dot com)
