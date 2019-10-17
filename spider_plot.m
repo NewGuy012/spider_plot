@@ -16,7 +16,7 @@ function spider_plot(P, varargin)
 % Name-Value Pair Arguments:
 %   (Optional)
 %   AxesLabels       - Used to specify the label each of the axes.
-%                      [auto-generated (default) | cell of strings]
+%                      [auto-generated (default) | cell of strings | 'none']
 %
 %   AxesInterval     - Used to change the number of intervals displayed
 %                      between the webs.
@@ -55,6 +55,10 @@ function spider_plot(P, varargin)
 %   MarkerSize       - Used to change the marker size, where 1 point is
 %                      1/72 of an inch.
 %                      [8 (default) | positive value]
+%
+%   FontSize         - Used to change the font size of the labels and
+%                      values displayed on the axes.
+%                      [10 (default) | scalar value greater than zero]
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -100,6 +104,7 @@ function spider_plot(P, varargin)
 %   line_width = 3;
 %   marker_type = 'd';
 %   marker_size = 10;
+%   font_size = 12;
 %   spider_plot(P,...
 %       'AxesLabels', axes_labels,...
 %       'AxesInterval', axes_interval,...
@@ -111,7 +116,8 @@ function spider_plot(P, varargin)
 %       'LineStyle', line_style,...
 %       'LineWidth', line_width,...
 %       'Marker', marker_type,...
-%       'MarkerSize', marker_size);
+%       'MarkerSize', marker_size,...
+%       'FontSize', font_size);
 % 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
@@ -163,6 +169,7 @@ line_style = '-';
 line_width = 2;
 marker_type = 'o';
 marker_size = 8;
+font_size = 10;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -196,6 +203,8 @@ if numvarargs > 1
                 marker_type = value_arguments{ii};
             case 'markersize'
                 marker_size = value_arguments{ii};
+            case 'fontsize'
+                font_size = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -204,9 +213,17 @@ if numvarargs > 1
 end
 
 %%% Error Check %%%
-% Check if the axes labels are the same number as the number of points
-if length(axes_labels) ~= num_data_points
-    error('Error: Please make sure the number of labels is the same as the number of points.');
+% Check if axes labels is a cell
+if iscell(axes_labels)
+    % Check if the axes labels are the same number as the number of points
+    if length(axes_labels) ~= num_data_points
+        error('Error: Please make sure the number of labels is the same as the number of points.');
+    end
+else
+    % Check if valid string entry
+    if ~strcmp(axes_labels, 'none')
+        error('Error: Please enter in valid labels or "none" to remove labels.');
+    end
 end
 
 % Check if axes limits is not empty
@@ -244,6 +261,11 @@ end
 % Check if fill transparency is valid
 if fill_transparency < 0 || fill_transparency > 1
     error('Error: Please enter a transparency value between [0, 1].');
+end
+
+% Check if font size is greater than zero
+if font_size <= 0
+    error('Error: Please enter a font size greater than zero.');
 end
 
 %%% Figure Properties %%%
@@ -320,7 +342,7 @@ for ii = 1:length(theta)-1
         'LineWidth', 1.5,...
         'Color', grey);
     
-    % Check if axes_labels is empty
+    % Check precision argument
     if ~strcmp(axes_precision, 'none')
         % Iterate through points on isocurve
         for jj = 2:length(rho)
@@ -334,7 +356,7 @@ for ii = 1:length(theta)-1
             text(x_axes(jj), y_axes(jj), text_str,...
                 'Units', 'Data',...
                 'Color', 'k',...
-                'FontSize', 10,...
+                'FontSize', font_size,...
                 'HorizontalAlignment', 'center',...
                 'VerticalAlignment', 'middle');
         end
@@ -386,81 +408,85 @@ end
 % Shift axis label
 shift_pos = 0.13;
 
-% Iterate through number of data points
-for ii = 1:num_data_points
-    % Angle of point in radians
-    theta_point = theta(ii);
-    
-    % Find out which quadrant the point is in
-    if theta_point == 0
-        quadrant = 0;
-    elseif theta_point == pi/2
-        quadrant = 1.5;
-    elseif theta_point == pi
-        quadrant = 2.5;
-    elseif theta_point == 3*pi/2
-        quadrant = 3.5;
-    elseif theta_point == 2*pi
-        quadrant = 0;
-    elseif theta_point > 0 && theta_point < pi/2
-        quadrant = 1;
-    elseif theta_point > pi/2 && theta_point < pi
-        quadrant = 2;
-    elseif theta_point > pi && theta_point < 3*pi/2
-        quadrant = 3;
-    elseif theta_point > 3*pi/2 && theta_point < 2*pi
-        quadrant = 4;
+% Check labels argument
+if ~strcmp(axes_labels, 'none')
+    % Iterate through number of data points
+    for ii = 1:num_data_points
+        % Angle of point in radians
+        theta_point = theta(ii);
+        
+        % Find out which quadrant the point is in
+        if theta_point == 0
+            quadrant = 0;
+        elseif theta_point == pi/2
+            quadrant = 1.5;
+        elseif theta_point == pi
+            quadrant = 2.5;
+        elseif theta_point == 3*pi/2
+            quadrant = 3.5;
+        elseif theta_point == 2*pi
+            quadrant = 0;
+        elseif theta_point > 0 && theta_point < pi/2
+            quadrant = 1;
+        elseif theta_point > pi/2 && theta_point < pi
+            quadrant = 2;
+        elseif theta_point > pi && theta_point < 3*pi/2
+            quadrant = 3;
+        elseif theta_point > 3*pi/2 && theta_point < 2*pi
+            quadrant = 4;
+        end
+        
+        % Adjust label alignment depending on quadrant
+        switch quadrant
+            case 0
+                horz_align = 'left';
+                vert_align = 'middle';
+                x_pos = shift_pos;
+                y_pos = 0;
+            case 1
+                horz_align = 'left';
+                vert_align = 'bottom';
+                x_pos = shift_pos;
+                y_pos = shift_pos;
+            case 1.5
+                horz_align = 'center';
+                vert_align = 'bottom';
+                x_pos = 0;
+                y_pos = shift_pos;
+            case 2
+                horz_align = 'right';
+                vert_align = 'bottom';
+                x_pos = -shift_pos;
+                y_pos = shift_pos;
+            case 2.5
+                horz_align = 'right';
+                vert_align = 'middle';
+                x_pos = -shift_pos;
+                y_pos = 0;
+            case 3
+                horz_align = 'right';
+                vert_align = 'top';
+                x_pos = -shift_pos;
+                y_pos = -shift_pos;
+            case 3.5
+                horz_align = 'center';
+                vert_align = 'top';
+                x_pos = 0;
+                y_pos = -shift_pos;
+            case 4
+                horz_align = 'left';
+                vert_align = 'top';
+                x_pos = shift_pos;
+                y_pos = -shift_pos;
+        end
+        
+        % Display text label
+        text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, axes_labels{ii},...
+            'Units', 'Data',...
+            'HorizontalAlignment', horz_align,...
+            'VerticalAlignment', vert_align,...
+            'EdgeColor', 'k',...
+            'BackgroundColor', 'w',...
+            'FontSize', font_size);
     end
-    
-    % Adjust label alignment depending on quadrant
-    switch quadrant
-        case 0
-            horz_align = 'left';
-            vert_align = 'middle';
-            x_pos = shift_pos;
-            y_pos = 0;
-        case 1
-            horz_align = 'left';
-            vert_align = 'bottom';
-            x_pos = shift_pos;
-            y_pos = shift_pos;
-        case 1.5
-            horz_align = 'center';
-            vert_align = 'bottom';
-            x_pos = 0;
-            y_pos = shift_pos;
-        case 2
-            horz_align = 'right';
-            vert_align = 'bottom';
-            x_pos = -shift_pos;
-            y_pos = shift_pos;
-        case 2.5
-            horz_align = 'right';
-            vert_align = 'middle';
-            x_pos = -shift_pos;
-            y_pos = 0;
-        case 3
-            horz_align = 'right';
-            vert_align = 'top';
-            x_pos = -shift_pos;
-            y_pos = -shift_pos;
-        case 3.5
-            horz_align = 'center';
-            vert_align = 'top';
-            x_pos = 0;
-            y_pos = -shift_pos;
-        case 4
-            horz_align = 'left';
-            vert_align = 'top';
-            x_pos = shift_pos;
-            y_pos = -shift_pos;
-    end
-    
-    % Display text label
-    text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, axes_labels{ii},...
-        'Units', 'Data',...
-        'HorizontalAlignment', horz_align,...
-        'VerticalAlignment', vert_align,...
-        'EdgeColor', 'k',...
-        'BackgroundColor', 'w');
 end
