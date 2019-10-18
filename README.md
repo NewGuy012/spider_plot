@@ -66,7 +66,7 @@ Create a spider or radar plot with individual axes.
 
 ## Examples:
   ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
-'''
+```matlab
   D1 = [5 3 9 1 2];   % Initialize data points
   
   D2 = [5 8 7 2 9];
@@ -78,7 +78,7 @@ Create a spider or radar plot with individual axes.
   spider_plot(P);
   
   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
-  '''
+```
 
   ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 
