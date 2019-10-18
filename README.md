@@ -166,11 +166,11 @@ Create a spider or radar plot with individual axes.
 ## Author:
   Moses Yoo, (jyoo at hatci dot com)
   
-  2019-10-16: Minor revision to add name-value pairs for customizing color, marker, and line settings.
+  - 2019-10-16: Minor revision to add name-value pairs for customizing color, marker, and line settings.
   
-  2019-10-08: Another major revision to convert to name-value pairs and add color fill option.
+  - 2019-10-08: Another major revision to convert to name-value pairs and add color fill option.
   
-  2019-09-17: Major revision to improve speed, clarity, and functionality
+  - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
   Special thanks to Gabriela Andrade & Andrés Garcia for their feature recommendations and suggested bug fixes.
