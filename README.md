@@ -73,7 +73,9 @@ Create a spider or radar plot with individual axes.
   
   D3 = [8 2 1 4 6];
   
+  
   P = [D1; D2; D3];
+  
   
   spider_plot(P);
   
@@ -83,6 +85,7 @@ Create a spider or radar plot with individual axes.
   ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 ```matlab
   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
+  
   
   spider_plot(P,...
   
