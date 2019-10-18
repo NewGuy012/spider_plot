@@ -5,7 +5,7 @@ Create a spider or radar plot with individual axes.
 **spider_plot(P)**
   
 
-**spider_plot( ___, Name, Value)**
+**spider_plot( ___, *Name, Value*)**
 
 ## Input Arguments:
 *(Required)*
@@ -15,29 +15,38 @@ Create a spider or radar plot with individual axes.
 ## Name-Value Pair Arguments:
 *(Optional)*
   
-- **AxesLabels** - Used to specify the label each of the axes. [auto-generated (default) | cell of strings | 'none']
+- **AxesLabels**      - Used to specify the label each of the axes.
+                        [auto-generated (default) | cell of strings | 'none']
 
-- **AxesInterval**     - Used to change the number of intervals displayed between the webs. [3 (default) | integer]
+- **AxesInterval**     - Used to change the number of intervals displayed between the webs.
+                        [3 (default) | integer]
 
-- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text. [1 (default) | integer | 'none']
+- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text.                              [1 (default) | integer | 'none']
 
-- **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits. [auto-scaled (default) | matrix]
+- **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and                            the bottow row is the maximum axes limits.
+                         [auto-scaled (default) | matrix]
 
-- **FillOption**       - Used to toggle color fill option. ['off' (default) | 'on']
+- **FillOption**       - Used to toggle color fill option.
+                         ['off' (default) | 'on']
 
-- **FillTransparency** - Used to set color fill transparency. [0.1 (default) | scalar in range (0, 1)]
+- **FillTransparency** - Used to set color fill transparency.
+                         [0.1 (default) | scalar in range (0, 1)]
                      
-- **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1) [MATLAB colors (default) | RGB triplet]
+- **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).                                [MATLAB colors (default) | RGB triplet]
 
-- **LineStyle**        - Used to change the line style of the plots. ['-' (default) | '--' | ':' | '-.' | 'none']
+- **LineStyle**        - Used to change the line style of the plots.
+                         ['-' (default) | '--' | ':' | '-.' | 'none']
 
-- **LineWidth**        - Used to change the line width, where 1 point is  1/72 of an inch. [0.5 (default) | positive value]
+- **LineWidth**        - Used to change the line width, where 1 point is  1/72 of an inch.
+                         [0.5 (default) | positive value]
 
-- **Marker**           - Used to change the marker symbol of the plots. ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
+- **Marker**           - Used to change the marker symbol of the plots.
+                         ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
 
-- **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch. [8 (default) | positive value]
+- **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
+                         [8 (default) | positive value]
                      
-- **FontSize**         - Used to change the font size of the labels and values displayed on the axes. [10 (default) | scalar value greater than zero]
+- **FontSize**         - Used to change the font size of the labels and values displayed on the axes.                                                            [10 (default) | scalar value greater than zero]
 
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
