@@ -81,15 +81,16 @@ Create a spider or radar plot with individual axes.
 ```
 
   ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
-
+```matlab
   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
   
   spider_plot(P,...
   
       'AxesLimits', axes_limits);
+```
 
   ### Example 3: Set fill option on. The fill transparency can be adjusted.
-
+```matlab
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
   
   axes_interval = 2;
@@ -107,9 +108,10 @@ Create a spider or radar plot with individual axes.
       'FillOption', fill_option,...
       
       'FillTransparency', fill_transparency);
+```
 
   ### Example 4: Maximum number of arguments.
-
+```matlab
   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
   
   axes_interval = 4;
@@ -159,6 +161,7 @@ Create a spider or radar plot with individual axes.
       'MarkerSize', marker_size,...
       
       'FontSize', font_size);
+```
 
 ## Author:
   Moses Yoo, (jyoo at hatci dot com)
