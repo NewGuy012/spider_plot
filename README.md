@@ -8,7 +8,7 @@ Create a spider or radar plot with individual axes.
   **spider_plot( ___, Name, Value)**
 
 ## Input Arguments:
-  (Required)
+  *(Required)*
   
   **P**                - The data points used to plot the spider chart. The
                      rows are the groups of data and the columns are the
@@ -17,7 +17,7 @@ Create a spider or radar plot with individual axes.
                      [vector | matrix]
 
 ## Name-Value Pair Arguments:
-  (Optional)
+  *(Optional)*
   
   - **AxesLabels**       - Used to specify the label each of the axes.
                      [auto-generated (default) | cell of strings | 'none']
