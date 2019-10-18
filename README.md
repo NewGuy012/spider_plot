@@ -10,16 +10,18 @@ Create a spider or radar plot with individual axes.
 ## Input Arguments:
 *(Required)*
 
-**P** - The data points used to plot the spider chart. The rows are the groups of data and the columns are the data points. The axes labels and axes limits are automatically generated if not specified. [vector | matrix]
+- **P** - The data points used to plot the spider chart. The rows are the groups of data and the columns are the data points.
+          The axes labels and axes limits are automatically generated if not specified.
+          [vector | matrix]
 
 ## Name-Value Pair Arguments:
 *(Optional)*
   
-- **AxesLabels**      - Used to specify the label each of the axes.
-                        [auto-generated (default) | cell of strings | 'none']
+- **AxesLabels**       - Used to specify the label each of the axes.
+                         [auto-generated (default) | cell of strings | 'none']
 
 - **AxesInterval**     - Used to change the number of intervals displayed between the webs.
-                        [3 (default) | integer]
+                         [3 (default) | integer]
 
 - **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text.                              [1 (default) | integer | 'none']
 
