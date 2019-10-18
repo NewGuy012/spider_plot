@@ -78,6 +78,7 @@ Create a spider or radar plot with individual axes.
   
   spider_plot(P);
   
+  
   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ```
 
