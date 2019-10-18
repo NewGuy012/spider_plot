@@ -73,7 +73,6 @@ Create a spider or radar plot with individual axes.
   
   D3 = [8 2 1 4 6];
   
-  
   P = [D1; D2; D3];
   
   
@@ -101,6 +100,7 @@ Create a spider or radar plot with individual axes.
   fill_option = 'on';
   
   fill_transparency = 0.1;
+  
   
   spider_plot(P,...
   
@@ -138,6 +138,7 @@ Create a spider or radar plot with individual axes.
   marker_size = 10;
   
   font_size = 12;
+  
   
   spider_plot(P,...
   
