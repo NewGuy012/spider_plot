@@ -43,7 +43,7 @@ Create a spider or radar plot with individual axes.
                          [0.5 (default) | positive value]
 
 - **Marker**           - Used to change the marker symbol of the plots.
-                         ['o' (default) | 'none' | '*' | 's' | 'd' | '+' | '.' | 'x' | '^' | 'v' | '>' | '<' | 'h']
+                         ['o' (default) | 'none' | '*' | 's' | 'd' | '+' | '.' | 'x' | '^' | 'v' | 'h']
 
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
                          [8 (default) | positive value]
