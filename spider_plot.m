@@ -24,8 +24,8 @@ function spider_plot(P, varargin)
 %
 %   AxesPrecision    - Used to change the precision level on the value
 %                      displayed on the axes. Enter in 'none' to remove
-%                      axes text.
-%                      [1 (default) | integer | 'none']
+%                      axes text or 'one' to display text on only one axes.
+%                      [1 (default) | integer | 'none' | 'one']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
@@ -56,8 +56,11 @@ function spider_plot(P, varargin)
 %                      1/72 of an inch.
 %                      [8 (default) | positive value]
 %
-%   FontSize         - Used to change the font size of the labels and
-%                      values displayed on the axes.
+%   AxesFontSize     - Used to change the font size of the values
+%                      displayed on the axes.
+%                      [10 (default) | scalar value greater than zero]
+%
+%   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
 %
 % Examples:
@@ -95,7 +98,7 @@ function spider_plot(P, varargin)
 %
 %   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   axes_interval = 4;
-%   axes_precision = 'none';
+%   axes_precision = 'one';
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
 %   fill_option = 'on';
 %   fill_transparency = 0.2;
@@ -104,7 +107,8 @@ function spider_plot(P, varargin)
 %   line_width = 3;
 %   marker_type = 'd';
 %   marker_size = 10;
-%   font_size = 12;
+%   axes_font_size = 12;
+%   label_font_size = 10;
 %   spider_plot(P,...
 %       'AxesLabels', axes_labels,...
 %       'AxesInterval', axes_interval,...
@@ -117,7 +121,8 @@ function spider_plot(P, varargin)
 %       'LineWidth', line_width,...
 %       'Marker', marker_type,...
 %       'MarkerSize', marker_size,...
-%       'FontSize', font_size);
+%       'AxesFontSize', axes_font_size,...
+%       'LabelFontSize', label_font_size);
 % 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
@@ -169,7 +174,8 @@ line_style = '-';
 line_width = 2;
 marker_type = 'o';
 marker_size = 8;
-font_size = 10;
+axes_font_size = 10;
+label_font_size = 10;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -203,8 +209,10 @@ if numvarargs > 1
                 marker_type = value_arguments{ii};
             case 'markersize'
                 marker_size = value_arguments{ii};
-            case 'fontsize'
-                font_size = value_arguments{ii};
+            case 'axesfontsize'
+                axes_font_size = value_arguments{ii};
+            case 'labelfontsize'
+                label_font_size = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -221,7 +229,7 @@ if iscell(axes_labels)
     end
 else
     % Check if valid string entry
-    if ~strcmp(axes_labels, 'none')
+    if ~contains(axes_labels, 'none')
         error('Error: Please enter in valid labels or "none" to remove labels.');
     end
 end
@@ -242,13 +250,13 @@ if ~ischar(axes_precision)
     end
     
     % Check if axes properties are positive
-    if axes_interval < 1 || axes_precision < 1
-        error('Error: Please enter value greater than one for the axes properties.');
+    if axes_interval < 1 || axes_precision < 0
+        error('Error: Please enter a positive for the axes properties.');
     end
     
 else
     % Check if axes precision is valid string entry
-    if ~strcmp(axes_precision, 'none')
+    if ~ismember(axes_precision, {'none', 'one'})
         error('Error: Invalid axes precision entry. Please enter in "none" to remove axes text.');
     end
 end
@@ -264,7 +272,7 @@ if fill_transparency < 0 || fill_transparency > 1
 end
 
 % Check if font size is greater than zero
-if font_size <= 0
+if axes_font_size <= 0 || label_font_size <= 0
     error('Error: Please enter a font size greater than zero.');
 end
 
@@ -330,7 +338,12 @@ end
 %%% Polar Axes %%%
 % Polar coordinates
 rho = 0:rho_increment:1;
-theta = 0:theta_increment:2*pi;
+
+% Shift by pi/2 to set starting axis the vertical line
+theta = (0:theta_increment:2*pi) + (pi/2);
+
+% Remainder after using a modulus of 2*pi
+theta = mod(theta, 2*pi);
 
 % Iterate through each theta
 for ii = 1:length(theta)-1
@@ -342,25 +355,60 @@ for ii = 1:length(theta)-1
         'LineWidth', 1.5,...
         'Color', grey);
     
-    % Check precision argument
+    % Check precision argument for 'none'
     if ~strcmp(axes_precision, 'none')
-        % Iterate through points on isocurve
-        for jj = 2:length(rho)
-            % Axes increment value
-            min_value = axes_range(1, ii);
-            range = axes_range(3, ii);
-            axes_value = min_value + (range/axes_interval) * (jj-2);
+        % Check precision argument for 'one'
+        if strcmp(axes_precision, 'one')
+            % Only iterate for one loop
+            if ii == 1
+                % Iterate through points on isocurve
+                for jj = 2:length(rho)
+                    % Axes increment value
+                    min_value = axes_range(1, ii);
+                    range = axes_range(3, ii);
+                    axes_value = min_value + (range/axes_interval) * (jj-2);
+                    
+                    % Text string
+                    text_str = sprintf('%i', axes_value);
+                    
+                    % Display axes text
+                    text(x_axes(jj), y_axes(jj), text_str,...
+                        'Units', 'Data',...
+                        'Color', 'k',...
+                        'FontSize', axes_font_size,...
+                        'HorizontalAlignment', 'center',...
+                        'VerticalAlignment', 'middle');
+                end
+            end
             
-            % Display axes text
-            text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
-            text(x_axes(jj), y_axes(jj), text_str,...
-                'Units', 'Data',...
-                'Color', 'k',...
-                'FontSize', font_size,...
-                'HorizontalAlignment', 'center',...
-                'VerticalAlignment', 'middle');
+        else
+            % Iterate through points on isocurve
+            for jj = 2:length(rho)
+                % Axes increment value
+                min_value = axes_range(1, ii);
+                range = axes_range(3, ii);
+                axes_value = min_value + (range/axes_interval) * (jj-2);
+                
+                % Check if axes precision equals zero
+                if axes_precision == 0
+                    % Text string
+                    text_str = sprintf('%i', axes_value);
+                else
+                    % Text string
+                    text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
+                end
+                
+                % Display axes text
+                text(x_axes(jj), y_axes(jj), text_str,...
+                    'Units', 'Data',...
+                    'Color', 'k',...
+                    'FontSize', axes_font_size,...
+                    'HorizontalAlignment', 'center',...
+                    'VerticalAlignment', 'middle');
+            end
         end
     end
+    
 end
 
 % Iterate through each rho
@@ -406,12 +454,12 @@ end
 
 %%% Labels %%%
 % Shift axis label
-shift_pos = 0.13;
+shift_pos = 0.1;
 
 % Check labels argument
 if ~strcmp(axes_labels, 'none')
     % Iterate through number of data points
-    for ii = 1:num_data_points
+    for ii = 1:length(axes_labels)
         % Angle of point in radians
         theta_point = theta(ii);
         
@@ -487,6 +535,6 @@ if ~strcmp(axes_labels, 'none')
             'VerticalAlignment', vert_align,...
             'EdgeColor', 'k',...
             'BackgroundColor', 'w',...
-            'FontSize', font_size);
+            'FontSize', label_font_size);
     end
 end
