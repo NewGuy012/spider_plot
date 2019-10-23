@@ -391,14 +391,8 @@ for ii = 1:length(theta)-1
                 range = axes_range(3, ii);
                 axes_value = min_value + (range/axes_interval) * (jj-2);
                 
-                % Check if axes precision equals zero
-                if axes_precision == 0
-                    % Text string
-                    text_str = sprintf('%i', axes_value);
-                else
-                    % Text string
-                    text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
-                end
+                % Text string
+                text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
                 
                 % Display axes text
                 text(x_axes(jj), y_axes(jj), text_str,...
