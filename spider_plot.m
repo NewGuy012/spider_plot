@@ -29,7 +29,7 @@ function spider_plot(P, varargin)
 %   AxesDisplay      - Used to change the number of axes in which the 
 %                      axes text are displayed. 'None' or 'one' can be used
 %                      to simplify the plot appearance for normalized data.
-%                      ['all' (default)| 'none' | 'one']
+%                      ['all' (default) | 'none' | 'one']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
