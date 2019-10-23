@@ -23,7 +23,8 @@ Create a spider or radar plot with individual axes.
 - **AxesInterval**     - Used to change the number of intervals displayed between the webs.
                          [3 (default) | integer]
 
-- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text.                              [1 (default) | integer | 'none']
+- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text or                            'one' to display text on only one axes.
+                         [1 (default) | integer | 'none' | 'one']
 
 - **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and                            the bottow row is the maximum axes limits.
                          [auto-scaled (default) | matrix]
@@ -34,7 +35,8 @@ Create a spider or radar plot with individual axes.
 - **FillTransparency** - Used to set color fill transparency.
                          [0.1 (default) | scalar in range (0, 1)]
                      
-- **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).                                [MATLAB colors (default) | RGB triplet]
+- **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
+                         [MATLAB colors (default) | RGB triplet]
 
 - **LineStyle**        - Used to change the line style of the plots.
                          ['-' (default) | '--' | ':' | '-.' | 'none']
@@ -48,7 +50,11 @@ Create a spider or radar plot with individual axes.
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
                          [8 (default) | positive value]
                      
-- **FontSize**         - Used to change the font size of the labels and values displayed on the axes.                                                            [10 (default) | scalar value greater than zero]
+- **AxesFontSize**     - Used to change the font size of the values displayed on the axes.
+                         [10 (default) | scalar value greater than zero]
+                         
+- **LabelFontSize**    - Used to change the font size of the labels.
+                         [10 (default) | scalar value greater than zero]
 
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
@@ -125,7 +131,10 @@ marker_type = 'd';
 marker_size = 10;
   
 font_size = 12;
-  
+
+axes_font_size = 12;
+
+label_font_size = 10;
   
 spider_plot(P,...
   
@@ -151,7 +160,9 @@ spider_plot(P,...
       
     'MarkerSize', marker_size,...
       
-    'FontSize', font_size);
+    'AxesFontSize', axes_font_size,...
+    
+    'LabelFontSize', label_font_size);
 ```
 
 ## Author:
