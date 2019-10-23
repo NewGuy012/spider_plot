@@ -167,6 +167,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+
+- 2019-10-26: Minor revision to set starting axes as the vertical line. Add customization option for font sizes.
   
 - 2019-10-16: Minor revision to add name-value pairs for customizing color, marker, and line settings.
   
