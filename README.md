@@ -23,8 +23,11 @@ Create a spider or radar plot with individual axes.
 - **AxesInterval**     - Used to change the number of intervals displayed between the webs.
                          [3 (default) | integer]
 
-- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes. Enter in 'none' to remove axes text or                            'one' to display text on only one axes.
-                         [1 (default) | integer | 'none' | 'one']
+- **AxesPrecision**    - Used to change the precision level on the value displayed on the axes.
+                         [1 (default) | integer]
+                         
+- **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify                          the plot appearance for normalized data.
+                         ['all' (default)| 'none' | 'one']
 
 - **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and                            the bottow row is the maximum axes limits.
                          [auto-scaled (default) | matrix]
@@ -112,7 +115,9 @@ axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
   
 axes_interval = 4;
   
-axes_precision = 'none';
+axes_precision = 0;
+
+axes_display = 'one'
   
 axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
   
@@ -144,6 +149,8 @@ spider_plot(P,...
       
     'AxesPrecision', axes_precision,...
     
+    'AxesDisplay', axes_display,...
+    
     'AxesLimits', axes_limits,...
       
     'FillOption', fill_option,...
@@ -168,7 +175,7 @@ spider_plot(P,...
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
 
-- 2019-10-26: Minor revision to set starting axes as the vertical line. Add customization option for font sizes.
+- 2019-10-26: Minor revision to set starting axes as the vertical line. Add customization option for font sizes and axes display.
   
 - 2019-10-16: Minor revision to add name-value pairs for customizing color, marker, and line settings.
   
