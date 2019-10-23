@@ -172,6 +172,67 @@ spider_plot(P,...
     'LabelFontSize', label_font_size);
 ```
 
+  ### Example 4: Maximum number of arguments.
+```matlab
+D1 = [5, 0, 3, 4, 4]; % Initialize data 
+
+D2 = [2, 1, 5, 5, 4];
+
+P = [D1; D2];
+
+axes_interval = 5; % Axes properties
+
+axes_precision = 0;
+
+axes_display = 'one';
+
+axes_limits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
+
+fill_option = 'on';
+
+fill_transparency = 0.1;
+
+colors = [139, 0, 0; 240, 128, 128]/255;
+
+line_width = 4;
+
+marker_type = 'none';
+
+axes_font_size = 14;
+
+label_font_size = 10;
+
+
+spider_plot(P,...
+    'AxesInterval', axes_interval,...
+    
+    'AxesPrecision', axes_precision,...
+    
+    'AxesDisplay', axes_display,...
+    
+    'AxesLimits', axes_limits,...
+    
+    'FillOption', fill_option,...
+    
+    'FillTransparency', fill_transparency,...
+    
+    'Color', colors,...
+    
+    'LineWidth', line_width,...
+    
+    'Marker', marker_type,...
+    
+    'AxesFontSize', axes_font_size,...
+    'LabelFontSize', label_font_size);
+
+title('Excel Radar Chart',... % Title and legend settings
+    'Units', 'normalized',...
+    'Position', [-0.2, 0.3, 0],...
+    'FontSize', 14);
+legend_str = {'D1', 'D2'};
+legend(legend_str, 'Location', 'southoutside');
+```
+
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
 
