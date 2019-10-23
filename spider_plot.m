@@ -353,9 +353,12 @@ for ii = 1:length(theta)-1
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
     
     % Plot
-    plot(x_axes, y_axes,...
+    h = plot(x_axes, y_axes,...
         'LineWidth', 1.5,...
         'Color', grey);
+    
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     
     % Check precision argument for 'none'
     if ~strcmp(axes_precision, 'none')
@@ -413,13 +416,16 @@ for ii = 2:length(rho)
     [x_axes, y_axes] = pol2cart(theta, rho(ii));
     
     % Plot
-    plot(x_axes, y_axes,...
+    h = plot(x_axes, y_axes,...
         'Color', grey);
+    
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
 
 %%% Plot %%%
 % Iterate through number of data groups
-for ii = num_data_groups:-1:1
+for ii = 1:num_data_groups
     % Convert polar to cartesian coordinates
     [x_points, y_points] = pol2cart(theta(1:end-1), P_scaled(ii, :));
     
@@ -428,7 +434,7 @@ for ii = num_data_groups:-1:1
     y_circular = [y_points, y_points(1)];
     
     % Plot data points
-    h = plot(x_circular, y_circular,...
+    plot(x_circular, y_circular,...
         'LineStyle', line_style,...
         'Marker', marker_type,...
         'Color', colors(ii, :),...
@@ -436,17 +442,33 @@ for ii = num_data_groups:-1:1
         'MarkerSize', marker_size,...
         'MarkerFaceColor', colors(ii, :));
     
-    % Change stack order to bottom
-    uistack(h, 'bottom');
-    
     % Check if fill option is toggled on
     if strcmp(fill_option, 'on')
         % Fill area within polygon
-        patch(x_circular, y_circular, colors(ii, :),...
+        h = patch(x_circular, y_circular, colors(ii, :),...
             'EdgeColor', 'none',...
             'FaceAlpha', fill_transparency);
+        
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end
+
+% Find object handles
+text_handles = findobj(fig.Children,...
+    'Type', 'Text');
+patch_handles = findobj(fig.Children,...
+    'Type', 'Patch');
+isocurve_handles = findobj(fig.Children,...
+    'Color', grey,...
+    '-and', 'Type', 'Line');
+plot_handles = findobj(fig.Children, '-not',...
+    'Color', grey,...
+    '-and', 'Type', 'Line');
+
+% Manually set the stack order
+h = [text_handles; plot_handles; patch_handles; isocurve_handles];
+set(fig.Children, 'Children', h);
 
 %%% Labels %%%
 % Shift axis label
