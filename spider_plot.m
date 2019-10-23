@@ -23,9 +23,13 @@ function spider_plot(P, varargin)
 %                      [3 (default) | integer]
 %
 %   AxesPrecision    - Used to change the precision level on the value
-%                      displayed on the axes. Enter in 'none' to remove
-%                      axes text or 'one' to display text on only one axes.
-%                      [1 (default) | integer | 'none' | 'one']
+%                      displayed on the axes. 
+%                      [1 (default) | integer]
+%
+%   AxesDisplay      - Used to change the number of axes in which the 
+%                      axes text are displayed. 'None' or 'one' can be used
+%                      to simplify the plot appearance for normalized data.
+%                      ['all' (default)| 'none' | 'one']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
@@ -98,7 +102,8 @@ function spider_plot(P, varargin)
 %
 %   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   axes_interval = 4;
-%   axes_precision = 'one';
+%   axes_precision = 0;
+%   axes_display = 'one'
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
 %   fill_option = 'on';
 %   fill_transparency = 0.2;
@@ -113,6 +118,7 @@ function spider_plot(P, varargin)
 %       'AxesLabels', axes_labels,...
 %       'AxesInterval', axes_interval,...
 %       'AxesPrecision', axes_precision,...
+%       'AxesDisplay', axes_display,...
 %       'AxesLimits', axes_limits,...
 %       'FillOption', fill_option,...
 %       'FillTransparency', fill_transparency,...
@@ -127,7 +133,7 @@ function spider_plot(P, varargin)
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
 %   2019-10-26: Minor revision to set starting axes as the vertical line.
-%               Add customization option for font sizes.
+%               Add customization option for font sizes and axes display.
 %   2019-10-16: Minor revision to add name-value pairs for customizing
 %               color, marker, and line settings.
 %   2019-10-08: Another major revision to convert to name-value pairs and
@@ -162,6 +168,7 @@ end
 % Default arguments
 axes_interval = 3;
 axes_precision = 1;
+axes_display = 'all';
 axes_limits = [];
 fill_option = 'off';
 fill_transparency = 0.2;
@@ -195,6 +202,8 @@ if numvarargs > 1
                 axes_interval = value_arguments{ii};
             case 'axesprecision'
                 axes_precision = value_arguments{ii};
+            case 'axesdisplay'
+                axes_display = value_arguments{ii};
             case 'axeslimits'
                 axes_limits = value_arguments{ii};
             case 'filloption'
@@ -244,23 +253,19 @@ if ~isempty(axes_limits)
     end
 end
 
-% Check if axes precision is string
-if ~ischar(axes_precision)
-    % Check if axes properties are an integer
-    if floor(axes_interval) ~= axes_interval || floor(axes_precision) ~= axes_precision
-        error('Error: Please enter in an integer for the axes properties.');
-    end
-    
-    % Check if axes properties are positive
-    if axes_interval < 1 || axes_precision < 0
-        error('Error: Please enter a positive for the axes properties.');
-    end
-    
-else
-    % Check if axes precision is valid string entry
-    if ~ismember(axes_precision, {'none', 'one'})
-        error('Error: Invalid axes precision entry. Please enter in "none" to remove axes text.');
-    end
+% Check if axes properties are an integer
+if floor(axes_interval) ~= axes_interval || floor(axes_precision) ~= axes_precision
+    error('Error: Please enter in an integer for the axes properties.');
+end
+
+% Check if axes properties are positive
+if axes_interval < 1 || axes_precision < 0
+    error('Error: Please enter a positive for the axes properties.');
+end
+
+% Check if axes display is valid string entry
+if ~ismember(axes_display, {'all', 'none', 'one'})
+    error('Error: Invalid axes display entry. Please enter in "all", "none", or "one" to set axes text.');
 end
 
 % Check if not a valid fill option arguement
@@ -352,62 +357,13 @@ for ii = 1:length(theta)-1
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
     
-    % Plot
+    % Plot webs
     h = plot(x_axes, y_axes,...
         'LineWidth', 1.5,...
         'Color', grey);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
-    
-    % Check precision argument for 'none'
-    if ~strcmp(axes_precision, 'none')
-        % Check precision argument for 'one'
-        if strcmp(axes_precision, 'one')
-            % Only iterate for one loop
-            if ii == 1
-                % Iterate through points on isocurve
-                for jj = 2:length(rho)
-                    % Axes increment value
-                    min_value = axes_range(1, ii);
-                    range = axes_range(3, ii);
-                    axes_value = min_value + (range/axes_interval) * (jj-2);
-                    
-                    % Text string
-                    text_str = sprintf('%i', axes_value);
-                    
-                    % Display axes text
-                    text(x_axes(jj), y_axes(jj), text_str,...
-                        'Units', 'Data',...
-                        'Color', 'k',...
-                        'FontSize', axes_font_size,...
-                        'HorizontalAlignment', 'center',...
-                        'VerticalAlignment', 'middle');
-                end
-            end
-            
-        else
-            % Iterate through points on isocurve
-            for jj = 2:length(rho)
-                % Axes increment value
-                min_value = axes_range(1, ii);
-                range = axes_range(3, ii);
-                axes_value = min_value + (range/axes_interval) * (jj-2);
-                
-                % Text string
-                text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
-                
-                % Display axes text
-                text(x_axes(jj), y_axes(jj), text_str,...
-                    'Units', 'Data',...
-                    'Color', 'k',...
-                    'FontSize', axes_font_size,...
-                    'HorizontalAlignment', 'center',...
-                    'VerticalAlignment', 'middle');
-            end
-        end
-    end
-    
 end
 
 % Iterate through each rho
@@ -415,12 +371,45 @@ for ii = 2:length(rho)
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta, rho(ii));
     
-    % Plot
+    % Plot axes
     h = plot(x_axes, y_axes,...
         'Color', grey);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+end
+
+% Set end index depending on axes display argument
+switch axes_display
+    case 'all'
+        theta_end_index = length(theta)-1;
+    case 'one'
+        theta_end_index = 1;
+    case 'none'
+        theta_end_index = 0;
+end
+
+% Iterate through each theta
+for ii = 1:theta_end_index
+    % Convert polar to cartesian coordinates
+    [x_axes, y_axes] = pol2cart(theta(ii), rho);
+    
+    % Iterate through points on isocurve
+    for jj = 2:length(rho)
+        % Axes increment value
+        min_value = axes_range(1, ii);
+        range = axes_range(3, ii);
+        axes_value = min_value + (range/axes_interval) * (jj-2);
+        
+        % Display axes text
+        text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
+        text(x_axes(jj), y_axes(jj), text_str,...
+            'Units', 'Data',...
+            'Color', 'k',...
+            'FontSize', axes_font_size,...
+            'HorizontalAlignment', 'center',...
+            'VerticalAlignment', 'middle');
+    end
 end
 
 %%% Plot %%%
@@ -476,6 +465,9 @@ shift_pos = 0.1;
 
 % Check labels argument
 if ~strcmp(axes_labels, 'none')
+    % Convert polar to cartesian coordinates
+    [x_axes, y_axes] = pol2cart(theta, rho(end));
+    
     % Iterate through number of data points
     for ii = 1:length(axes_labels)
         % Angle of point in radians
