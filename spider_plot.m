@@ -103,7 +103,7 @@ function spider_plot(P, varargin)
 %   axes_labels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   axes_interval = 4;
 %   axes_precision = 0;
-%   axes_display = 'one'
+%   axes_display = 'one';
 %   axes_limits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
 %   fill_option = 'on';
 %   fill_transparency = 0.2;
