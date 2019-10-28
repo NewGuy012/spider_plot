@@ -144,7 +144,7 @@ function spider_plot_R2019b(P, options)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, & Jiro Doke for
+%   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, & Jiro Doke for
 %   their feature recommendations and suggested bug fixes.
 
 %%% Argument Validation %%%
@@ -438,9 +438,10 @@ end
 end
 
 %%% Custom Validation Functions %%%
+% Validate axes precision
 function validateAxesPrecision(x)
 if isnumeric(x)
-    validateattributes(x, {'double'}, {'scalar','integer'}, mfilename, 'AxesPrecision')
+    validateattributes(x, {'double'}, {'scalar', 'integer'}, mfilename, 'AxesPrecision')
 else
     if ~isequal(x,'none')
         error('AxesPrecision must be a scalar integer or ''none''')
@@ -448,12 +449,14 @@ else
 end
 end
 
+% Validate axes limits
 function validateAxesLimits(axLim, P)
 if ~isempty(axLim)
     validateattributes(axLim, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'AxesLimits')
 end
 end
 
+% Validate axes labels
 function validateAxesLabels(axLabels, P)
 if ~isequal(axLabels, 'none')
     validateattributes(axLabels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'AxesLabels')
