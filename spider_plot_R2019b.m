@@ -151,8 +151,8 @@ function spider_plot_R2019b(P, options)
 arguments
     P (:, :) double
     options.AxesLabels {validateAxesLabels(options.AxesLabels, P)} = cellstr("Label " + (1:size(P, 2)))
-    options.AxesInterval (1, 1) double {mustBeInteger} = 3
-    options.AxesPrecision {validateAxesPrecision(options.AxesPrecision)} = 1
+    options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
+    options.AxesPrecision (1, 1) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all';
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption char {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
@@ -438,17 +438,6 @@ end
 end
 
 %%% Custom Validation Functions %%%
-% Validate axes precision
-function validateAxesPrecision(x)
-if isnumeric(x)
-    validateattributes(x, {'double'}, {'scalar', 'integer'}, mfilename, 'AxesPrecision')
-else
-    if ~isequal(x,'none')
-        error('AxesPrecision must be a scalar integer or ''none''')
-    end
-end
-end
-
 % Validate axes limits
 function validateAxesLimits(axLim, P)
 if ~isempty(axLim)
