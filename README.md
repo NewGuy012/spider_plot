@@ -68,41 +68,50 @@ Create a spider or radar plot with individual axes.
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
 ```matlab
-D1 = [5 3 9 1 2];   % Initialize data points
+% Initialize data points
+D1 = [5 3 9 1 2];   
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
 
+% Spider plot
 spider_plot(P);
-  
+
+% Legend settings
 legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ```
 
 ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 ```matlab
-D1 = [5 3 9 1 2];   % Initialize data points
+% Initialize data points
+D1 = [5 3 9 1 2];   
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
 
-AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
+% Axes limits [min axes limits; max axes limits]
+AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; 
 
+% Spider plot
 spider_plot(P,...
     'AxesLimits', AxesLimits);
 ```
 
 ### Example 3: Set fill option on. The fill transparency can be adjusted.
 ```matlab
-D1 = [5 3 9 1 2];   % Initialize data points
+% Initialize data points
+D1 = [5 3 9 1 2];   
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
 
-AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+% Spider plot properties
+AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
 AxesInterval = 2;
 FillOption = 'on';
 FillTransparency = 0.1;
 
+% Spider plot
 spider_plot(P,...
     'AxesLabels', AxesLabels,...
     'AxesInterval', AxesInterval,...
@@ -112,12 +121,14 @@ spider_plot(P,...
 
   ### Example 4: Maximum number of arguments.
 ```matlab
-D1 = [5 3 9 1 2];   % Initialize data points
+% Initialize data points
+D1 = [5 3 9 1 2];   
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
 
-AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
+% Spider plot properties
+AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
 AxesInterval = 4;
 AxesPrecision = 0;
 AxesDisplay = 'one';
@@ -134,6 +145,7 @@ LabelFontSize = 10;
 Direction = 'clockwise';
 AxesLabelsOffset = 0;
 
+% Spider plot
 spider_plot(P,...
     'AxesLabels', AxesLabels,...
     'AxesInterval', AxesInterval,...
@@ -155,11 +167,13 @@ spider_plot(P,...
 
   ### Example 5: Excel-like radar charts.
 ```matlab
-D1 = [5, 0, 3, 4, 4]; % Initialize data
+% Initialize data points
+D1 = [5, 0, 3, 4, 4]; 
 D2 = [2, 1, 5, 5, 4];
 P = [D1; D2];
 
-AxesInterval = 5; % Axes properties
+% Spider plot properties
+AxesInterval = 5;
 AxesPrecision = 0;
 AxesDisplay = 'one';
 AxesLimits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
@@ -171,6 +185,7 @@ MarkerType = 'none';
 AxesFontSize = 14;
 LabelFontSize = 10;
 
+% Spider plot
 spider_plot(P,...
     'AxesInterval', AxesInterval,...
     'AxesPrecision', AxesPrecision,...
@@ -184,6 +199,7 @@ spider_plot(P,...
     'AxesFontSize', AxesFontSize,...
     'LabelFontSize', LabelFontSize);
 
+% Title and legend settings
 title(sprintf('Excel-like Radar Chart'),...
     'FontSize', 14);
 legend_str = {'D1', 'D2'};
