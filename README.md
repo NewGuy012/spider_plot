@@ -61,7 +61,10 @@ Create a spider or radar plot with individual axes.
                          
 - **Direction**        - Used to change the direction of rotation of the plotted data and axis labels.
                          [counterclockwise (default) | clockwise]
-
+                         
+- **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
+                         [0.1 (default) | positive value]
+                         
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
 ```matlab
@@ -129,6 +132,7 @@ MarkerSize = 10;
 AxesFontSize = 12;
 LabelFontSize = 10;
 Direction = 'clockwise';
+AxesLabelsOffset = 0;
 
 spider_plot(P,...
     'AxesLabels', AxesLabels,...
@@ -145,7 +149,8 @@ spider_plot(P,...
     'MarkerSize', MarkerSize,...
     'AxesFontSize', AxesFontSize,...
     'LabelFontSize', LabelFontSize,...
-    'Direction', Direction);
+    'Direction', Direction,...
+    'AxesLabelsOffset', AxesLabelsOffset);
 ```
 
   ### Example 5: Excel-like radar charts.
@@ -189,7 +194,7 @@ legend(legend_str, 'Location', 'southoutside');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
-- 2019-11-15: Add feature to customize the plot rotational direction.
+- 2019-11-15: Add feature to customize the plot rotational direction and the offset position of the axis labels.
 
 - 2019-10-28: Major revision in implementing the new function argument validation feature introduced in R2019b. Replaced previous method of error checking and setting of default values.
 
