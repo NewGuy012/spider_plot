@@ -71,6 +71,10 @@ function spider_plot(P, varargin)
 %                      plotted data and axis labels.
 %                      [counterclockwise (default) | clockwise]
 %
+%   AxesLabelsOffset - Used to adjust the position offset of the axes
+%                      labels.
+%                      [0.1 (default) | positive value]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -131,6 +135,7 @@ function spider_plot(P, varargin)
 %   AxesFontSize = 12;
 %   LabelFontSize = 10;
 %   Direction = 'clockwise';
+%   AxesLabelsOffset = 0;
 %   spider_plot(P,...
 %       'AxesLabels', AxesLabels,...
 %       'AxesInterval', AxesInterval,...
@@ -146,7 +151,8 @@ function spider_plot(P, varargin)
 %       'MarkerSize', MarkerSize,...
 %       'AxesFontSize', AxesFontSize,...
 %       'LabelFontSize', LabelFontSize,...
-%       'Direction', Direction);
+%       'Direction', Direction,...
+%       'AxesLabelsOffset', AxesLabelsOffset);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -176,16 +182,15 @@ function spider_plot(P, varargin)
 %       'Marker', MarkerType,...
 %       'AxesFontSize', AxesFontSize,...
 %       'LabelFontSize', LabelFontSize);
-%   title(sprintf('Excel-like\n Radar Chart'),...
-%       'Units', 'normalized',...
-%       'Position', [-0.2, 0.3, 0],...
+%   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
-%   2019-11-15: Add feature to customize the plot rotational direction.
+%   2019-11-15: Add feature to customize the plot rotational direction and
+%               the offset position of the axis labels.
 %   2019-10-23: Minor revision to set starting axes as the vertical line.
 %               Add customization option for font sizes and axes display.
 %   2019-10-16: Minor revision to add name-value pairs for customizing
@@ -240,6 +245,7 @@ marker_size = 8;
 axes_font_size = 10;
 label_font_size = 10;
 direction = 'counterclockwise';
+axes_labels_offset = 0.1;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -281,6 +287,8 @@ if numvarargs > 1
                 label_font_size = value_arguments{ii};
             case 'direction'
                 direction = value_arguments{ii};
+            case 'axeslabelsoffset'
+                axes_labels_offset = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -345,6 +353,11 @@ if ~ismember(direction, {'counterclockwise', 'clockwise'})
     error('Error: Invalid direction entry. Please enter in "counterclockwise" or "clockwise" to set direction of rotation.');
 end
 
+% Check if axes labels offset is positive
+if axes_labels_offset < 0
+    error('Error: Please enter a positive for the axes labels offset.');
+end
+
 %%% Figure Properties %%%
 % Figure background
 fig = figure;
@@ -353,6 +366,7 @@ fig.Color = 'white';
 % Axis limits
 hold on;
 axis square;
+axis([-1.3, 1.3, -1.3, 1.3]);
 axis off;
 
 % Plot colors
@@ -529,9 +543,6 @@ h = [text_handles; plot_handles; patch_handles; isocurve_handles];
 set(fig.Children, 'Children', h);
 
 %%% Labels %%%
-% Shift axis label
-shift_pos = 0.1;
-
 % Check labels argument
 if ~strcmp(axes_labels, 'none')
     % Convert polar to cartesian coordinates
@@ -568,43 +579,43 @@ if ~strcmp(axes_labels, 'none')
             case 0
                 horz_align = 'left';
                 vert_align = 'middle';
-                x_pos = shift_pos;
+                x_pos = axes_labels_offset;
                 y_pos = 0;
             case 1
                 horz_align = 'left';
                 vert_align = 'bottom';
-                x_pos = shift_pos;
-                y_pos = shift_pos;
+                x_pos = axes_labels_offset;
+                y_pos = axes_labels_offset;
             case 1.5
                 horz_align = 'center';
                 vert_align = 'bottom';
                 x_pos = 0;
-                y_pos = shift_pos;
+                y_pos = axes_labels_offset;
             case 2
                 horz_align = 'right';
                 vert_align = 'bottom';
-                x_pos = -shift_pos;
-                y_pos = shift_pos;
+                x_pos = -axes_labels_offset;
+                y_pos = axes_labels_offset;
             case 2.5
                 horz_align = 'right';
                 vert_align = 'middle';
-                x_pos = -shift_pos;
+                x_pos = -axes_labels_offset;
                 y_pos = 0;
             case 3
                 horz_align = 'right';
                 vert_align = 'top';
-                x_pos = -shift_pos;
-                y_pos = -shift_pos;
+                x_pos = -axes_labels_offset;
+                y_pos = -axes_labels_offset;
             case 3.5
                 horz_align = 'center';
                 vert_align = 'top';
                 x_pos = 0;
-                y_pos = -shift_pos;
+                y_pos = -axes_labels_offset;
             case 4
                 horz_align = 'left';
                 vert_align = 'top';
-                x_pos = shift_pos;
-                y_pos = -shift_pos;
+                x_pos = axes_labels_offset;
+                y_pos = -axes_labels_offset;
         end
         
         % Display text label
