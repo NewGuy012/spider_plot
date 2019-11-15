@@ -67,6 +67,10 @@ function spider_plot_R2019b(P, options)
 %   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
 %
+%   Direction        - Used to change the direction of rotation of the 
+%                      plotted data and axis labels.
+%                      [counterclockwise (default) | clockwise]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -76,23 +80,31 @@ function spider_plot_R2019b(P, options)
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
-%   spider_plot(P);
+%   spider_plot_R2019b(P);
 %   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 %
 %   % Example 2: Manually setting the axes limits. All non-specified,
 %                optional arguments are set to their default values.
 %
+%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
 %   AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
-%   spider_plot(P,...
+%   spider_plot_R2019b(P,...
 %       'AxesLimits', AxesLimits);
 %
 %   % Example 3: Set fill option on. The fill transparency can be adjusted.
 %
+%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
 %   AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   AxesInterval = 2;
 %   FillOption = 'on';
 %   FillTransparency = 0.1;
-%   spider_plot(P,...
+%   spider_plot_R2019b(P,...
 %       'AxesLabels', AxesLabels,...
 %       'AxesInterval', AxesInterval,...
 %       'FillOption', FillOption,...
@@ -100,6 +112,10 @@ function spider_plot_R2019b(P, options)
 %
 %   % Example 4: Maximum number of arguments.
 %
+%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
 %   AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
 %   AxesInterval = 4;
 %   AxesPrecision = 0;
@@ -114,7 +130,8 @@ function spider_plot_R2019b(P, options)
 %   MarkerSize = 10;
 %   AxesFontSize = 12;
 %   LabelFontSize = 10;
-%   spider_plot(P,...
+%   Direction = 'clockwise';
+%   spider_plot_R2019b(P,...
 %       'AxesLabels', AxesLabels,...
 %       'AxesInterval', AxesInterval,...
 %       'AxesPrecision', AxesPrecision,...
@@ -130,8 +147,44 @@ function spider_plot_R2019b(P, options)
 %       'AxesFontSize', AxesFontSize,...
 %       'LabelFontSize', LabelFontSize);
 %
+%   % Example 5: Excel-like radar charts.
+%
+%   D1 = [5, 0, 3, 4, 4]; % Initialize data
+%   D2 = [2, 1, 5, 5, 4];
+%   P = [D1; D2];
+%   AxesInterval = 5; % Axes properties
+%   AxesPrecision = 0;
+%   AxesDisplay = 'one';
+%   AxesLimits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
+%   FillPption = 'on';
+%   FillTransparency = 0.1;
+%   Colors = [139, 0, 0; 240, 128, 128]/255;
+%   LineWidth = 4;
+%   MarkerType = 'none';
+%   AxesFontSize = 14;
+%   LabelFontSize = 10;
+%   spider_plot_R2019b(P,...
+%       'AxesInterval', AxesInterval,...
+%       'AxesPrecision', AxesPrecision,...
+%       'AxesDisplay', AxesDisplay,...
+%       'AxesLimits', AxesLimits,...
+%       'FillOption', FillOption,...
+%       'FillTransparency', FillTransparency,...
+%       'Color', Colors,...
+%       'LineWidth', LineWidth,...
+%       'Marker', MarkerType,...
+%       'AxesFontSize', AxesFontSize,...
+%       'LabelFontSize', LabelFontSize);
+%   title(sprintf('Excel-like\n Radar Chart'),...
+%       'Units', 'normalized',...
+%       'Position', [-0.2, 0.3, 0],...
+%       'FontSize', 14);
+%   legend_str = {'D1', 'D2'};
+%   legend(legend_str, 'Location', 'southoutside');
+%
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2019-11-15: Add feature to customize the plot rotational direction.
 %   2019-10-28: Major revision in implementing the new function argument
 %               validation feature introduced in R2019b. Replaced previous
 %               method of error checking and setting of default values.
@@ -144,8 +197,8 @@ function spider_plot_R2019b(P, options)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, & Jiro Doke for
-%   their feature recommendations and suggested bug fixes.
+%   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, &
+%   Alex Grenyer for their feature recommendations and suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
@@ -164,6 +217,7 @@ arguments
     options.MarkerSize (1, 1) double {mustBePositive} = 8
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
+    options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'counterclockwise'
 end
 
 %%% Data Properties %%%
@@ -233,8 +287,15 @@ end
 % Polar coordinates
 rho = 0:rho_increment:1;
 
-% Shift by pi/2 to set starting axis the vertical line
-theta = (0:theta_increment:2*pi) + (pi/2);
+% Check specified direction of rotation
+switch options.Direction
+    case 'counterclockwise'
+        % Shift by pi/2 to set starting axis the vertical line
+        theta = (0:theta_increment:2*pi) + (pi/2);
+    case 'clockwise'
+        % Shift by pi/2 to set starting axis the vertical line
+        theta = (0:-theta_increment:-2*pi) + (pi/2);
+end
 
 % Remainder after using a modulus of 2*pi
 theta = mod(theta, 2*pi);
