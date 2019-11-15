@@ -71,6 +71,10 @@ function spider_plot_R2019b(P, options)
 %                      plotted data and axis labels.
 %                      [counterclockwise (default) | clockwise]
 %
+%   AxesLabelsOffset - Used to adjust the position offset of the axes
+%                      labels.
+%                      [0.1 (default) | positive value]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -131,7 +135,8 @@ function spider_plot_R2019b(P, options)
 %   AxesFontSize = 12;
 %   LabelFontSize = 10;
 %   Direction = 'clockwise';
-%   spider_plot_R2019b(P,...
+%   AxesLabelsOffset = 0;
+%   spider_plot(P,...
 %       'AxesLabels', AxesLabels,...
 %       'AxesInterval', AxesInterval,...
 %       'AxesPrecision', AxesPrecision,...
@@ -145,7 +150,9 @@ function spider_plot_R2019b(P, options)
 %       'Marker', Marker,...
 %       'MarkerSize', MarkerSize,...
 %       'AxesFontSize', AxesFontSize,...
-%       'LabelFontSize', LabelFontSize);
+%       'LabelFontSize', LabelFontSize,...
+%       'Direction', Direction,...
+%       'AxesLabelsOffset', AxesLabelsOffset);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -175,16 +182,15 @@ function spider_plot_R2019b(P, options)
 %       'Marker', MarkerType,...
 %       'AxesFontSize', AxesFontSize,...
 %       'LabelFontSize', LabelFontSize);
-%   title(sprintf('Excel-like\n Radar Chart'),...
-%       'Units', 'normalized',...
-%       'Position', [-0.2, 0.3, 0],...
+%   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
-%   2019-11-15: Add feature to customize the plot rotational direction.
+%   2019-11-15: Add feature to customize the plot rotational direction and
+%               the offset position of the axis labels.
 %   2019-10-28: Major revision in implementing the new function argument
 %               validation feature introduced in R2019b. Replaced previous
 %               method of error checking and setting of default values.
@@ -218,6 +224,7 @@ arguments
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'counterclockwise'
+    options.AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1
 end
 
 %%% Data Properties %%%
@@ -232,6 +239,7 @@ fig.Color = 'white';
 % Axis limits
 hold on;
 axis square;
+axis([-1.3, 1.3, -1.3, 1.3]);
 axis off;
 
 % Plot color
@@ -408,9 +416,6 @@ h = [text_handles; plot_handles; patch_handles; isocurve_handles];
 set(fig.Children, 'Children', h);
 
 %%% Labels %%%
-% Shift axis label
-shift_pos = 0.1;
-
 % Check labels argument
 if ~strcmp(options.AxesLabels, 'none')
     % Convert polar to cartesian coordinates
@@ -447,43 +452,43 @@ if ~strcmp(options.AxesLabels, 'none')
             case 0
                 horz_align = 'left';
                 vert_align = 'middle';
-                x_pos = shift_pos;
+                x_pos = options.AxesLabelsOffset;
                 y_pos = 0;
             case 1
                 horz_align = 'left';
                 vert_align = 'bottom';
-                x_pos = shift_pos;
-                y_pos = shift_pos;
+                x_pos = options.AxesLabelsOffset;
+                y_pos = options.AxesLabelsOffset;
             case 1.5
                 horz_align = 'center';
                 vert_align = 'bottom';
                 x_pos = 0;
-                y_pos = shift_pos;
+                y_pos = options.AxesLabelsOffset;
             case 2
                 horz_align = 'right';
                 vert_align = 'bottom';
-                x_pos = -shift_pos;
-                y_pos = shift_pos;
+                x_pos = -options.AxesLabelsOffset;
+                y_pos = options.AxesLabelsOffset;
             case 2.5
                 horz_align = 'right';
                 vert_align = 'middle';
-                x_pos = -shift_pos;
+                x_pos = -options.AxesLabelsOffset;
                 y_pos = 0;
             case 3
                 horz_align = 'right';
                 vert_align = 'top';
-                x_pos = -shift_pos;
-                y_pos = -shift_pos;
+                x_pos = -options.AxesLabelsOffset;
+                y_pos = -options.AxesLabelsOffset;
             case 3.5
                 horz_align = 'center';
                 vert_align = 'top';
                 x_pos = 0;
-                y_pos = -shift_pos;
+                y_pos = -options.AxesLabelsOffset;
             case 4
                 horz_align = 'left';
                 vert_align = 'top';
-                x_pos = shift_pos;
-                y_pos = -shift_pos;
+                x_pos = options.AxesLabelsOffset;
+                y_pos = -options.AxesLabelsOffset;
         end
         
         % Display text label
