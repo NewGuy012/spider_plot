@@ -222,3 +222,5 @@ Moses Yoo, (jyoo at hatci dot com)
 
 ## Special Thanks:
 Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, & Alex Grenyer for their feature recommendations and suggested bug fixes.
+
+[![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
