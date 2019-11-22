@@ -44,7 +44,7 @@ function spider_plot_R2019b(P, options)
 %
 %   Color            - Used to specify the line color, specified as an RGB
 %                      triplet. The intensities must be in the range (0, 1).
-%                      [MATLAB options.Color (default) | RGB triplet]
+%                      [MATLAB colors (default) | RGB triplet]
 %
 %   LineStyle        - Used to change the line style of the plots.
 %                      ['-' (default) | '--' | ':' | '-.' | 'none']
@@ -156,8 +156,8 @@ function spider_plot_R2019b(P, options)
 %
 %   % Example 5: Excel-like radar charts.
 %
-%   D1 = [5, 0, 3, 4, 4]; % Initialize data
-%   D2 = [2, 1, 5, 5, 4];
+%   D1 = [5 0 3 4 4]; % Initialize data
+%   D2 = [2 1 5 5 4];
 %   P = [D1; D2];
 %   AxesInterval = 5; % Axes properties
 %   AxesPrecision = 0;
