@@ -156,8 +156,8 @@ function spider_plot(P, varargin)
 %
 %   % Example 5: Excel-like radar charts.
 %
-%   D1 = [5, 0, 3, 4, 4]; % Initialize data
-%   D2 = [2, 1, 5, 5, 4];
+%   D1 = [5 0 3 4 4]; % Initialize data
+%   D2 = [2 1 5 5 4];
 %   P = [D1; D2];
 %   AxesInterval = 5; % Axes properties
 %   AxesPrecision = 0;
@@ -231,13 +231,7 @@ axes_display = 'all';
 axes_limits = [];
 fill_option = 'off';
 fill_transparency = 0.2;
-colors = [0, 0.4470, 0.7410;...
-    0.8500, 0.3250, 0.0980;...
-    0.9290, 0.6940, 0.1250;...
-    0.4940, 0.1840, 0.5560;...
-    0.4660, 0.6740, 0.1880;...
-    0.3010, 0.7450, 0.9330;...
-    0.6350, 0.0780, 0.1840];
+colors = get(groot, 'defaultAxesColorOrder');
 line_style = '-';
 line_width = 2;
 marker_type = 'o';
