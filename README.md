@@ -168,8 +168,8 @@ spider_plot(P,...
   ### Example 5: Excel-like radar charts.
 ```matlab
 % Initialize data points
-D1 = [5, 0, 3, 4, 4]; 
-D2 = [2, 1, 5, 5, 4];
+D1 = [5 0 3 4 4]; 
+D2 = [2 1 5 5 4];
 P = [D1; D2];
 
 % Spider plot properties
