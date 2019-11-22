@@ -2,8 +2,8 @@ function spider_plot_R2019b(P, options)
 %spider_plot Create a spider or radar plot with individual axes.
 %
 % Syntax:
-%   spider_plot(P)
-%   spider_plot(___, Name, Value)
+%   spider_plot_R2019b(P)
+%   spider_plot_R2019b(___, Name, Value)
 %
 % Input Arguments:
 %   (Required)
