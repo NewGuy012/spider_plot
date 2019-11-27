@@ -65,6 +65,9 @@ Create a spider or radar plot with individual axes.
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
                          [0.1 (default) | positive value]
                          
+- **AxesScaling**      - Used to change the scaling of the axes.
+                         ['linear' (default) | 'log']
+                         
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
 ```matlab
@@ -206,8 +209,26 @@ legend_str = {'D1', 'D2'};
 legend(legend_str, 'Location', 'southoutside');
 ```
 
+  ### Example 6: Logarithimic scale on all axes. Axes limits and axes intervals are automatically set to factors of 10.
+```matlab
+% Initialize data points
+D1 = [1 10 1 500];   
+D2 = [10 20 1000 60];
+D3 = [100 30 10 7];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesScaling', 'log',...
+    'AxesDisplay', 'one',...
+    'AxesPrecision', 0);
+legend('D1', 'D2', 'D3', 'Location', 'northeast');
+```
+
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2019-11-27: Add option to change axes to logarithmic scale.
+
 - 2019-11-15: Add feature to customize the plot rotational direction and the offset position of the axis labels.
 
 - 2019-10-28: Major revision in implementing the new function argument validation feature introduced in R2019b. Replaced previous method of error checking and setting of default values.
@@ -221,6 +242,6 @@ Moses Yoo, (jyoo at hatci dot com)
 - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
-Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, & Alex Grenyer for their feature recommendations and suggested bug fixes.
+Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, Alex Grenyer, & Tobias Kern for their feature recommendations and suggested bug fixes.
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
