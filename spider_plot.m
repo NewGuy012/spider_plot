@@ -75,6 +75,9 @@ function spider_plot(P, varargin)
 %                      labels.
 %                      [0.1 (default) | positive value]
 %
+%   AxesScaling      - Used to change the scaling of the axes.
+%                      ['linear' (default) | 'log']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -187,8 +190,22 @@ function spider_plot(P, varargin)
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
+%   % Example 6: Logarithimic scale on all axes. Axes limits and axes
+%                intervals are automatically set to factors of 10.
+%
+%   D1 = [1 10 1 500];   % Initialize data points
+%   D2 = [10 20 1000 60];
+%   D3 = [100 30 10 7];
+%   P = [D1; D2; D3];
+%   spider_plot(P,...
+%       'AxesScaling', 'log',...
+%       'AxesDisplay', 'one',...
+%       'AxesPrecision', 0);
+%   legend('D1', 'D2', 'D3', 'Location', 'northeast');
+%
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2019-11-27: Add option to change axes to logarithmic scale.
 %   2019-11-15: Add feature to customize the plot rotational direction and
 %               the offset position of the axis labels.
 %   2019-10-23: Minor revision to set starting axes as the vertical line.
@@ -200,8 +217,8 @@ function spider_plot(P, varargin)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, & Alex Grenyer for
-%   their feature recommendations and suggested bug fixes.
+%   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer &
+%   Tobias Kern for their feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -240,6 +257,7 @@ axes_font_size = 10;
 label_font_size = 10;
 direction = 'counterclockwise';
 axes_labels_offset = 0.1;
+axes_scaling = 'linear';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -283,6 +301,8 @@ if numvarargs > 1
                 direction = value_arguments{ii};
             case 'axeslabelsoffset'
                 axes_labels_offset = value_arguments{ii};
+            case 'axesscaling'
+                axes_scaling = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -351,6 +371,39 @@ end
 if axes_labels_offset < 0
     error('Error: Please enter a positive for the axes labels offset.');
 end
+
+% Check if axes scaling is valid
+if ~ismember(axes_scaling, {'linear', 'log'})
+    error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
+end
+
+% Check if axes scaling is log
+if strcmp(axes_scaling, 'log')
+    % Check for any negative values
+    if any(P < 1, 'all')
+        error('Error: Only positive values greater than 1 are supported for log scaling.');
+    end
+end
+
+%%% Axes Scaling Properties %%%
+% Check axes scaling option
+if strcmp(axes_scaling, 'log')
+    % Common logarithm of base 10
+    P = log10(P);
+    
+    % Minimum and maximun log limits
+    min_limit = min(min(fix(P)));
+    max_limit = max(max(ceil(P)));
+    
+    % Update axes interval
+    axes_interval = max_limit - min_limit;
+    
+    % Update axes limits
+    axes_limits = zeros(2, num_data_points);
+    axes_limits(1, :) = min_limit;
+    axes_limits(2, :) = max_limit;
+end
+
 
 %%% Figure Properties %%%
 % Figure background
@@ -477,6 +530,12 @@ for ii = 1:theta_end_index
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
         axes_value = min_value + (range/axes_interval) * (jj-2);
+        
+        % Check axes scaling option
+        if strcmp(axes_scaling, 'log')
+            % Exponent to the tenth power
+            axes_value = 10^axes_value;
+        end
         
         % Display axes text
         text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
