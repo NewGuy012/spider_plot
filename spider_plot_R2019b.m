@@ -75,12 +75,15 @@ function spider_plot_R2019b(P, options)
 %                      labels.
 %                      [0.1 (default) | positive value]
 %
+%   AxesScaling      - Used to change the scaling of the axes.
+%                      ['linear' (default) | 'log']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
 %                and limits are automatically generated and set.
 %
-%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
@@ -90,105 +93,88 @@ function spider_plot_R2019b(P, options)
 %   % Example 2: Manually setting the axes limits. All non-specified,
 %                optional arguments are set to their default values.
 %
-%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
-%   AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % Axes limits [min axes limits; max axes limits]
 %   spider_plot_R2019b(P,...
-%       'AxesLimits', AxesLimits);
+%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
 %
 %   % Example 3: Set fill option on. The fill transparency can be adjusted.
 %
-%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
-%   AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
-%   AxesInterval = 2;
-%   FillOption = 'on';
-%   FillTransparency = 0.1;
 %   spider_plot_R2019b(P,...
-%       'AxesLabels', AxesLabels,...
-%       'AxesInterval', AxesInterval,...
-%       'FillOption', FillOption,...
-%       'FillTransparency', FillTransparency);
+%       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
+%       'AxesInterval', 2,...
+%       'FillOption', 'on',...
+%       'FillTransparency', 0.1);
 %
 %   % Example 4: Maximum number of arguments.
 %
-%   D1 = [5 3 9 1 2];   % Initialize data points
+%   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
-%   AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'}; % Axes properties
-%   AxesInterval = 4;
-%   AxesPrecision = 0;
-%   AxesDisplay = 'one';
-%   AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
-%   FillOption = 'on';
-%   FillTransparency = 0.2;
-%   Color = [1, 0, 0; 0, 1, 0; 0, 0, 1];
-%   LineStyle = '--';
-%   LineWidth = 3;
-%   Marker = 'd';
-%   MarkerSize = 10;
-%   AxesFontSize = 12;
-%   LabelFontSize = 10;
-%   Direction = 'clockwise';
-%   AxesLabelsOffset = 0;
 %   spider_plot_R2019b(P,...
-%       'AxesLabels', AxesLabels,...
-%       'AxesInterval', AxesInterval,...
-%       'AxesPrecision', AxesPrecision,...
-%       'AxesDisplay', AxesDisplay,...
-%       'AxesLimits', AxesLimits,...
-%       'FillOption', FillOption,...
-%       'FillTransparency', FillTransparency,...
-%       'Color', Color,...
-%       'LineStyle', LineStyle,...
-%       'LineWidth', LineWidth,...
-%       'Marker', Marker,...
-%       'MarkerSize', MarkerSize,...
-%       'AxesFontSize', AxesFontSize,...
-%       'LabelFontSize', LabelFontSize,...
-%       'Direction', Direction,...
-%       'AxesLabelsOffset', AxesLabelsOffset);
+%       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
+%       'AxesInterval', 4,...
+%       'AxesPrecision', 0,...
+%       'AxesDisplay', 'one',...
+%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10],...
+%       'FillOption', 'on',...
+%       'FillTransparency', 0.2,...
+%       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
+%       'LineStyle', '--',...
+%       'LineWidth', 3,...
+%       'Marker', 'd',...
+%       'MarkerSize', 10,...
+%       'AxesFontSize', 12,...
+%       'LabelFontSize', 10,...
+%       'Direction', 'clockwise',...
+%       'AxesLabelsOffset', 0,...
+%       'AxesScaling', 'linear');
 %
 %   % Example 5: Excel-like radar charts.
 %
-%   D1 = [5 0 3 4 4]; % Initialize data
+%   D1 = [5 0 3 4 4];
 %   D2 = [2 1 5 5 4];
 %   P = [D1; D2];
-%   AxesInterval = 5; % Axes properties
-%   AxesPrecision = 0;
-%   AxesDisplay = 'one';
-%   AxesLimits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
-%   FillPption = 'on';
-%   FillTransparency = 0.1;
-%   Colors = [139, 0, 0; 240, 128, 128]/255;
-%   LineWidth = 4;
-%   MarkerType = 'none';
-%   AxesFontSize = 14;
-%   LabelFontSize = 10;
 %   spider_plot_R2019b(P,...
-%       'AxesInterval', AxesInterval,...
-%       'AxesPrecision', AxesPrecision,...
-%       'AxesDisplay', AxesDisplay,...
-%       'AxesLimits', AxesLimits,...
-%       'FillOption', FillOption,...
-%       'FillTransparency', FillTransparency,...
-%       'Color', Colors,...
-%       'LineWidth', LineWidth,...
-%       'Marker', MarkerType,...
-%       'AxesFontSize', AxesFontSize,...
-%       'LabelFontSize', LabelFontSize);
+%       'AxesInterval', 5,...
+%       'AxesPrecision', 0,...
+%       'AxesDisplay', 'one',...
+%       'AxesLimits', [0, 0, 0, 0, 0; 5, 5, 5, 5, 5],...
+%       'FillOption', 'on',...
+%       'FillTransparency', 0.1,...
+%       'Color', [139, 0, 0; 240, 128, 128]/255,...
+%       'LineWidth', 4,...
+%       'Marker', 'none',...
+%       'AxesFontSize', 14,...
+%       'LabelFontSize', 10);
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
+%   % Example 6: Logarithimic scale on all axes. Axes limits and axes
+%                intervals are automatically set to factors of 10.
+%
+%   D1 = [1 10 1 500];
+%   D2 = [10 20 1000 60];
+%   D3 = [100 30 10 7];
+%   P = [D1; D2; D3];
+%   spider_plot_R2019b(P,...
+%       'AxesScaling', 'log',...
+%       'AxesDisplay', 'one',...
+%       'AxesPrecision', 0);
+%   legend('D1', 'D2', 'D3', 'Location', 'northeast');
+%
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2019-11-27: Add option to change axes to logarithmic scale.
 %   2019-11-15: Add feature to customize the plot rotational direction and
 %               the offset position of the axis labels.
 %   2019-10-28: Major revision in implementing the new function argument
@@ -225,11 +211,31 @@ arguments
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'counterclockwise'
     options.AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1
+    options.AxesScaling char {mustBeMember(options.AxesScaling, {'linear', 'log'}), validateAxesScaling(options.AxesScaling, P)} = 'linear'
 end
 
 %%% Data Properties %%%
 % Point properties
 [num_data_groups, num_data_points] = size(P);
+
+%%% Axes Scaling Properties %%%
+% Check axes scaling option
+if strcmp(options.AxesScaling, 'log')
+    % Common logarithm of base 10
+    P = log10(P);
+    
+    % Minimum and maximun log limits
+    min_limit = min(min(fix(P)));
+    max_limit = max(max(ceil(P)));
+    
+    % Update axes interval
+    options.AxesInterval = max_limit - min_limit;
+    
+    % Update axes limits
+    options.AxesLimits = zeros(2, num_data_points);
+    options.AxesLimits(1, :) = min_limit;
+    options.AxesLimits(2, :) = max_limit;
+end
 
 %%% Figure Properties %%%
 % Figure background
@@ -356,6 +362,12 @@ for ii = 1:theta_end_index
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
         axes_value = min_value + (range/options.AxesInterval) * (jj-2);
+        
+        % Check axes scaling option
+        if strcmp(options.AxesScaling, 'log')
+            % Exponent to the tenth power
+            axes_value = 10^axes_value;
+        end
         
         % Display axes text
         text_str = sprintf(sprintf('%%.%if', options.AxesPrecision), axes_value);
@@ -515,5 +527,12 @@ end
 function validateAxesLabels(axLabels, P)
 if ~isequal(axLabels, 'none')
     validateattributes(axLabels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'AxesLabels')
+end
+end
+
+% Validate axes scaling
+function validateAxesScaling(axScaling, P)
+if isequal(axScaling, 'log')
+    validateattributes(P, {'double'}, {'>=', 1}, mfilename, 'AxesScaling')
 end
 end
