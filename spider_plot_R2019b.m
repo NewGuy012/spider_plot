@@ -211,7 +211,7 @@ arguments
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'counterclockwise'
     options.AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1
-    options.AxesScaling char {mustBeMember(options.AxesScaling, {'linear', 'log'}), validateAxesScaling(options.AxesScaling, P)} = 'linear'
+    options.AxesScaling char {mustBeMember(options.AxesScaling, {'linear', 'log'})} = 'linear'
 end
 
 %%% Data Properties %%%
@@ -222,7 +222,7 @@ end
 % Check axes scaling option
 if strcmp(options.AxesScaling, 'log')
     % Common logarithm of base 10
-    P = log10(P);
+    P = sign(P) .* log10(abs(P));
     
     % Minimum and maximun log limits
     min_limit = min(min(fix(P)));
@@ -527,12 +527,5 @@ end
 function validateAxesLabels(axLabels, P)
 if ~isequal(axLabels, 'none')
     validateattributes(axLabels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'AxesLabels')
-end
-end
-
-% Validate axes scaling
-function validateAxesScaling(axScaling, P)
-if isequal(axScaling, 'log')
-    validateattributes(P, {'double'}, {'>=', 1}, mfilename, 'AxesScaling')
 end
 end
