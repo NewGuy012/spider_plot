@@ -162,12 +162,12 @@ function spider_plot_R2019b(P, options)
 %   % Example 6: Logarithimic scale on all axes. Axes limits and axes
 %                intervals are automatically set to factors of 10.
 %
-%   D1 = [1 10 1 500];
-%   D2 = [10 20 1000 60];
-%   D3 = [100 30 10 7];
+%   D1 = [-1 10 1 500];
+%   D2 = [-10 20 1000 60];
+%   D3 = [-100 30 10 7];
 %   P = [D1; D2; D3];
 %   spider_plot_R2019b(P,...
-%       'AxesPrecision', 0,...
+%       'AxesPrecision', 2,...
 %       'AxesDisplay', 'one',...
 %       'AxesScaling', 'log');
 %   legend('D1', 'D2', 'D3', 'Location', 'northeast');
