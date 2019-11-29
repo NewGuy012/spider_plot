@@ -346,24 +346,16 @@ if ~ismember(axes_scaling, {'linear', 'log'})
     error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
 end
 
-% Check if axes scaling is log
-if strcmp(axes_scaling, 'log')
-    % Check for any negative values
-    if any(P < 1, 'all')
-        error('Error: Only positive values greater than 1 are supported for log scaling.');
-    end
-end
-
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
 if strcmp(axes_scaling, 'log')
-    % Common logarithm of base 10
-    P = log10(P);
+    % Logarithm of base 10, account for numbers less than 1
+    P = sign(P) .* log10(abs(P));
     
     % Minimum and maximun log limits
     min_limit = min(min(fix(P)));
-    max_limit = max(max(ceil(P)));
-    
+    max_limit = max(max(floor(P)));
+     
     % Update axes interval
     axes_interval = max_limit - min_limit;
     
