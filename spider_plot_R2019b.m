@@ -174,6 +174,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-01-06: Added support for tiledlayout introduced in R2019b.
 %   2019-11-27: Add option to change axes to logarithmic scale.
 %   2019-11-15: Add feature to customize the plot rotational direction and
 %               the offset position of the axis labels.
@@ -189,8 +190,9 @@ function spider_plot_R2019b(P, options)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, &
-%   Alex Grenyer for their feature recommendations and suggested bug fixes.
+%   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
+%   Alex Grenyer, & Omar Hadri for their feature recommendations and
+%   suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
@@ -238,15 +240,34 @@ if strcmp(options.AxesScaling, 'log')
 end
 
 %%% Figure Properties %%%
-% Figure background
-fig = figure;
+% Graphics root object
+g = groot;
+
+% Check if any figure exists
+if isempty(g.Children)
+    % Create a new figure
+    fig = figure;
+else
+    % Use current figure
+    fig = gcf;
+end
+
+% Set figure background
 fig.Color = 'white';
+
+% Current axes handle
+ax = gca;
 
 % Axis limits
 hold on;
 axis square;
 axis([-1.3, 1.3, -1.3, 1.3]);
-axis off;
+
+% Axis properties
+ax.XTickLabel = [];
+ax.YTickLabel = [];
+ax.XColor = 'none';
+ax.YColor = 'none';
 
 % Plot color
 grey = [0.5, 0.5, 0.5];
@@ -411,21 +432,35 @@ for ii = 1:num_data_groups
     end
 end
 
+% Get object type of children
+children_type = get(fig.Children, 'Type');
+
+% Check if children is titled layout
+if strcmp(children_type, 'titledlayout')
+    % Set handle to axes children
+    obj = ax.Children;
+else
+    % Set handle to axes
+    obj = ax;
+end
+
 % Find object handles
-text_handles = findobj(fig.Children,...
+text_handles = findobj(obj.Children,...
     'Type', 'Text');
-patch_handles = findobj(fig.Children,...
+patch_handles = findobj(obj.Children,...
     'Type', 'Patch');
-isocurve_handles = findobj(fig.Children,...
+isocurve_handles = findobj(obj.Children,...
     'Color', grey,...
     '-and', 'Type', 'Line');
-plot_handles = findobj(fig.Children, '-not',...
+plot_handles = findobj(obj.Children, '-not',...
     'Color', grey,...
     '-and', 'Type', 'Line');
 
 % Manually set the stack order
-h = [text_handles; plot_handles; patch_handles; isocurve_handles];
-set(fig.Children, 'Children', h);
+uistack(text_handles, 'bottom');
+uistack(plot_handles, 'bottom');
+uistack(patch_handles, 'bottom');
+uistack(isocurve_handles, 'bottom');
 
 %%% Labels %%%
 % Check labels argument
