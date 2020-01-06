@@ -23,10 +23,10 @@ function spider_plot(P, varargin)
 %                      [3 (default) | integer]
 %
 %   AxesPrecision    - Used to change the precision level on the value
-%                      displayed on the axes. 
+%                      displayed on the axes.
 %                      [1 (default) | integer]
 %
-%   AxesDisplay      - Used to change the number of axes in which the 
+%   AxesDisplay      - Used to change the number of axes in which the
 %                      axes text are displayed. 'None' or 'one' can be used
 %                      to simplify the plot appearance for normalized data.
 %                      ['all' (default) | 'none' | 'one']
@@ -49,7 +49,7 @@ function spider_plot(P, varargin)
 %   LineStyle        - Used to change the line style of the plots.
 %                      ['-' (default) | '--' | ':' | '-.' | 'none']
 %
-%   LineWidth        - Used to change the line width, where 1 point is 
+%   LineWidth        - Used to change the line width, where 1 point is
 %                      1/72 of an inch.
 %                      [0.5 (default) | positive value]
 %
@@ -67,7 +67,7 @@ function spider_plot(P, varargin)
 %   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
 %
-%   Direction        - Used to change the direction of rotation of the 
+%   Direction        - Used to change the direction of rotation of the
 %                      plotted data and axis labels.
 %                      [counterclockwise (default) | clockwise]
 %
@@ -174,6 +174,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-01-06: Added support for subplot feature.
 %   2019-11-27: Add option to change axes to logarithmic scale.
 %   2019-11-15: Add feature to customize the plot rotational direction and
 %               the offset position of the axis labels.
@@ -355,7 +356,7 @@ if strcmp(axes_scaling, 'log')
     % Minimum and maximun log limits
     min_limit = min(min(fix(P)));
     max_limit = max(max(floor(P)));
-     
+    
     % Update axes interval
     axes_interval = max_limit - min_limit;
     
@@ -367,15 +368,34 @@ end
 
 
 %%% Figure Properties %%%
-% Figure background
-fig = figure;
+% Graphics root object
+g = groot;
+
+% Check if any figure exists
+if isempty(g.Children)
+    % Create a new figure
+    fig = figure;
+else
+    % Use current figure
+    fig = gcf;
+end
+
+% Set figure background
 fig.Color = 'white';
+
+% Current axes handle
+ax = gca;
 
 % Axis limits
 hold on;
 axis square;
 axis([-1.3, 1.3, -1.3, 1.3]);
-axis off;
+
+% Axis properties
+ax.XTickLabel = [];
+ax.YTickLabel = [];
+ax.XColor = 'none';
+ax.YColor = 'none';
 
 % Plot colors
 grey = [0.5, 0.5, 0.5];
@@ -541,20 +561,22 @@ for ii = 1:num_data_groups
 end
 
 % Find object handles
-text_handles = findobj(fig.Children,...
+text_handles = findobj(ax.Children,...
     'Type', 'Text');
-patch_handles = findobj(fig.Children,...
+patch_handles = findobj(ax.Children,...
     'Type', 'Patch');
-isocurve_handles = findobj(fig.Children,...
+isocurve_handles = findobj(ax.Children,...
     'Color', grey,...
     '-and', 'Type', 'Line');
-plot_handles = findobj(fig.Children, '-not',...
+plot_handles = findobj(ax.Children, '-not',...
     'Color', grey,...
     '-and', 'Type', 'Line');
 
 % Manually set the stack order
-h = [text_handles; plot_handles; patch_handles; isocurve_handles];
-set(fig.Children, 'Children', h);
+uistack(text_handles, 'bottom');
+uistack(plot_handles, 'bottom');
+uistack(patch_handles, 'bottom');
+uistack(isocurve_handles, 'bottom');
 
 %%% Labels %%%
 % Check labels argument
