@@ -190,6 +190,8 @@ legend('D1', 'D2', 'D3', 'Location', 'northeast');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-01-06: Added support for subplot feature.
+
 - 2019-11-27: Add option to change axes to logarithmic scale.
 
 - 2019-11-15: Add feature to customize the plot rotational direction and the offset position of the axis labels.
