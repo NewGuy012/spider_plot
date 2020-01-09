@@ -172,6 +172,29 @@ function spider_plot_R2019b(P, options)
 %       'AxesScaling', 'log');
 %   legend('D1', 'D2', 'D3', 'Location', 'northeast');
 %
+%   % Example 7: Spider plot with tiledlayout feature in R2019b.
+%
+%   D1 = [5 3 9 1 2];
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
+%   t = tiledlayout(2, 2);
+%   nexttile;
+%   spider_plot_R2019b(P,...
+%       'AxesInterval', 1,...
+%       'AxesPrecision', 0);
+%   nexttile;
+%   spider_plot_R2019b(P,...
+%       'AxesInterval', 1,...
+%       'AxesPrecision', 0);
+%   nexttile(3, [1, 2]);
+%   spider_plot_R2019b(P,...
+%       'AxesInterval', 1,...
+%       'AxesPrecision', 0);
+%   t.TileSpacing = 'compact';
+%   t.Padding = 'compact';
+%   title(t, 'Spider Plots');
+% 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
 %   2020-01-06: Added support for tiledlayout feature introduced in R2019b.
@@ -240,20 +263,14 @@ if strcmp(options.AxesScaling, 'log')
 end
 
 %%% Figure Properties %%%
-% Graphics root object
-g = groot;
-
-% Check if any figure exists
-if isempty(g.Children)
-    % Create a new figure
-    fig = figure;
-else
-    % Use current figure
-    fig = gcf;
-end
+% Grab current figure
+fig = gcf;
 
 % Set figure background
 fig.Color = 'white';
+
+% Reset axes
+cla reset;
 
 % Current axes handle
 ax = gca;
@@ -261,7 +278,7 @@ ax = gca;
 % Axis limits
 hold on;
 axis square;
-axis([-1.3, 1.3, -1.3, 1.3]);
+axis([-1, 1, -1, 1] * 1.3);
 
 % Axis properties
 ax.XTickLabel = [];
