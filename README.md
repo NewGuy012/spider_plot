@@ -190,9 +190,44 @@ spider_plot(P,...
 legend('D1', 'D2', 'D3', 'Location', 'northeast');
 ```
 
+  ### Example 7: Spider plot with tiledlayout feature in R2019b.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Titled layout
+t = tiledlayout(2, 2);
+
+% Tile 1
+nexttile;
+spider_plot_R2019b(P,...
+    'AxesInterval', 1,...
+    'AxesPrecision', 0);
+
+% Tile 2
+nexttile;
+spider_plot_R2019b(P,...
+    'AxesInterval', 1,...
+    'AxesPrecision', 0);
+
+% Tile 3
+nexttile(3, [1, 2]);
+spider_plot_R2019b(P,...
+    'AxesInterval', 1,...
+    'AxesPrecision', 0);
+
+% Tile properties
+t.TileSpacing = 'compact';
+t.Padding = 'compact';
+title(t, 'Spider Plots');
+```
+
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
-- 2020-01-06: Added support for subplot feature.
+- 2020-01-06: Added support for subplot and tiledlayout feature (tiledlayout introduced in R2019b).
 
 - 2019-11-27: Add option to change axes to logarithmic scale.
 
@@ -209,6 +244,6 @@ Moses Yoo, (jyoo at hatci dot com)
 - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
-Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, Alex Grenyer, & Tobias Kern for their feature recommendations and suggested bug fixes.
+Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke, Alex Grenyer, Tobias Kern, & Omar Hadri for their feature recommendations and suggested bug fixes.
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
