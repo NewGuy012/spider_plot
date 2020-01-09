@@ -368,20 +368,14 @@ end
 
 
 %%% Figure Properties %%%
-% Graphics root object
-g = groot;
-
-% Check if any figure exists
-if isempty(g.Children)
-    % Create a new figure
-    fig = figure;
-else
-    % Use current figure
-    fig = gcf;
-end
+% Grab current figure
+fig = gcf;
 
 % Set figure background
 fig.Color = 'white';
+
+% Reset axes
+cla reset;
 
 % Current axes handle
 ax = gca;
@@ -389,7 +383,7 @@ ax = gca;
 % Axis limits
 hold on;
 axis square;
-axis([-1.3, 1.3, -1.3, 1.3]);
+axis([-1, 1, -1, 1] * 1.3);
 
 % Axis properties
 ax.XTickLabel = [];
