@@ -172,6 +172,21 @@ function spider_plot(P, varargin)
 %       'AxesScaling', 'log');
 %   legend('D1', 'D2', 'D3', 'Location', 'northeast');
 %
+%   % Example 7: Spider plot with subplot feature.
+%
+%   D1 = [5 3 9 1 2];
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
+%   subplot(1, 2, 1)
+%   spider_plot(P,...
+%       'AxesInterval', 1,...
+%       'AxesPrecision', 0);
+%   subplot(1, 2, 2)
+%   spider_plot(P,...
+%       'AxesInterval', 1,...
+%       'AxesPrecision', 0);
+%
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
 %   2020-01-06: Added support for subplot feature.
