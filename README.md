@@ -227,7 +227,7 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
-- 2020-01-27: Corrected bug where only 7 entries were allowed in the legend.
+- 2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 - 2020-01-06: Added support for subplot and tiledlayout feature (tiledlayout introduced in R2019b).
 
 - 2019-11-27: Add option to change axes to logarithmic scale.
