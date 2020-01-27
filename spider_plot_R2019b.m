@@ -197,6 +197,7 @@ function spider_plot_R2019b(P, options)
 % 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 %   2020-01-06: Added support for tiledlayout feature introduced in R2019b.
 %   2019-11-27: Add option to change axes to logarithmic scale.
 %   2019-11-15: Add feature to customize the plot rotational direction and
@@ -214,8 +215,8 @@ function spider_plot_R2019b(P, options)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
-%   Alex Grenyer, & Omar Hadri for their feature recommendations and
-%   suggested bug fixes.
+%   Alex Grenyer, Omar Hadri & Zafar Alifor their feature recommendations
+%   and suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
