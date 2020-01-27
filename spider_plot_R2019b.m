@@ -223,11 +223,11 @@ arguments
     options.AxesLabels {validateAxesLabels(options.AxesLabels, P)} = cellstr("Label " + (1:size(P, 2)))
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
     options.AxesPrecision (1, 1) double {mustBeInteger, mustBeNonnegative} = 1
-    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all';
+    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption char {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency (1, 1) double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
-    options.Color (:, 3) double {mustBeGreaterThanOrEqual(options.Color, 0), mustBeLessThanOrEqual(options.Color, 1)} = get(groot,'defaultAxesColorOrder')
+    options.Color (:, 3) double {mustBeGreaterThanOrEqual(options.Color, 0), mustBeLessThanOrEqual(options.Color, 1)} = lines(size(P, 1))
     options.LineStyle char {mustBeMember(options.LineStyle,{'-', '--', ':', '-.', 'none'})} = '-'
     options.LineWidth (1, 1) double {mustBePositive} = 2
     options.Marker char {mustBeMember(options.Marker, {'+', 'o', '*', '.', 'x', 'square', 's', 'diamond', 'd', 'v', '^', '>', '<', 'pentagram', 'p', 'hexagram', 'h', 'none'})} = 'o'
