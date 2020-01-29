@@ -122,7 +122,7 @@ spider_plot(P,...
     'FillOption', 'on',...
     'FillTransparency', 0.1);
 ```
-!<p align="center">
+<p align="center">
   <img src="screenshot/example3.PNG">
 </p>
 
@@ -251,6 +251,7 @@ title(t, 'Spider Plots');
 <p align="center">
   <img src="screenshot/example7.PNG">
 </p>
+
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
