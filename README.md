@@ -85,7 +85,7 @@ spider_plot(P);
 % Legend settings
 legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ```
-![Example 1](screenshot/example1.PNG)
+![Example 1](screenshot/example1.PNG#center)
 
 ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 ```matlab
