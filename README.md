@@ -85,7 +85,9 @@ spider_plot(P);
 % Legend settings
 legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ```
-![Example 1](screenshot/example1.PNG)
+<p align="center">
+  <img src="screenshot/example1.PNG">
+</p>
 
 ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 ```matlab
@@ -99,7 +101,9 @@ P = [D1; D2; D3];
 spider_plot(P,...
     'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
 ```
-![Example 2](screenshot/example2.PNG)
+<p align="center">
+  <img src="screenshot/example2.PNG">
+</p>
 
 ### Example 3: Set fill option on. The fill transparency can be adjusted.
 ```matlab
@@ -116,7 +120,9 @@ spider_plot(P,...
     'FillOption', 'on',...
     'FillTransparency', 0.1);
 ```
-![Example 3](screenshot/example3.PNG)
+!<p align="center">
+  <img src="screenshot/example3.PNG">
+</p>
 
   ### Example 4: Maximum number of arguments.
 ```matlab
@@ -146,7 +152,9 @@ spider_plot(P,...
     'AxesLabelsOffset', 0,...
     'AxesScaling', 'linear');
 ```
-![Example 4](screenshot/example4.PNG)
+<p align="center">
+  <img src="screenshot/example4.PNG">
+</p>
 
   ### Example 5: Excel-like radar charts.
 ```matlab
@@ -175,7 +183,9 @@ title(sprintf('Excel-like Radar Chart'),...
 legend_str = {'D1', 'D2'};
 legend(legend_str, 'Location', 'southoutside');
 ```
-![Example 5](screenshot/example5.PNG)
+<p align="center">
+  <img src="screenshot/example5.PNG">
+</p>
 
   ### Example 6: Logarithimic scale on all axes. Axes limits and axes intervals are automatically set to factors of 10.
 ```matlab
@@ -194,7 +204,9 @@ spider_plot(P,...
 % Legend settings
 legend('D1', 'D2', 'D3', 'Location', 'northeast');
 ```
-![Example 6](screenshot/example6.PNG)
+<p align="center">
+  <img src="screenshot/example6.PNG">
+</p>
 
   ### Example 7: Spider plot with tiledlayout feature in R2019b.
 ```matlab
@@ -230,7 +242,9 @@ t.TileSpacing = 'compact';
 t.Padding = 'compact';
 title(t, 'Spider Plots');
 ```
-![Example 7](screenshot/example7.PNG)
+<p align="center">
+  <img src="screenshot/example7.PNG">
+</p>
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
