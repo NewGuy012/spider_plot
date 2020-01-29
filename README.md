@@ -89,6 +89,7 @@ legend('D1', 'D2', 'D3', 'Location', 'southoutside');
   <img src="screenshot/example1.PNG">
 </p>
 
+
 ### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
 ```matlab
 % Initialize data points
@@ -104,6 +105,7 @@ spider_plot(P,...
 <p align="center">
   <img src="screenshot/example2.PNG">
 </p>
+
 
 ### Example 3: Set fill option on. The fill transparency can be adjusted.
 ```matlab
@@ -123,6 +125,7 @@ spider_plot(P,...
 !<p align="center">
   <img src="screenshot/example3.PNG">
 </p>
+
 
   ### Example 4: Maximum number of arguments.
 ```matlab
@@ -156,6 +159,7 @@ spider_plot(P,...
   <img src="screenshot/example4.PNG">
 </p>
 
+
   ### Example 5: Excel-like radar charts.
 ```matlab
 % Initialize data points
@@ -187,6 +191,7 @@ legend(legend_str, 'Location', 'southoutside');
   <img src="screenshot/example5.PNG">
 </p>
 
+
   ### Example 6: Logarithimic scale on all axes. Axes limits and axes intervals are automatically set to factors of 10.
 ```matlab
 % Initialize data points
@@ -207,6 +212,7 @@ legend('D1', 'D2', 'D3', 'Location', 'northeast');
 <p align="center">
   <img src="screenshot/example6.PNG">
 </p>
+
 
   ### Example 7: Spider plot with tiledlayout feature in R2019b.
 ```matlab
