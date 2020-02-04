@@ -215,7 +215,7 @@ function spider_plot_R2019b(P, options)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
-%   Alex Grenyer, Omar Hadri & Zafar Alifor their feature recommendations
+%   Alex Grenyer, Omar Hadri & Zafar Ali for their feature recommendations
 %   and suggested bug fixes.
 
 %%% Argument Validation %%%
