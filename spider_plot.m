@@ -411,10 +411,6 @@ ax.YColor = 'none';
 % Plot colors
 grey = [0.5, 0.5, 0.5];
 
-% Repeat colors as necessary
-repeat_colors = fix(num_data_points/size(colors, 1))+1;
-colors = repmat(colors, repeat_colors, 1);
-
 % Polar increments
 theta_increment = 2*pi/num_data_points;
 rho_increment = 1/(axes_interval+1);
