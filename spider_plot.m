@@ -364,6 +364,11 @@ if ~ismember(axes_scaling, {'linear', 'log'})
     error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
 end
 
+% Check axis limits if num_data_groups is one
+if num_data_groups == 1 && isempty(axes_limits)
+    error('Error: For one data group, please enter in a range for the axes limits.');
+end
+
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
 if strcmp(axes_scaling, 'log')
