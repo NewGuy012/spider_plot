@@ -244,7 +244,7 @@ end
 % Point properties
 [num_data_groups, num_data_points] = size(P);
 
-% Valide number of data groups
+% Validate number of data groups
 if num_data_groups == 1 && isempty(options.AxesLimits)
     error('Error: For one data group, please enter in a range for the axes limits.');
 end
