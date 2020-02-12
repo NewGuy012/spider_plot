@@ -189,6 +189,8 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%	2020-02-12: Fixed condition and added error checking for when only one
+%			    data group is plotted.
 %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 %   2020-01-06: Added support for subplot feature.
 %   2019-11-27: Add option to change axes to logarithmic scale.
@@ -204,8 +206,8 @@ function spider_plot(P, varargin)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-%   Tobias Kern & Zafar Ali for their feature recommendations and
-%   suggested bug fixes.
+%   Tobias Kern, Zafar Ali & Christophe Hurlin for their feature
+%   recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
