@@ -574,6 +574,16 @@ end
 function validateAxesLimits(axLim, P)
 if ~isempty(axLim)
     validateattributes(axLim, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'AxesLimits')
+    
+    % Lower and upper limits
+    lower_limits = axLim(1, :);
+    upper_limits = axLim(2, :);
+    index = lower_limits == upper_limits;
+    
+    % Check the range of axes limits
+    if any(index)
+        error('Please make sure the min and max axes limits are different.');
+    end
 end
 end
 
