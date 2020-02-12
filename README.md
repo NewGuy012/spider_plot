@@ -276,7 +276,7 @@ Moses Yoo, (jyoo at hatci dot com)
 - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
-Special thanks to 
+Special thanks to the following people for their feature recommendations and suggested bug fixes.
 - Gabriela Andrade
 - Andrés Garcia
 - Jiro Doke
@@ -285,6 +285,5 @@ Special thanks to
 - Omar Hadri
 - Zafar Ali
 - Christophe Hurlin
-for their feature recommendations and suggested bug fixes.
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
