@@ -317,6 +317,16 @@ if ~isempty(axes_limits)
     if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
         error('Error: Please make sure the min and max axes limits match the number of data points.');
     end
+    
+    % Lower and upper limits
+    lower_limits = axes_limits(1, :);
+    upper_limits = axes_limits(2, :);
+    index = lower_limits == upper_limits;
+    
+    % Check the range of axes limits
+    if any(index)
+        error('Error: Please make sure the min and max axes limits are different.');
+    end
 end
 
 % Check if axes properties are an integer
