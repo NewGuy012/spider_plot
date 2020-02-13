@@ -323,10 +323,17 @@ if ~isempty(axes_limits)
     % Lower and upper limits
     lower_limits = axes_limits(1, :);
     upper_limits = axes_limits(2, :);
-    index = lower_limits == upper_limits;
+    
+    % Difference in upper and lower limits
+    diff_limits = upper_limits - lower_limits;
+    
+    % Check to make sure upper limit is greater than lower limit
+    if any(diff_limits < 0)
+        error('Error: Please make sure max axes limits are greater than the min axes limits.');
+    end
     
     % Check the range of axes limits
-    if any(index)
+    if any(diff_limits == 0)
         error('Error: Please make sure the min and max axes limits are different.');
     end
 end
