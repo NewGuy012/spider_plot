@@ -285,5 +285,6 @@ Special thanks to the following people for their feature recommendations and sug
 - Omar Hadri
 - Zafar Ali
 - Christophe Hurlin
+- Sean de Wolski
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
