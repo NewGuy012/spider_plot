@@ -62,7 +62,7 @@ Create a spider or radar plot with individual axes.
                          [10 (default) | scalar value greater than zero]
                          
 - **Direction**        - Used to change the direction of rotation of the plotted data and axis labels.
-                         [counterclockwise (default) | clockwise]
+                         [clockwise (default) | counterclockwise]
                          
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
                          [0.1 (default) | positive value]
