@@ -254,7 +254,9 @@ title(t, 'Spider Plots');
 
 
 ## Author:
-Moses Yoo, (jyoo at hatci dot com)
+Moses Yoo, (jyoo at hatci dot com
+- 2020-02-17: Major revision in converting the function into a custom chart class. New feature introduced in R2019b.
+
 - 2020-02-12: Fixed condition and added error checking for when only one data group is plotted.
 
 - 2020-01-27: Corrected bug where only 7 entries were allowed in legend.
