@@ -69,7 +69,7 @@ function spider_plot(P, varargin)
 %
 %   Direction        - Used to change the direction of rotation of the
 %                      plotted data and axis labels.
-%                      [counterclockwise (default) | clockwise]
+%                      [clockwise (default) | counterclockwise]
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
 %                      labels.
