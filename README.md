@@ -7,7 +7,7 @@ Create a spider or radar plot with individual axes.
 **spider_plot(P)**
   
 
-**spider_plot( ___, Name, Value)**
+**spider_plot(P, Name, Value, ...)**
 
 ## Input Arguments:
 *(Required)*
