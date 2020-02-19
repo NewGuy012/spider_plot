@@ -71,7 +71,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %
     %   Direction        - Used to change the direction of rotation of the
     %                      plotted data and axis labels.
-    %                      [counterclockwise (default) | clockwise]
+    %                      [clockwise (default) | counterclockwise]
     %
     %   AxesLabelsOffset - Used to adjust the position offset of the axes
     %                      labels.
@@ -213,7 +213,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   2019-09-17: Major revision to improve speed, clarity, and functionality
     %
     % Special Thanks:
-    %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
+    %   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali & Christophe Hurlin for their feature
     %   recommendations and bug finds. A huge thanks to Jiro Doke and
     %   Sean de Wolski for demonstrating the implementation of argument
