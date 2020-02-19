@@ -3,9 +3,9 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %spider_plot_R2019b_class Create a spider or radar plot with individual axes.
     %
     % Syntax:
-    %   spider_plot_R2019b_class(P)
-    %   spider_plot_R2019b_class(P, Name, Value, ...)
-    %   spider_plot_R2019b_class(parent, ___)
+    %   s = spider_plot_R2019b_class(P)
+    %   s = spider_plot_R2019b_class(P, Name, Value, ...)
+    %   s = spider_plot_R2019b_class(parent, ___)
     %
     % Input Arguments:
     %   (Required)
@@ -80,6 +80,13 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   AxesScaling      - Used to change the scaling of the axes.
     %                      ['linear' (default) | 'log']
     %
+    % Output Arguments:
+    %   (Optional)
+    %   s                - Returns a chart class object. These are unique
+    %                      identifiers, which you can use to query and
+    %                      modify properties of the spider chart.
+    %                      [chart class object]
+    %
     % Examples:
     %   % Example 1: Minimal number of arguments. All non-specified, optional
     %                arguments are set to their default values. Axes labels
@@ -104,8 +111,8 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   if exist('s', 'var')
     %       delete(s);
     %   end
-    %   s = spider_plot_R2019b_class(P,...
-    %       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
+    %   s = spider_plot_R2019b_class(P);
+    %   s.AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % [min axes limits; max axes limits]
     %
     %   % Example 3: Set fill option on. The fill transparency can be adjusted.
     %
@@ -116,11 +123,11 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   if exist('s', 'var')
     %       delete(s);
     %   end
-    %   s = spider_plot_R2019b_class(P,...
-    %       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
-    %       'AxesInterval', 2,...
-    %       'FillOption', 'on',...
-    %       'FillTransparency', 0.1);
+    %   s = spider_plot_R2019b_class(P);
+    %   s.AxesLabels = ["S1", "S2", "S3", "S4", "S5"];
+    %   s.AxesInterval = 2;
+    %   s.FillOption = 'on';
+    %   s.FillTransparency = 0.1;
     %
     %   % Example 4: Maximum number of arguments.
     %
@@ -131,24 +138,24 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   if exist('s', 'var')
     %       delete(s);
     %   end
-    %   s = spider_plot_R2019b_class(P,...
-    %       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
-    %       'AxesInterval', 4,...
-    %       'AxesPrecision', 0,...
-    %       'AxesDisplay', 'one',...
-    %       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10],...
-    %       'FillOption', 'on',...
-    %       'FillTransparency', 0.2,...
-    %       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
-    %       'LineStyle', '--',...
-    %       'LineWidth', 3,...
-    %       'Marker', 'd',...
-    %       'MarkerSize', 10,...
-    %       'AxesFontSize', 12,...
-    %       'LabelFontSize', 10,...
-    %       'Direction', 'clockwise',...
-    %       'AxesLabelsOffset', 0,...
-    %       'AxesScaling', 'linear');
+    %   s = spider_plot_R2019b_class(P);
+    %   s.AxesLabels = ["S1", "S2", "S3", "S4", "S5"];
+    %   s.AxesInterval = 4;
+    %   s.AxesPrecision = 0;
+    %   s.AxesDisplay = 'one';
+    %   s.AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
+    %   s.FillOption = 'on';
+    %   s.FillTransparency =  0.2;
+    %   s.Color = [1, 0, 0; 0, 1, 0; 0, 0, 1];
+    %   s.LineStyle = '--';
+    %   s.LineWidth = 3;
+    %   s.Marker =  'd';
+    %   s.MarkerSize = 10;
+    %   s.AxesFontSize = 12;
+    %    s.LabelFontSize = 10;
+    %   s.Direction = 'clockwise';
+    %   s.AxesLabelsOffset = 0;
+    %   s.AxesScaling = 'linear';
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -158,18 +165,18 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   if exist('s', 'var')
     %       delete(s);
     %   end
-    %   s = spider_plot_R2019b_class(P,...
-    %       'AxesInterval', 5,...
-    %       'AxesPrecision', 0,...
-    %       'AxesDisplay', 'one',...
-    %       'AxesLimits', [0, 0, 0, 0, 0; 5, 5, 5, 5, 5],...
-    %       'FillOption', 'on',...
-    %       'FillTransparency', 0.1,...
-    %       'Color', [139, 0, 0; 240, 128, 128]/255,...
-    %       'LineWidth', 4,...
-    %       'Marker', 'none',...
-    %       'AxesFontSize', 14,...
-    %       'LabelFontSize', 10);
+    %   s = spider_plot_R2019b_class(P);
+    %   s.AxesInterval = 5;
+    %   s.AxesPrecision = 0;
+    %   s.AxesDisplay = 'one';
+    %   s.AxesLimits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
+    %   s.FillOption = 'on';
+    %   s.FillTransparency = 0.1;
+    %   s.Color = [139, 0, 0; 240, 128, 128]/255;
+    %   s.LineWidth = 4;
+    %   s.Marker = 'none';
+    %   s.AxesFontSize = 14;
+    %   s.LabelFontSize = 10;
     %   title('Excel-like Radar Chart',...
     %       'FontSize', 14);
     %   s.LegendLabels = ["D1", "D2"];
@@ -184,10 +191,10 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   if exist('s', 'var')
     %       delete(s);
     %   end
-    %   s = spider_plot_R2019b_class(P,...
-    %       'AxesPrecision', 2,...
-    %       'AxesDisplay', 'one',...
-    %       'AxesScaling', 'log');
+    %   s = spider_plot_R2019b_class(P);
+    %   s.AxesPrecision = 2;
+    %   s.AxesDisplay = 'one';
+    %   s.AxesScaling = 'log';
     %   s.LegendLabels = ["D1", "D2", "D3"];
     %
     % Author:
