@@ -202,7 +202,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     %   2020-02-17: Major revision in converting the function into a custom
     %               chart class. New feature introduced in R2019b.
     %	2020-02-12: Fixed condition and added error checking for when only one
-    %               data group is plotted.
+    %			    data group is plotted.
     %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
     %   2020-01-06: Added support for tiledlayout feature introduced in R2019b.
     %   2019-11-27: Add option to change axes to logarithmic scale.
@@ -230,6 +230,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
     properties(Access = public, SetObservable)
         % Property validation and defaults
         P (:, :) double
+        P_log (:, :) double
         AxesLabels string % Axes labels
         LegendLabels string % Data labels
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
@@ -250,7 +251,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
         AxesScaling char {mustBeMember(AxesScaling, {'linear', 'log'})} = 'linear' % Scaling of axes
     end
     
-    %%% Protected, Dependent, Hidden Properties %%%
+    %%% Private, NonCopyable, Transient Properties %%%
     properties(Access = private, NonCopyable, Transient)
         % Data line object
         DataLines = gobjects(0)
@@ -273,7 +274,7 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
         InitializeToggle = true;
     end
     
-    %%% Private, Transient, NonCopyable Properties %%%
+    %%% Protected, Dependent, Hidden Properties %%%
     properties(Access = protected, Dependent, Hidden)
         NumDataGroups
         NumDataPoints
@@ -320,6 +321,14 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
             obj.AxesDisplay = value;
             
             % Toggle re-initialize to true if AxesInterval was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesScaling(obj, value)
+            % Set property
+            obj.AxesScaling = value;
+            
+            % Toggle re-initialize to true if AxesScaling was changed
             obj.InitializeToggle = true;
         end
         
@@ -450,6 +459,41 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
         end
         
         function initialize(obj)
+            % Check axes scaling option
+            switch obj.AxesScaling
+                case 'linear'
+                    % Selected data
+                    P_selected = obj.P;
+                    
+                    % Reset property to default values
+                    obj.AxesInterval = 3;
+                    obj.AxesLimits = [];
+                    obj.AxesDisplay = 'all';
+                    
+                case 'log'
+                    % Common logarithm of base 10
+                    obj.P_log = sign(obj.P) .* log10(abs(obj.P));
+                    
+                    % Selected data
+                    P_selected = obj.P_log;
+                    
+                    % Minimum and maximun log limits
+                    min_limit = min(min(fix(P_selected)));
+                    max_limit = max(max(ceil(P_selected)));
+                    
+                    % Update axes interval
+                    obj.AxesInterval = max_limit - min_limit;
+                    
+                    % Update axes limits
+                    axes_limits = zeros(2, obj.NumDataPoints);
+                    axes_limits(1, :) = min_limit;
+                    axes_limits(2, :) = max_limit;
+                    
+                    % Update property
+                    obj.AxesLimits = axes_limits;
+                    obj.AxesDisplay = 'one';
+            end
+            
             % Axes handles
             ax = getAxes(obj);
             
@@ -462,13 +506,13 @@ classdef spider_plot_R2019b_class < matlab.graphics.chartcontainer.ChartContaine
             
             %%% Scale Data %%%
             % Pre-allocation
-            P_scaled = zeros(size(obj.P));
+            P_scaled = zeros(size(P_selected));
             axes_range = zeros(3, obj.NumDataPoints);
             
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints
                 % Group of points
-                group_points = obj.P(:, ii);
+                group_points = P_selected(:, ii);
                 
                 % Automatically the range of each group
                 min_value = min(group_points);
