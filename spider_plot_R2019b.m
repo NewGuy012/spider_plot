@@ -1,9 +1,9 @@
 function spider_plot_R2019b(P, options)
-%spider_plot Create a spider or radar plot with individual axes.
+%spider_plot_R2019b Create a spider or radar plot with individual axes.
 %
 % Syntax:
 %   spider_plot_R2019b(P)
-%   spider_plot_R2019b(___, Name, Value)
+%   spider_plot_R2019b(P, Name, Value, ...)
 %
 % Input Arguments:
 %   (Required)
@@ -197,8 +197,8 @@ function spider_plot_R2019b(P, options)
 % 
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
-%   2020-02-12: Fixed condition and added error checking for when only one
-%               data group is plotted.
+%	2020-02-12: Fixed condition and added error checking for when only one
+%			    data group is plotted.
 %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 %   2020-01-06: Added support for tiledlayout feature introduced in R2019b.
 %   2019-11-27: Add option to change axes to logarithmic scale.
@@ -237,7 +237,7 @@ arguments
     options.MarkerSize (1, 1) double {mustBePositive} = 8
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
-    options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'counterclockwise'
+    options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
     options.AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1
     options.AxesScaling char {mustBeMember(options.AxesScaling, {'linear', 'log'})} = 'linear'
 end
