@@ -156,7 +156,7 @@ spider_plot(P,...
     'AxesScaling', 'linear');
 ```
 <p align="center">
-  <img src="screenshot/example4.PNG">
+  <img src="screenshot/example4.png">
 </p>
 
 
