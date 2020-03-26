@@ -127,10 +127,10 @@ function spider_plot(P, varargin)
 %       'FillOption', 'on',...
 %       'FillTransparency', 0.2,...
 %       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
-%       'LineStyle', '--',...
-%       'LineWidth', 3,...
-%       'Marker', 'd',...
-%       'MarkerSize', 10,...
+%       'LineStyle', {'--', '-', '--'},...
+%       'LineWidth', [1, 2, 3],...
+%       'Marker', {'o', 'd', 's'},...
+%       'MarkerSize', [8, 10, 12],...
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
@@ -189,8 +189,10 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
-%   2020-02-12: Fixed condition and added error checking for when only one
-%               data group is plotted.
+%   2020-03-26: Added feature to allow different line styles, line width,
+%               marker type, and marker sizes for the data groups.
+%	2020-02-12: Fixed condition and added error checking for when only one
+%			    data group is plotted.
 %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 %   2020-01-06: Added support for subplot feature.
 %   2019-11-27: Add option to change axes to logarithmic scale.
@@ -206,7 +208,7 @@ function spider_plot(P, varargin)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-%   Tobias Kern, Zafar Ali & Christophe Hurlin for their feature
+%   Tobias Kern, Zafar Ali, Christophe Hurlin, & Roman for their feature
 %   recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
@@ -386,6 +388,69 @@ end
 % Check axis limits if num_data_groups is one
 if num_data_groups == 1 && isempty(axes_limits)
     error('Error: For one data group, please enter in a range for the axes limits.');
+end
+
+% Check if line style is a char
+if ischar(line_style)
+    % Convert to cell array of char
+    line_style = cellstr(line_style);
+    
+    % Repeat cell to number of data groups
+    line_style = repmat(line_style, num_data_groups, 1);
+elseif iscellstr(line_style)
+    % Check is length is one
+    if length(line_style) == 1
+        % Repeat cell to number of data groups
+        line_style = repmat(line_style, num_data_groups, 1);
+    elseif length(line_style) ~= num_data_groups
+        error('Error: Please specify the same number of line styles as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line style is a char or a cell array of char.');
+end
+
+% Check if line width is numeric
+if isnumeric(line_width)
+    % Check is length is one
+    if length(line_width) == 1
+        % Repeat array to number of data groups
+        line_width = repmat(line_width, num_data_groups, 1);
+    elseif length(line_width) ~= num_data_groups
+        error('Error: Please specify the same number of line width as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line width is a numeric value.');
+end
+
+% Check if marker type is a char
+if ischar(marker_type)
+    % Convert to cell array of char
+    marker_type = cellstr(marker_type);
+    
+    % Repeat cell to number of data groups
+    marker_type = repmat(marker_type, num_data_groups, 1);
+elseif iscellstr(marker_type)
+    % Check is length is one
+    if length(marker_type) == 1
+        % Repeat cell to number of data groups
+        marker_type = repmat(marker_type, num_data_groups, 1);
+    elseif length(marker_type) ~= num_data_groups
+        error('Error: Please specify the same number of line styles as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line style is a char or a cell array of char.');
+end
+
+% Check if line width is numeric
+if isnumeric(marker_size)
+    if length(marker_size) == 1
+        % Repeat array to number of data groups
+        marker_size = repmat(marker_size, num_data_groups, 1);
+    elseif length(marker_size) ~= num_data_groups
+        error('Error: Please specify the same number of line width as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line width is numeric.');
 end
 
 %%% Axes Scaling Properties %%%
@@ -572,11 +637,11 @@ for ii = 1:num_data_groups
     
     % Plot data points
     plot(x_circular, y_circular,...
-        'LineStyle', line_style,...
-        'Marker', marker_type,...
+        'LineStyle', line_style{ii},...
+        'Marker', marker_type{ii},...
         'Color', colors(ii, :),...
-        'LineWidth', line_width,...
-        'MarkerSize', marker_size,...
+        'LineWidth', line_width(ii),...
+        'MarkerSize', marker_size(ii),...
         'MarkerFaceColor', colors(ii, :));
     
     % Check if fill option is toggled on
