@@ -47,18 +47,18 @@ function spider_plot(P, varargin)
 %                      [MATLAB colors (default) | RGB triplet]
 %
 %   LineStyle        - Used to change the line style of the plots.
-%                      ['-' (default) | '--' | ':' | '-.' | 'none']
+%                      ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
 %
 %   LineWidth        - Used to change the line width, where 1 point is
 %                      1/72 of an inch.
-%                      [0.5 (default) | positive value]
+%                      [0.5 (default) | positive value | vector]
 %
 %   Marker           - Used to change the marker symbol of the plots.
-%                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
+%                      ['o' (default) | 'none' | '*' | 's' | 'd' | ... | cell array of character vectors]
 %
 %   MarkerSize       - Used to change the marker size, where 1 point is
 %                      1/72 of an inch.
-%                      [8 (default) | positive value]
+%                      [8 (default) | positive value | vector]
 %
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
