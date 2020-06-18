@@ -213,7 +213,7 @@ spider_plot(P,...
 legend('D1', 'D2', 'D3', 'Location', 'northeast');
 ```
 <p align="center">
-  <img src="screenshot/example6.PNG">
+  <img src="screenshot/example6.png">
 </p>
 
 
