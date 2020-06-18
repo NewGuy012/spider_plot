@@ -68,7 +68,7 @@ Create a spider or radar plot with individual axes.
                          [0.1 (default) | positive value]
                          
 - **AxesScaling**      - Used to change the scaling of the axes.
-                         ['linear' (default) | 'log']
+                         ['linear' (default) | 'log' | cell array of character vectors]
                          
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
@@ -192,21 +192,24 @@ legend(legend_str, 'Location', 'southoutside');
 </p>
 
 
-  ### Example 6: Logarithimic scale on all axes. Axes limits and axes intervals are automatically set to factors of 10.
+  ### Example 6: Logarithimic scale on specified axes. Axes limits and axes intervals can be individually set as well.
 ```matlab
 % Initialize data points
-D1 = [-1 10 1 500];   
-D2 = [-10 20 1000 60];
-D3 = [-100 30 10 7];
+D1 = [5 3 9 1 1];
+D2 = [5 8 7 2 10];
+D3 = [8 2 1 4 100];
 P = [D1; D2; D3];
 
 % Spider plot
 spider_plot(P,...
-    'AxesPrecision', 2,...
-    'AxesDisplay', 'one',...
-    'AxesScaling', 'log');
+    'AxesInterval', 2,...
+    'AxesPrecision', 0,...
+    'AxesFontSize', 10,...
+    'AxesLabels', {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'},...
+    'AxesScaling', {'linear', 'linear', 'linear', 'linear', 'log'},...
+    'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 100]);
     
-% Legend settings
+% Legend properties
 legend('D1', 'D2', 'D3', 'Location', 'northeast');
 ```
 <p align="center">
@@ -255,6 +258,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-03-26: Allow logarithmic scale to be set to one or more axis.
+
 - 2020-03-26: Added feature to allow different line styles, line width, marker type, and marker sizes for the data groups.
 
 - 2020-02-17: Major revision in converting the function into a custom chart class. New feature introduced in R2019b.
@@ -291,5 +296,6 @@ Special thanks to the following people for their feature recommendations and sug
 - Christophe Hurlin
 - Sean de Wolski
 - Roman
+- Mariusz Sepczuk
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
