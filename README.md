@@ -258,7 +258,7 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
-- 2020-03-26: Allow logarithmic scale to be set to one or more axis.
+- 2020-06-17: Allow logarithmic scale to be set to one or more axis.
 
 - 2020-03-26: Added feature to allow different line styles, line width, marker type, and marker sizes for the data groups.
 
