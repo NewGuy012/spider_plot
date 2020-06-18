@@ -76,7 +76,7 @@ function spider_plot(P, varargin)
 %                      [0.1 (default) | positive value]
 %
 %   AxesScaling      - Used to change the scaling of the axes.
-%                      ['linear' (default) | 'log']
+%                      ['linear' (default) | 'log' | cell array of character vectors]
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -159,17 +159,20 @@ function spider_plot(P, varargin)
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
-%   % Example 6: Logarithimic scale on all axes. Axes limits and axes
-%                intervals are automatically set to factors of 10.
+%   % Example 6: Logarithimic scale on specified axes. Axes limits and axes
+%                intervals can be individually set as well.
 %
-%   D1 = [-1 10 1 500];
-%   D2 = [-10 20 1000 60];
-%   D3 = [-100 30 10 7];
+%   D1 = [5 3 9 1 1];
+%   D2 = [5 8 7 2 10];
+%   D3 = [8 2 1 4 100];
 %   P = [D1; D2; D3];
 %   spider_plot(P,...
-%       'AxesPrecision', 2,...
-%       'AxesDisplay', 'one',...
-%       'AxesScaling', 'log');
+%       'AxesInterval', 2,...
+%       'AxesPrecision', 0,...
+%       'AxesFontSize', 10,...
+%       'AxesLabels', {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'},...
+%       'AxesScaling', {'linear', 'linear', 'linear', 'linear', 'log'},...
+%       'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 100]);
 %   legend('D1', 'D2', 'D3', 'Location', 'northeast');
 %
 %   % Example 7: Spider plot with subplot feature.
@@ -189,10 +192,11 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-06-17: Allow logarithmic scale to be set to one or more axis.
 %   2020-03-26: Added feature to allow different line styles, line width,
 %               marker type, and marker sizes for the data groups.
-%   2020-02-12: Fixed condition and added error checking for when only one
-%               data group is plotted.
+%	2020-02-12: Fixed condition and added error checking for when only one
+%			    data group is plotted.
 %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
 %   2020-01-06: Added support for subplot feature.
 %   2019-11-27: Add option to change axes to logarithmic scale.
@@ -208,8 +212,8 @@ function spider_plot(P, varargin)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-%   Tobias Kern, Zafar Ali, Christophe Hurlin, & Roman for their feature
-%   recommendations and suggested bug fixes.
+%   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, & Mariusz Sepczuk
+%   for their feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -381,7 +385,26 @@ if axes_labels_offset < 0
 end
 
 % Check if axes scaling is valid
-if ~ismember(axes_scaling, {'linear', 'log'})
+if any(~ismember(axes_scaling, {'linear', 'log'}))
+    error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
+end
+
+% Check if axes scaling is a cell
+if iscell(axes_scaling)
+    % Check is length is one
+    if length(axes_scaling) == 1
+        % Repeat array to number of data groups
+        axes_scaling = repmat(axes_scaling, num_data_points, 1);
+    elseif length(axes_scaling) ~= num_data_points
+        error('Error: Please specify the same number of axes scaling as number of data points.');
+    end
+else
+    % Repeat array to number of data groups
+    axes_scaling = repmat({axes_scaling}, num_data_points, 1);
+end
+
+% Check if axes scaling is valid
+if any(~ismember(axes_scaling, {'linear', 'log'}))
     error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
 end
 
@@ -455,21 +478,27 @@ end
 
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
-if strcmp(axes_scaling, 'log')
+log_index = strcmp(axes_scaling, 'log');
+
+% If any log scaling is specified
+if any(log_index)
+    % Initialize copy
+    P_log = P(:, log_index);
+    
     % Logarithm of base 10, account for numbers less than 1
-    P = sign(P) .* log10(abs(P));
+    P_log = sign(P_log) .* log10(abs(P_log));
     
     % Minimum and maximun log limits
-    min_limit = min(min(fix(P)));
-    max_limit = max(max(floor(P)));
+    min_limit = min(min(fix(P_log)));
+    max_limit = max(max(ceil(P_log)));
+    recommended_axes_interval = max_limit - min_limit;
     
-    % Update axes interval
-    axes_interval = max_limit - min_limit;
+    % Warning message
+    warning('For the log scale values, recommended axes limits is [%i, %i] and axes interval is %i.',...
+        10^min_limit, 10^max_limit, recommended_axes_interval);
     
-    % Update axes limits
-    axes_limits = zeros(2, num_data_points);
-    axes_limits(1, :) = min_limit;
-    axes_limits(2, :) = max_limit;
+    % Replace original
+    P(:, log_index) = P_log;
 end
 
 
@@ -514,9 +543,18 @@ for ii = 1:num_data_points
     % Group of points
     group_points = P(:, ii);
     
-    % Automatically the range of each group
-    min_value = min(group_points);
-    max_value = max(group_points);
+    % Check for log axes scaling option
+    if log_index(ii)
+        % Minimum and maximun log limits
+        min_value = min(fix(group_points));
+        max_value = max(ceil(group_points));
+    else
+        % Automatically the range of each group
+        min_value = min(group_points);
+        max_value = max(group_points);
+    end
+    
+    % Range of min and max values
     range = max_value - min_value;
     
     % Check if axes_limits is empty
@@ -524,10 +562,21 @@ for ii = 1:num_data_points
         % Scale points to range from [rho_increment, 1]
         P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
     else
-        % Manually set the range of each group
-        min_value = axes_limits(1, ii);
-        max_value = axes_limits(2, ii);
-        range = max_value - min_value;
+        % Check for log axes scaling option
+        if log_index(ii)
+            % Logarithm of base 10, account for numbers less than 1
+            axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii)));
+            
+            % Manually set the range of each group
+            min_value = axes_limits(1, ii);
+            max_value = axes_limits(2, ii);
+            range = max_value - min_value;
+        else
+            % Manually set the range of each group
+            min_value = axes_limits(1, ii);
+            max_value = axes_limits(2, ii);
+            range = max_value - min_value;
+        end
         
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
@@ -608,8 +657,8 @@ for ii = 1:theta_end_index
         range = axes_range(3, ii);
         axes_value = min_value + (range/axes_interval) * (jj-2);
         
-        % Check axes scaling option
-        if strcmp(axes_scaling, 'log')
+        % Check for log axes scaling option
+        if log_index(ii)
             % Exponent to the tenth power
             axes_value = 10^axes_value;
         end
