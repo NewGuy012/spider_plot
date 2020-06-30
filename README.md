@@ -28,10 +28,10 @@ Create a spider or radar plot with individual axes.
 - **AxesPrecision**    - Used to change the precision level on the value displayed on the axes.
                          [1 (default) | integer]
                          
-- **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify                          the plot appearance for normalized data.
+- **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify the plot appearance for normalized data.
                          ['all' (default) | 'none' | 'one']
 
-- **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and                            the bottow row is the maximum axes limits.
+- **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
                          [auto-scaled (default) | matrix]
 
 - **FillOption**       - Used to toggle color fill option.
