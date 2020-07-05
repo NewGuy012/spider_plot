@@ -198,7 +198,7 @@ legend_str = {'D1', 'D2'};
 legend(legend_str, 'Location', 'southoutside');
 ```
 <p align="center">
-  <img src="screenshot/example5.PNG">
+  <img src="screenshot/example5.png">
 </p>
 
 
