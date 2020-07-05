@@ -268,6 +268,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-07-05: Added feature to change spider axes and legend edge colors.
+
 - 2020-06-17: Allow logarithmic scale to be set to one or more axis.
 
 - 2020-03-26: Added feature to allow different line styles, line width, marker type, and marker sizes for the data groups.
@@ -307,5 +309,6 @@ Special thanks to the following people for their feature recommendations and sug
 - Sean de Wolski
 - Roman
 - Mariusz Sepczuk
+- Mohamed Abubakr
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
