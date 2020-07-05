@@ -44,7 +44,7 @@ function spider_plot(P, varargin)
 %
 %   Color            - Used to specify the line color, specified as an RGB
 %                      triplet. The intensities must be in the range (0, 1).
-%                      [MATLAB colors (default) | RGB triplet]
+%                      [MATLAB colors (default) | RGB triplet | hexadecimal color code]
 %
 %   LineStyle        - Used to change the line style of the plots.
 %                      ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
@@ -77,6 +77,12 @@ function spider_plot(P, varargin)
 %
 %   AxesScaling      - Used to change the scaling of the axes.
 %                      ['linear' (default) | 'log' | cell array of character vectors]
+%
+%   AxesColor        - Used to change the color of the spider axes.
+%                      [grey (default) | RGB triplet]
+%
+%   LegendEdgeColor  - Used to change the edge color of the legend text box.
+%                      [black (default) | RGB triplet | hexadecimal color code | 'none']
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -135,7 +141,9 @@ function spider_plot(P, varargin)
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
 %       'AxesLabelsOffset', 0,...
-%       'AxesScaling', 'linear');
+%       'AxesScaling', 'linear',...
+%       'AxesColor', [0.6, 0.6, 0.6],...
+%       'LegendEdgeColor', 'none');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -153,7 +161,9 @@ function spider_plot(P, varargin)
 %       'LineWidth', 4,...
 %       'Marker', 'none',...
 %       'AxesFontSize', 14,...
-%       'LabelFontSize', 10);
+%       'LabelFontSize', 10,...
+%       'AxesColor', [0.8, 0.8, 0.8],...
+%       'LegendEdgeColor', 'none');
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
@@ -192,6 +202,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-07-05: Added feature to change spider axes and legend edge colors.
 %   2020-06-17: Allow logarithmic scale to be set to one or more axis.
 %   2020-03-26: Added feature to allow different line styles, line width,
 %               marker type, and marker sizes for the data groups.
@@ -212,8 +223,8 @@ function spider_plot(P, varargin)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-%   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, & Mariusz Sepczuk
-%   for their feature recommendations and suggested bug fixes.
+%   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk, &
+%   Mohamed Abubakr for their feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -253,6 +264,8 @@ label_font_size = 10;
 direction = 'clockwise';
 axes_labels_offset = 0.1;
 axes_scaling = 'linear';
+axes_color = [0.6, 0.6, 0.6];
+legend_edge_color = 'k';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -298,6 +311,10 @@ if numvarargs > 1
                 axes_labels_offset = value_arguments{ii};
             case 'axesscaling'
                 axes_scaling = value_arguments{ii};
+            case 'axescolor'
+                axes_color = value_arguments{ii};
+            case 'legendedgecolor'
+                legend_edge_color = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -494,7 +511,7 @@ if any(log_index)
     recommended_axes_interval = max_limit - min_limit;
     
     % Warning message
-    warning('For the log scale values, recommended axes limits is [%i, %i] and axes interval is %i.',...
+    warning('For the log scale values, recommended axes limit is [%i, %i] and axes interval is %i.',...
         10^min_limit, 10^max_limit, recommended_axes_interval);
     
     % Replace original
@@ -525,9 +542,6 @@ ax.XTickLabel = [];
 ax.YTickLabel = [];
 ax.XColor = 'none';
 ax.YColor = 'none';
-
-% Plot colors
-grey = [0.5, 0.5, 0.5];
 
 % Polar increments
 theta_increment = 2*pi/num_data_points;
@@ -565,7 +579,7 @@ for ii = 1:num_data_points
         % Check for log axes scaling option
         if log_index(ii)
             % Logarithm of base 10, account for numbers less than 1
-            axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii)));
+            axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii))); %#ok<AGROW>
             
             % Manually set the range of each group
             min_value = axes_limits(1, ii);
@@ -616,7 +630,7 @@ for ii = 1:length(theta)-1
     % Plot webs
     h = plot(x_axes, y_axes,...
         'LineWidth', 1.5,...
-        'Color', grey);
+        'Color', axes_color);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -629,7 +643,7 @@ for ii = 2:length(rho)
     
     % Plot axes
     h = plot(x_axes, y_axes,...
-        'Color', grey);
+        'Color', axes_color);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -711,10 +725,10 @@ text_handles = findobj(ax.Children,...
 patch_handles = findobj(ax.Children,...
     'Type', 'Patch');
 isocurve_handles = findobj(ax.Children,...
-    'Color', grey,...
+    'Color', axes_color,...
     '-and', 'Type', 'Line');
 plot_handles = findobj(ax.Children, '-not',...
-    'Color', grey,...
+    'Color', axes_color,...
     '-and', 'Type', 'Line');
 
 % Manually set the stack order
@@ -804,7 +818,7 @@ if ~strcmp(axes_labels, 'none')
             'Units', 'Data',...
             'HorizontalAlignment', horz_align,...
             'VerticalAlignment', vert_align,...
-            'EdgeColor', 'k',...
+            'EdgeColor', legend_edge_color,...
             'BackgroundColor', 'w',...
             'FontSize', label_font_size);
     end
