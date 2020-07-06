@@ -81,7 +81,7 @@ function spider_plot(P, varargin)
 %   AxesColor        - Used to change the color of the spider axes.
 %                      [grey (default) | RGB triplet]
 %
-%   AxesLabelsEdge   - Used to change the edge color of the legend text box.
+%   AxesLabelsEdge   - Used to change the edge color of the axes labels.
 %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
 %
 % Examples:
