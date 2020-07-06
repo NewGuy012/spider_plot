@@ -41,7 +41,7 @@ Create a spider or radar plot with customizable individual axes.
                          [0.1 (default) | scalar in range (0, 1)]
                      
 - **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
-                         [MATLAB colors (default) | RGB triplet]
+                         [MATLAB colors (default) | RGB triplet | hexadecimal color code]
 
 - **LineStyle**        - Used to change the line style of the plots.
                          ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
