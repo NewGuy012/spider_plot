@@ -164,7 +164,7 @@ spider_plot(P,...
     'AxesLabelsEdge', 'none');
 ```
 <p align="center">
-  <img src="screenshot/example4">
+  <img src="screenshot/example4.png">
 </p>
 
 
