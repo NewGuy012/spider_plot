@@ -81,7 +81,7 @@ function spider_plot(P, varargin)
 %   AxesColor        - Used to change the color of the spider axes.
 %                      [grey (default) | RGB triplet]
 %
-%   LegendEdgeColor  - Used to change the edge color of the legend text box.
+%   AxesLabelsEdge   - Used to change the edge color of the legend text box.
 %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
 %
 % Examples:
@@ -143,7 +143,7 @@ function spider_plot(P, varargin)
 %       'AxesLabelsOffset', 0,...
 %       'AxesScaling', 'linear',...
 %       'AxesColor', [0.6, 0.6, 0.6],...
-%       'LegendEdgeColor', 'none');
+%       'AxesLabelsEdge', 'none');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -163,7 +163,7 @@ function spider_plot(P, varargin)
 %       'AxesFontSize', 14,...
 %       'LabelFontSize', 10,...
 %       'AxesColor', [0.8, 0.8, 0.8],...
-%       'LegendEdgeColor', 'none');
+%       'AxesLabelsEdge', 'none');
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
@@ -265,7 +265,7 @@ direction = 'clockwise';
 axes_labels_offset = 0.1;
 axes_scaling = 'linear';
 axes_color = [0.6, 0.6, 0.6];
-legend_edge_color = 'k';
+axes_labels_edge = 'k';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -313,8 +313,8 @@ if numvarargs > 1
                 axes_scaling = value_arguments{ii};
             case 'axescolor'
                 axes_color = value_arguments{ii};
-            case 'legendedgecolor'
-                legend_edge_color = value_arguments{ii};
+            case 'axeslabelsedge'
+                axes_labels_edge = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -818,7 +818,7 @@ if ~strcmp(axes_labels, 'none')
             'Units', 'Data',...
             'HorizontalAlignment', horz_align,...
             'VerticalAlignment', vert_align,...
-            'EdgeColor', legend_edge_color,...
+            'EdgeColor', axes_labels_edge,...
             'BackgroundColor', 'w',...
             'FontSize', label_font_size);
     end
