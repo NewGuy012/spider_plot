@@ -268,7 +268,7 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
-- 2020-07-05: Added feature to change spider axes and legend edge colors.
+- 2020-07-05: Added feature to change spider axes and axes label edge colors.
 
 - 2020-06-17: Allow logarithmic scale to be set to one or more axis.
 
