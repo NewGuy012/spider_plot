@@ -16,7 +16,7 @@ function spider_plot(P, varargin)
 % Name-Value Pair Arguments:
 %   (Optional)
 %   AxesLabels       - Used to specify the label each of the axes.
-%                      [auto-generated (default) | cell of strings | 'none']
+%                      [auto-generated (default) | cell array of character vectors | 'none']
 %
 %   AxesInterval     - Used to change the number of intervals displayed
 %                      between the webs.
@@ -69,7 +69,10 @@ function spider_plot(P, varargin)
 %
 %   Direction        - Used to change the direction of rotation of the
 %                      plotted data and axis labels.
-%                      [clockwise (default) | counterclockwise]
+%                      ['clockwise' (default) | 'counterclockwise']
+%
+%   AxesDirection     - Used to change the direction of axes
+%                      ['normal' (default) | 'reverse']
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
 %                      labels.
@@ -79,7 +82,7 @@ function spider_plot(P, varargin)
 %                      ['linear' (default) | 'log' | cell array of character vectors]
 %
 %   AxesColor        - Used to change the color of the spider axes.
-%                      [grey (default) | RGB triplet]
+%                      [grey (default) | RGB triplet | hexadecimal color code]
 %
 %   AxesLabelsEdge   - Used to change the edge color of the axes labels.
 %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
@@ -140,6 +143,7 @@ function spider_plot(P, varargin)
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
+%       'AxesDirection', {'reverse', 'normal', 'normal', 'normal', 'normal'},...
 %       'AxesLabelsOffset', 0.1,...
 %       'AxesScaling', 'linear',...
 %       'AxesColor', [0.6, 0.6, 0.6],...
@@ -202,6 +206,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-09-30: Updated examples and added ability to reverse axes direction.
 %   2020-07-05: Added feature to change spider axes and axes labels edge color.
 %   2020-06-17: Allow logarithmic scale to be set to one or more axis.
 %   2020-03-26: Added feature to allow different line styles, line width,
@@ -222,7 +227,7 @@ function spider_plot(P, varargin)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Alex Grenyer,
+%   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk, &
 %   Mohamed Abubakr for their feature recommendations and suggested bug fixes.
 
@@ -262,6 +267,7 @@ marker_size = 8;
 axes_font_size = 10;
 label_font_size = 10;
 direction = 'clockwise';
+axes_direction = 'normal';
 axes_labels_offset = 0.1;
 axes_scaling = 'linear';
 axes_color = [0.6, 0.6, 0.6];
@@ -307,6 +313,8 @@ if numvarargs > 1
                 label_font_size = value_arguments{ii};
             case 'direction'
                 direction = value_arguments{ii};
+            case 'axesdirection'
+                axes_direction = value_arguments{ii};
             case 'axeslabelsoffset'
                 axes_labels_offset = value_arguments{ii};
             case 'axesscaling'
@@ -330,7 +338,7 @@ if iscell(axes_labels)
         error('Error: Please make sure the number of labels is the same as the number of points.');
     end
 else
-    % Check if valid string entry
+    % Check if valid char entry
     if ~contains(axes_labels, 'none')
         error('Error: Please enter in valid labels or "none" to remove labels.');
     end
@@ -371,7 +379,7 @@ if axes_interval < 1 || axes_precision < 0
     error('Error: Please enter a positive for the axes properties.');
 end
 
-% Check if axes display is valid string entry
+% Check if axes display is valid char entry
 if ~ismember(axes_display, {'all', 'none', 'one'})
     error('Error: Invalid axes display entry. Please enter in "all", "none", or "one" to set axes text.');
 end
@@ -391,9 +399,14 @@ if axes_font_size <= 0 || label_font_size <= 0
     error('Error: Please enter a font size greater than zero.');
 end
 
-% Check if direction is valid string entry
+% Check if direction is valid char entry
 if ~ismember(direction, {'counterclockwise', 'clockwise'})
     error('Error: Invalid direction entry. Please enter in "counterclockwise" or "clockwise" to set direction of rotation.');
+end
+
+% Check if axes direction is valid char entry
+if ~ismember(axes_direction, {'normal', 'reverse'})
+    error('Error: Invalid axes direction entry. Please enter in "normal" or "reverse" to set axes direction.');
 end
 
 % Check if axes labels offset is positive
@@ -418,11 +431,6 @@ if iscell(axes_scaling)
 else
     % Repeat array to number of data groups
     axes_scaling = repmat({axes_scaling}, num_data_points, 1);
-end
-
-% Check if axes scaling is valid
-if any(~ismember(axes_scaling, {'linear', 'log'}))
-    error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
 end
 
 % Check axis limits if num_data_groups is one
@@ -493,6 +501,20 @@ else
     error('Error: Please make sure the line width is numeric.');
 end
 
+% Check if axes direction is a cell
+if iscell(axes_direction)
+    % Check is length is one
+    if length(axes_direction) == 1
+        % Repeat array to number of data groups
+        axes_direction = repmat(axes_direction, num_data_points, 1);
+    elseif length(axes_direction) ~= num_data_points
+        error('Error: Please specify the same number of axes direction as number of data points.');
+    end
+else
+    % Repeat array to number of data groups
+    axes_direction = repmat({axes_direction}, num_data_points, 1);
+end
+
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
 log_index = strcmp(axes_scaling, 'log');
@@ -511,13 +533,12 @@ if any(log_index)
     recommended_axes_interval = max_limit - min_limit;
     
     % Warning message
-    warning('For the log scale values, recommended axes limit is [%i, %i] and axes interval is %i.',...
+    warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
         10^min_limit, 10^max_limit, recommended_axes_interval);
     
     % Replace original
     P(:, log_index) = P_log;
 end
-
 
 %%% Figure Properties %%%
 % Grab current figure
@@ -605,6 +626,17 @@ for ii = 1:num_data_points
     axes_range(:, ii) = [min_value; max_value; range];
 end
 
+%%% Axes Direction Properties %%%
+% Check axes scaling option
+axes_direction_index = strcmp(axes_direction, 'reverse');
+
+% If any reverse axes direction is specified
+if any(axes_direction_index)
+    % Reverse direction
+    P_scaled(:, axes_direction_index) = flipud(P_scaled(:, axes_direction_index));
+    axes_range(1:2, axes_direction_index) = flipud(axes_range(1:2, axes_direction_index));
+end
+
 %%% Polar Axes %%%
 % Polar coordinates
 rho = 0:rho_increment:1;
@@ -666,10 +698,18 @@ for ii = 1:theta_end_index
     
     % Iterate through points on isocurve
     for jj = 2:length(rho)
-        % Axes increment value
+        % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
-        axes_value = min_value + (range/axes_interval) * (jj-2);
+        
+        % If reverse axes direction is specified
+        if axes_direction_index(ii)
+            % Axes increment value
+            axes_value = min_value - (range/axes_interval) * (jj-2);
+        else
+            % Axes increment value
+            axes_value = min_value + (range/axes_interval) * (jj-2);
+        end
         
         % Check for log axes scaling option
         if log_index(ii)

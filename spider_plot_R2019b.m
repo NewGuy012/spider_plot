@@ -16,7 +16,7 @@ function spider_plot_R2019b(P, options)
 % Name-Value Pair Arguments:
 %   (Optional)
 %   AxesLabels       - Used to specify the label each of the axes.
-%                      [auto-generated (default) | cell of strings | 'none']
+%                      [auto-generated (default) | cell array of character vectors | 'none']
 %
 %   AxesInterval     - Used to change the number of intervals displayed
 %                      between the webs.
@@ -47,18 +47,18 @@ function spider_plot_R2019b(P, options)
 %                      [MATLAB colors (default) | RGB triplet]
 %
 %   LineStyle        - Used to change the line style of the plots.
-%                      ['-' (default) | '--' | ':' | '-.' | 'none']
+%                      ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
 %
 %   LineWidth        - Used to change the line width, where 1 point is
 %                      1/72 of an inch.
-%                      [0.5 (default) | positive value]
+%                      [0.5 (default) | positive value | vector]
 %
 %   Marker           - Used to change the options.Marker symbol of the plots.
-%                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
+%                      ['o' (default) | 'none' | '*' | 's' | 'd' | ... | cell array of character vectors]
 %
 %   MarkerSize       - Used to change the options.Marker size, where 1 point is
 %                      1/72 of an inch.
-%                      [8 (default) | positive value]
+%                      [8 (default) | positive value | vector]
 %
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
@@ -67,16 +67,25 @@ function spider_plot_R2019b(P, options)
 %   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
 %
-%   Direction        - Used to change the direction of rotation of the 
+%   Direction        - Used to change the direction of rotation of the
 %                      plotted data and axis labels.
-%                      [clockwise (default) | counterclockwise]
+%                      ['clockwise' (default) | 'counterclockwise']
+%
+%   AxesDirection     - Used to change the direction of axes
+%                      ['normal' (default) | 'reverse']
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
 %                      labels.
 %                      [0.1 (default) | positive value]
 %
 %   AxesScaling      - Used to change the scaling of the axes.
-%                      ['linear' (default) | 'log']
+%                      ['linear' (default) | 'log' | cell array of character vectors]
+%
+%   AxesColor        - Used to change the color of the spider axes.
+%                      [grey (default) | RGB triplet | hexadecimal color code]
+%
+%   AxesLabelsEdge   - Used to change the edge color of the axes labels.
+%                      [black (default) | RGB triplet | hexadecimal color code | 'none']
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -127,15 +136,18 @@ function spider_plot_R2019b(P, options)
 %       'FillOption', 'on',...
 %       'FillTransparency', 0.2,...
 %       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
-%       'LineStyle', '--',...
-%       'LineWidth', 3,...
-%       'Marker', 'd',...
-%       'MarkerSize', 10,...
+%       'LineStyle', {'--', '-', '--'},...
+%       'LineWidth', [1, 2, 3],...
+%       'Marker', {'o', 'd', 's'},...
+%       'MarkerSize', [8, 10, 12],...
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
-%       'AxesLabelsOffset', 0,...
-%       'AxesScaling', 'linear');
+%       'AxesDirection', {'reverse', 'normal', 'normal', 'normal', 'normal'},...
+%       'AxesLabelsOffset', 0.1,...
+%       'AxesScaling', 'linear',...
+%       'AxesColor', [0.6, 0.6, 0.6],...
+%       'AxesLabelsEdge', 'none');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -153,23 +165,28 @@ function spider_plot_R2019b(P, options)
 %       'LineWidth', 4,...
 %       'Marker', 'none',...
 %       'AxesFontSize', 14,...
-%       'LabelFontSize', 10);
+%       'LabelFontSize', 10,...
+%       'AxesColor', [0.8, 0.8, 0.8],...
+%       'AxesLabelsEdge', 'none');
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
 %   legend(legend_str, 'Location', 'southoutside');
 %
-%   % Example 6: Logarithimic scale on all axes. Axes limits and axes
-%                intervals are automatically set to factors of 10.
+%   % Example 6: Logarithimic scale on specified axes. Axes limits and axes
+%                intervals can be individually set as well.
 %
-%   D1 = [-1 10 1 500];
-%   D2 = [-10 20 1000 60];
-%   D3 = [-100 30 10 7];
+%   D1 = [5 3 9 1 1];
+%   D2 = [5 8 7 2 10];
+%   D3 = [8 2 1 4 100];
 %   P = [D1; D2; D3];
 %   spider_plot_R2019b(P,...
-%       'AxesPrecision', 2,...
-%       'AxesDisplay', 'one',...
-%       'AxesScaling', 'log');
+%       'AxesInterval', 2,...
+%       'AxesPrecision', 0,...
+%       'AxesFontSize', 10,...
+%       'AxesLabels', {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'},...
+%       'AxesScaling', {'linear', 'linear', 'linear', 'linear', 'log'},...
+%       'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 100]);
 %   legend('D1', 'D2', 'D3', 'Location', 'northeast');
 %
 %   % Example 7: Spider plot with tiledlayout feature in R2019b.
@@ -194,9 +211,15 @@ function spider_plot_R2019b(P, options)
 %   t.TileSpacing = 'compact';
 %   t.Padding = 'compact';
 %   title(t, 'Spider Plots');
-% 
+%
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-09-30: -Updated examples.
+%   	        -Added feature to change spider axes and axes labels edge color.
+%   	        -Allow logarithmic scale to be set to one or more axis.
+%   	        -Added feature to allow different line styles, line width,
+%                marker type, and marker sizes for the data groups.
+%               -Allow ability to reverse axes direction.
 %   2020-02-12: Fixed condition and added error checking for when only one
 %               data group is plotted.
 %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
@@ -216,9 +239,10 @@ function spider_plot_R2019b(P, options)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Jiro Doke,
-%   Alex Grenyer, Omar Hadri, Zafar Ali & Christophe Hurlin for
-%   their feature recommendations and suggested bug fixes.
+%   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
+%   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
+%   Mariusz Sepczuk, & Mohamed Abubakr for their feature recommendations
+%   and suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
@@ -230,44 +254,157 @@ arguments
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption char {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency (1, 1) double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
-    options.Color (:, 3) double {mustBeGreaterThanOrEqual(options.Color, 0), mustBeLessThanOrEqual(options.Color, 1)} = lines(size(P, 1))
-    options.LineStyle char {mustBeMember(options.LineStyle,{'-', '--', ':', '-.', 'none'})} = '-'
-    options.LineWidth (1, 1) double {mustBePositive} = 2
-    options.Marker char {mustBeMember(options.Marker, {'+', 'o', '*', '.', 'x', 'square', 's', 'diamond', 'd', 'v', '^', '>', '<', 'pentagram', 'p', 'hexagram', 'h', 'none'})} = 'o'
-    options.MarkerSize (1, 1) double {mustBePositive} = 8
+    options.Color = get(groot,'defaultAxesColorOrder')
+    options.LineStyle = '-'
+    options.LineWidth (:, :) double {mustBePositive} = 2
+    options.Marker = 'o'
+    options.MarkerSize (:, :) double {mustBePositive} = 8
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
+    options.AxesDirection = 'normal'
     options.AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1
-    options.AxesScaling char {mustBeMember(options.AxesScaling, {'linear', 'log'})} = 'linear'
+    options.AxesScaling = 'linear'
+    options.AxesColor = [0.6, 0.6, 0.6]
+    options.AxesLabelsEdge = 'k'
 end
 
 %%% Data Properties %%%
 % Point properties
 [num_data_groups, num_data_points] = size(P);
 
-% Validate number of data groups
+%%% Validate Properties %%%
+%%% Validate Line Style
+% Check if line style is a char
+if ischar(options.LineStyle)
+    % Convert to cell array of char
+    options.LineStyle = cellstr(options.LineStyle);
+    
+    % Repeat cell to number of data groups
+    options.LineStyle = repmat(options.LineStyle, num_data_groups, 1);
+elseif iscellstr(options.LineStyle) %#ok<*ISCLSTR>
+    % Check is length is one
+    if length(options.LineStyle) == 1
+        % Repeat cell to number of data groups
+        options.LineStyle = repmat(options.LineStyle, num_data_groups, 1);
+    elseif length(options.LineStyle) ~= num_data_groups
+        error('Error: Please specify the same number of line styles as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line style is a char or a cell array of char.');
+end
+
+%%% Validate Line Width
+% Check if line width is numeric
+if isnumeric(options.LineWidth)
+    % Check is length is one
+    if length(options.LineWidth) == 1
+        % Repeat array to number of data groups
+        options.LineWidth = repmat(options.LineWidth, num_data_groups, 1);
+    elseif length(options.LineWidth) ~= num_data_groups
+        error('Error: Please specify the same number of line width as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line width is a numeric value.');
+end
+
+%%% Validate Marker
+% Check if marker type is a char
+if ischar(options.Marker)
+    % Convert to cell array of char
+    options.Marker = cellstr(options.Marker);
+    
+    % Repeat cell to number of data groups
+    options.Marker = repmat(options.Marker, num_data_groups, 1);
+elseif iscellstr(options.Marker)
+    % Check is length is one
+    if length(options.Marker) == 1
+        % Repeat cell to number of data groups
+        options.Marker = repmat(options.Marker, num_data_groups, 1);
+    elseif length(options.Marker) ~= num_data_groups
+        error('Error: Please specify the same number of line styles as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line style is a char or a cell array of char.');
+end
+
+%%% Validate Marker Size
+% Check if line width is numeric
+if isnumeric(options.MarkerSize)
+    if length(options.MarkerSize) == 1
+        % Repeat array to number of data groups
+        options.MarkerSize = repmat(options.MarkerSize, num_data_groups, 1);
+    elseif length(options.MarkerSize) ~= num_data_groups
+        error('Error: Please specify the same number of line width as number of data groups.');
+    end
+else
+    error('Error: Please make sure the line width is numeric.');
+end
+
+%%% Validate Axes Scaling
+% Check if axes scaling is valid
+if any(~ismember(options.AxesScaling, {'linear', 'log'}))
+    error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
+end
+
+% Check if axes scaling is a cell
+if iscell(options.AxesScaling)
+    % Check is length is one
+    if length(options.AxesScaling) == 1
+        % Repeat array to number of data groups
+        options.AxesScaling = repmat(options.AxesScaling, num_data_points, 1);
+    elseif length(options.AxesScaling) ~= num_data_points
+        error('Error: Please specify the same number of axes scaling as number of data points.');
+    end
+else
+    % Repeat array to number of data groups
+    options.AxesScaling = repmat({options.AxesScaling}, num_data_points, 1);
+end
+
+%%% Validate Axes Direction
+% Check if axes direction is a cell
+if iscell(options.AxesDirection)
+    % Check is length is one
+    if length(options.AxesDirection) == 1
+        % Repeat array to number of data groups
+        options.AxesDirection = repmat(options.AxesDirection, num_data_points, 1);
+    elseif length(options.AxesDirection) ~= num_data_points
+        error('Error: Please specify the same number of axes direction as number of data points.');
+    end
+else
+    % Repeat array to number of data groups
+    options.AxesDirection = repmat({options.AxesDirection}, num_data_points, 1);
+end
+
+%%% Validate Number of Data Groups
+% Check number of data groups and axes limits
 if num_data_groups == 1 && isempty(options.AxesLimits)
     error('Error: For one data group, please enter in a range for the axes limits.');
 end
 
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
-if strcmp(options.AxesScaling, 'log')
-    % Common logarithm of base 10
-    P = sign(P) .* log10(abs(P));
+log_index = strcmp(options.AxesScaling, 'log');
+
+% If any log scaling is specified
+if any(log_index)
+    % Initialize copy
+    P_log = P(:, log_index);
+    
+    % Logarithm of base 10, account for numbers less than 1
+    P_log = sign(P_log) .* log10(abs(P_log));
     
     % Minimum and maximun log limits
-    min_limit = min(min(fix(P)));
-    max_limit = max(max(ceil(P)));
+    min_limit = min(min(fix(P_log)));
+    max_limit = max(max(ceil(P_log)));
+    recommended_axes_interval = max_limit - min_limit;
     
-    % Update axes interval
-    options.AxesInterval = max_limit - min_limit;
+    % Warning message
+    warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
+        10^min_limit, 10^max_limit, recommended_axes_interval);
     
-    % Update axes limits
-    options.AxesLimits = zeros(2, num_data_points);
-    options.AxesLimits(1, :) = min_limit;
-    options.AxesLimits(2, :) = max_limit;
+    % Replace original
+    P(:, log_index) = P_log;
 end
 
 %%% Figure Properties %%%
@@ -294,9 +431,6 @@ ax.YTickLabel = [];
 ax.XColor = 'none';
 ax.YColor = 'none';
 
-% Plot color
-grey = [0.5, 0.5, 0.5];
-
 % Polar increments
 theta_increment = 2*pi/num_data_points;
 rho_increment = 1/(options.AxesInterval+1);
@@ -311,9 +445,18 @@ for ii = 1:num_data_points
     % Group of points
     group_points = P(:, ii);
     
-    % Automatically the range of each group
-    min_value = min(group_points);
-    max_value = max(group_points);
+    % Check for log axes scaling option
+    if log_index(ii)
+        % Minimum and maximun log limits
+        min_value = min(fix(group_points));
+        max_value = max(ceil(group_points));
+    else
+        % Automatically the range of each group
+        min_value = min(group_points);
+        max_value = max(group_points);
+    end
+    
+    % Range of min and max values
     range = max_value - min_value;
     
     % Check if options.AxesLimits is empty
@@ -321,10 +464,21 @@ for ii = 1:num_data_points
         % Scale points to range from [rho_increment, 1]
         P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
     else
-        % Manually set the range of each group
-        min_value = options.AxesLimits(1, ii);
-        max_value = options.AxesLimits(2, ii);
-        range = max_value - min_value;
+        % Check for log axes scaling option
+        if log_index(ii)
+            % Logarithm of base 10, account for numbers less than 1
+            options.AxesLimits(:, ii) = sign(options.AxesLimits(:, ii)) .* log10(abs(options.AxesLimits(:, ii)));
+            
+            % Manually set the range of each group
+            min_value = options.AxesLimits(1, ii);
+            max_value = options.AxesLimits(2, ii);
+            range = max_value - min_value;
+        else
+            % Manually set the range of each group
+            min_value = options.AxesLimits(1, ii);
+            max_value = options.AxesLimits(2, ii);
+            range = max_value - min_value;
+        end
         
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
@@ -337,6 +491,17 @@ for ii = 1:num_data_points
     
     % Store to array
     axes_range(:, ii) = [min_value; max_value; range];
+end
+
+%%% Axes Direction Properties %%%
+% Check axes scaling option
+axes_direction_index = strcmp(options.AxesDirection, 'reverse');
+
+% If any reverse axes direction is specified
+if any(axes_direction_index)
+    % Reverse direction
+    P_scaled(:, axes_direction_index) = flipud(P_scaled(:, axes_direction_index));
+    axes_range(1:2, axes_direction_index) = flipud(axes_range(1:2, axes_direction_index));
 end
 
 %%% Polar Axes %%%
@@ -364,7 +529,7 @@ for ii = 1:length(theta)-1
     % Plot webs
     h = plot(x_axes, y_axes,...
         'LineWidth', 1.5,...
-        'Color', grey);
+        'Color', options.AxesColor);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -377,7 +542,7 @@ for ii = 2:length(rho)
     
     % Plot axes
     h = plot(x_axes, y_axes,...
-        'Color', grey);
+        'Color', options.AxesColor);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -400,13 +565,21 @@ for ii = 1:theta_end_index
     
     % Iterate through points on isocurve
     for jj = 2:length(rho)
-        % Axes increment value
+        % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
-        axes_value = min_value + (range/options.AxesInterval) * (jj-2);
         
-        % Check axes scaling option
-        if strcmp(options.AxesScaling, 'log')
+        % If reverse axes direction is specified
+        if axes_direction_index(ii)
+            % Axes increment value
+            axes_value = min_value - (range/options.AxesInterval) * (jj-2);
+        else
+            % Axes increment value
+            axes_value = min_value + (range/options.AxesInterval) * (jj-2);
+        end
+        
+        % Check for log axes scaling option
+        if log_index(ii)
             % Exponent to the tenth power
             axes_value = 10^axes_value;
         end
@@ -434,11 +607,11 @@ for ii = 1:num_data_groups
     
     % Plot data points
     plot(x_circular, y_circular,...
-        'LineStyle', options.LineStyle,...
-        'Marker', options.Marker,...
+        'LineStyle', options.LineStyle{ii},...
+        'Marker', options.Marker{ii},...
         'Color', options.Color(ii, :),...
-        'LineWidth', options.LineWidth,...
-        'MarkerSize', options.MarkerSize,...
+        'LineWidth', options.LineWidth(ii),...
+        'MarkerSize', options.MarkerSize(ii),...
         'MarkerFaceColor', options.Color(ii, :));
     
     % Check if fill option is toggled on
@@ -471,10 +644,10 @@ text_handles = findobj(obj.Children,...
 patch_handles = findobj(obj.Children,...
     'Type', 'Patch');
 isocurve_handles = findobj(obj.Children,...
-    'Color', grey,...
+    'Color', options.AxesColor,...
     '-and', 'Type', 'Line');
 plot_handles = findobj(obj.Children, '-not',...
-    'Color', grey,...
+    'Color', options.AxesColor,...
     '-and', 'Type', 'Line');
 
 % Manually set the stack order
@@ -564,7 +737,7 @@ if ~strcmp(options.AxesLabels, 'none')
             'Units', 'Data',...
             'HorizontalAlignment', horz_align,...
             'VerticalAlignment', vert_align,...
-            'EdgeColor', 'k',...
+            'EdgeColor', options.AxesLabelsEdge,...
             'BackgroundColor', 'w',...
             'FontSize', options.LabelFontSize);
     end
@@ -572,14 +745,21 @@ end
 end
 
 %%% Custom Validation Functions %%%
+% Validate axes labels
+function validateAxesLabels(axes_labels, P)
+if ~isequal(axes_labels, 'none')
+    validateattributes(axes_labels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'axes_labels')
+end
+end
+
 % Validate axes limits
-function validateAxesLimits(axLim, P)
-if ~isempty(axLim)
-    validateattributes(axLim, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'AxesLimits')
+function validateAxesLimits(axes_limits, P)
+if ~isempty(axes_limits)
+    validateattributes(axes_limits, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'axes_limits')
     
     % Lower and upper limits
-    lower_limits = axLim(1, :);
-    upper_limits = axLim(2, :);
+    lower_limits = axes_limits(1, :);
+    upper_limits = axes_limits(2, :);
     
     % Difference in upper and lower limits
     diff_limits = upper_limits - lower_limits;
@@ -593,12 +773,5 @@ if ~isempty(axLim)
     if any(diff_limits == 0)
         error('Error: Please make sure the min and max axes limits are different.');
     end
-end
-end
-
-% Validate axes labels
-function validateAxesLabels(axLabels, P)
-if ~isequal(axLabels, 'none')
-    validateattributes(axLabels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'AxesLabels')
 end
 end
