@@ -62,7 +62,10 @@ Create a spider or radar plot with customizable individual axes.
                          [10 (default) | scalar value greater than zero]
                          
 - **Direction**        - Used to change the direction of rotation of the plotted data and axis labels.
-                         [clockwise (default) | counterclockwise]
+                         ['clockwise' (default) | 'counterclockwise']
+                         
+- **AxesDirection**    - Used to change the direction of axes.
+                         ['normal' (default) | 'reverse']
                          
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
                          [0.1 (default) | positive value]
@@ -158,6 +161,7 @@ spider_plot(P,...
     'AxesFontSize', 12,...
     'LabelFontSize', 10,...
     'Direction', 'clockwise',...
+    'AxesDirection', {'reverse', 'normal', 'normal', 'normal', 'normal'},...
     'AxesLabelsOffset', 0.1,...
     'AxesScaling', 'linear',...
     'AxesColor', [0.6, 0.6, 0.6],...
@@ -268,6 +272,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-09-30: Updated examples and added ability to reverse axes direction.
+
 - 2020-07-05: Added feature to change spider axes and axes labels edge color.
 
 - 2020-06-17: Allow logarithmic scale to be set to one or more axis.
@@ -310,5 +316,7 @@ Special thanks to the following people for their feature recommendations and sug
 - Roman
 - Mariusz Sepczuk
 - Mohamed Abubakr
+- Maruis Mueller
+- Nicolai
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
