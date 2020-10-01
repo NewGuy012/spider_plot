@@ -89,6 +89,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesLabelsEdge   - Used to change the edge color of the axes labels.
     %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
     %
+    %   LegendLabels     - Used to add the labels to the legend.
+    %                      [cell array of character vectors]
+    %
+    %   LegendHandle     - Used to customize legend settings. 
+    %                      [legend handle object]
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -109,6 +115,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %       delete(s);
     %   end
     %   s = spider_plot_class(P);
+    %   s.LegendLabels = {'D1', 'D2', 'D3'};
+    %   s.LegendHandle.Location = 'northeastoutside';
     %
     %   % Example 2: Manually setting the axes limits. All non-specified,
     %                optional arguments are set to their default values.
@@ -133,7 +141,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %       delete(s);
     %   end
     %   s = spider_plot_class(P);
-    %   s.AxesLabels = ["S1", "S2", "S3", "S4", "S5"];
+    %   s.AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
     %   s.AxesInterval = 2;
     %   s.FillOption = 'on';
     %   s.FillTransparency = 0.1;
@@ -148,7 +156,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %       delete(s);
     %   end
     %   s = spider_plot_class(P);
-    %   s.AxesLabels = ["S1", "S2", "S3", "S4", "S5"];
+    %   s.AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
     %   s.AxesInterval = 4;
     %   s.AxesPrecision = 0;
     %   s.AxesDisplay = 'one';
@@ -166,6 +174,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesDirection = {'reverse', 'normal', 'normal', 'normal', 'normal'};
     %   s.AxesLabelsOffset = 0;
     %   s.AxesScaling = 'linear';
+    %   s.LegendLabels = {'D1', 'D2', 'D3'};
+    %   s.LegendHandle.Location = 'northeastoutside';
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -189,7 +199,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LabelFontSize = 10;
     %   title('Excel-like Radar Chart',...
     %       'FontSize', 14);
-    %   s.LegendLabels = ["D1", "D2"];
+    %   s.LegendLabels = {'D1', 'D2'};
     %
     %   % Example 6: Logarithimic scale on all axes. Axes limits and axes
     %                intervals are automatically set to factors of 10.
@@ -205,13 +215,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesInterval = 2;
     %   s.AxesPrecision = 0;
     %   s.AxesFontSize = 10
-    %   s.AxesLabels = ["Linear Scale", "Linear Scale", "Linear Scale", "Linear Scale", "Logarithimic Scale"];
-    %   s.AxesScaling = ["linear", "linear", "linear", "linear", "log"];
+    %   s.AxesLabels = {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'};
+    %   s.AxesScaling = {'linear', 'linear', 'linear', 'linear', 'log'};
     %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 100];
-    %   s.LegendLabels = ["D1", "D2", "D3"];
+    %   s.LegendLabels = {'D1', 'D2', 'D3'};
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-10-01: Fix legend feature with inherited legend class.
     %   2020-09-30: -Fix axes limit bug. Updated examples.
     %   	        -Added feature to change spider axes and axes labels edge color.
     %   	        -Allow logarithmic scale to be set to one or more axis.
@@ -252,6 +263,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         P (:, :) double
         AxesLabels cell % Axes labels
         LegendLabels cell % Legend labels
+        LegendHandle % Lengend handle
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
         AxesPrecision (1, 1) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one'})} = 'all'  % Number of tick label groups shown on axes
@@ -347,8 +359,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Set property
             obj.LegendLabels = value;
+            obj.LegendVisible = 'on';
             
-            % Toggle re-initialize to true if LegendLabels was changed
+            % Set legend handle
+            obj.LegendHandle = getLegend(obj);
+            
+            % Toggle re-initialize to true iLegendLabels was changed
             obj.InitializeToggle = true;
         end
         
