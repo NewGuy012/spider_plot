@@ -214,7 +214,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s = spider_plot_class(P);
     %   s.AxesInterval = 2;
     %   s.AxesPrecision = 0;
-    %   s.AxesFontSize = 10
+    %   s.AxesFontSize = 10;
     %   s.AxesLabels = {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'};
     %   s.AxesScaling = {'linear', 'linear', 'linear', 'linear', 'log'};
     %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 100];
