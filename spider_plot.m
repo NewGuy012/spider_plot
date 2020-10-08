@@ -24,7 +24,7 @@ function spider_plot(P, varargin)
 %
 %   AxesPrecision    - Used to change the precision level on the value
 %                      displayed on the axes.
-%                      [1 (default) | integer]
+%                      [1 (default) | integer | vector]
 %
 %   AxesDisplay      - Used to change the number of axes in which the
 %                      axes text are displayed. 'None' or 'one' can be used
@@ -72,7 +72,7 @@ function spider_plot(P, varargin)
 %                      ['clockwise' (default) | 'counterclockwise']
 %
 %   AxesDirection     - Used to change the direction of axes.
-%                      ['normal' (default) | 'reverse']
+%                      ['normal' (default) | 'reverse' | cell array of character vectors]
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
 %                      labels.
@@ -99,15 +99,17 @@ function spider_plot(P, varargin)
 %   spider_plot(P);
 %   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 %
-%   % Example 2: Manually setting the axes limits. All non-specified,
-%                optional arguments are set to their default values.
+%   % Example 2: Manually setting the axes limits and axes precision.
+%                All non-specified, optional arguments are set to their
+%                default values.
 %
 %   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
 %   spider_plot(P,...
-%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
+%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10],... % [min axes limits; max axes limits]
+%       'AxesPrecision', [0, 1, 1, 1, 1]);
 %
 %   % Example 3: Set fill option on. The fill transparency can be adjusted.
 %
@@ -206,6 +208,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: Updated examples and added ability to reverse axes direction.
 %   2020-07-05: Added feature to change spider axes and axes labels edge color.
 %   2020-06-17: Allow logarithmic scale to be set to one or more axis.
@@ -228,8 +231,9 @@ function spider_plot(P, varargin)
 %
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-%   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk, &
-%   Mohamed Abubakr for their feature recommendations and suggested bug fixes.
+%   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
+%   Mohamed Abubakr & Nicolai for their feature recommendations and
+%   suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -369,14 +373,27 @@ if ~isempty(axes_limits)
     end
 end
 
+% Check if axes precision is numeric
+if isnumeric(axes_precision)
+    % Check is length is one
+    if length(axes_precision) == 1
+        % Repeat array to number of data points
+        axes_precision = repmat(axes_precision, num_data_points, 1);
+    elseif length(axes_precision) ~= num_data_points
+        error('Error: Please specify the same number of axes precision as number of data points.');
+    end
+else
+    error('Error: Please make sure the axes precision is a numeric value.');
+end
+
 % Check if axes properties are an integer
-if floor(axes_interval) ~= axes_interval || floor(axes_precision) ~= axes_precision
+if floor(axes_interval) ~= axes_interval || any(floor(axes_precision) ~= axes_precision)
     error('Error: Please enter in an integer for the axes properties.');
 end
 
 % Check if axes properties are positive
-if axes_interval < 1 || axes_precision < 0
-    error('Error: Please enter a positive for the axes properties.');
+if axes_interval < 1 || any(axes_precision < 0)
+    error('Error: Please enter a positive value for the axes properties.');
 end
 
 % Check if axes display is valid char entry
@@ -718,7 +735,7 @@ for ii = 1:theta_end_index
         end
         
         % Display axes text
-        text_str = sprintf(sprintf('%%.%if', axes_precision), axes_value);
+        text_str = sprintf(sprintf('%%.%if', axes_precision(ii)), axes_value);
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', 'k',...

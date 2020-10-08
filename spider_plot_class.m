@@ -26,7 +26,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     %   AxesPrecision    - Used to change the precision level on the value
     %                      displayed on the axes.
-    %                      [1 (default) | integer]
+    %                      [1 (default) | integer | vector]
     %
     %   AxesDisplay      - Used to change the number of axes in which the
     %                      axes text are displayed. 'None' or 'one' can be used
@@ -74,7 +74,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      ['clockwise' (default) | 'counterclockwise']
     %
     %   AxesDirection     - Used to change the direction of axes.
-    %                      ['normal' (default) | 'reverse']
+    %                      ['normal' (default) | 'reverse' | cell array of character vectors]
     %
     %   AxesLabelsOffset - Used to adjust the position offset of the axes
     %                      labels.
@@ -118,8 +118,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
     %   s.LegendHandle.Location = 'northeastoutside';
     %
-    %   % Example 2: Manually setting the axes limits. All non-specified,
-    %                optional arguments are set to their default values.
+    %   % Example 2: Manually setting the axes limits and axes precision.
+    %                All non-specified, optional arguments are set to their
+    %                default values.
     %
     %   D1 = [5 3 9 1 2];
     %   D2 = [5 8 7 2 9];
@@ -130,6 +131,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   end
     %   s = spider_plot_class(P);
     %   s.AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % [min axes limits; max axes limits]
+    %   s.AxesPrecision = [0, 1, 1, 1, 1];
     %
     %   % Example 3: Set fill option on. The fill transparency can be adjusted.
     %
@@ -222,6 +224,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-10-08: Adjust axes precision to be set to one or more axis.
     %   2020-10-01: Fix legend feature with inherited legend class.
     %   2020-09-30: -Fix axes limit bug. Updated examples.
     %   	        -Added feature to change spider axes and axes labels edge color.
@@ -265,7 +268,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         LegendLabels cell % Legend labels
         LegendHandle % Lengend handle
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
-        AxesPrecision (1, 1) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
+        AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
         FillOption matlab.lang.OnOffSwitchState = 'off' % Whether to shade data
@@ -480,6 +483,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.InitializeToggle = true;
         end
         
+        function set.AxesDirection(obj, value)
+            % Set property
+            obj.AxesDirection = value;
+            
+            % Toggle re-initialize to true if Direction was changed
+            obj.InitializeToggle = true;
+        end
+        
         function set.AxesLabelsOffset(obj, value)
             % Set property
             obj.AxesLabelsOffset = value;
@@ -567,6 +578,24 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Get property
             axes_limits = obj.AxesLimits;
+        end
+        
+        function axes_precision = get.AxesPrecision(obj)
+            % Check if axes precision is numeric
+            if isnumeric(obj.AxesPrecision)
+                % Check is length is one
+                if length(obj.AxesPrecision) == 1
+                    % Repeat array to number of data points
+                    obj.AxesPrecision = repmat(obj.AxesPrecision, obj.NumDataPoints, 1);
+                elseif length(obj.AxesPrecision) ~= obj.NumDataPoints
+                    error('Error: Please specify the same number of axes precision as number of data points.');
+                end
+            else
+                error('Error: Please make sure the axes precision is a numeric value.');
+            end
+            
+            % Get property
+            axes_precision = obj.AxesPrecision;
         end
         
         function axes_scaling = get.AxesScaling(obj)
@@ -1065,12 +1094,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Set axes tick label visible
                 set(obj.AxesTickLabels, 'Visible', 'on')
                 
-                % Iterate through axes values
-                for ii = 1:numel(obj.AxesValues)
-                    % Display and set axes tick label settings
-                    text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision), obj.AxesValues(ii));
-                    obj.AxesTickLabels(ii).String = text_str;
-                    obj.AxesTickLabels(ii).FontSize = obj.AxesFontSize;
+                % Iterate through axes values rows
+                for ii = 1:size(obj.AxesValues, 1)
+                    % Iterate through axes values columns
+                    for jj = 1:size(obj.AxesValues, 2)
+                        % Display and set axes tick label settings
+                        text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
+                        obj.AxesTickLabels(ii, jj).String = text_str;
+                        obj.AxesTickLabels(ii, jj).FontSize = obj.AxesFontSize;
+                    end
                 end
             end
         end

@@ -24,7 +24,7 @@ function spider_plot_R2019b(P, options)
 %
 %   AxesPrecision    - Used to change the precision level on the value
 %                      displayed on the axes.
-%                      [1 (default) | integer]
+%                      [1 (default) | integer | vector]
 %
 %   AxesDisplay      - Used to change the number of axes in which the
 %                      axes text are displayed. 'None' or 'one' can be used
@@ -72,7 +72,7 @@ function spider_plot_R2019b(P, options)
 %                      ['clockwise' (default) | 'counterclockwise']
 %
 %   AxesDirection     - Used to change the direction of axes.
-%                      ['normal' (default) | 'reverse']
+%                      ['normal' (default) | 'reverse' | cell array of character vectors]
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
 %                      labels.
@@ -99,15 +99,17 @@ function spider_plot_R2019b(P, options)
 %   spider_plot_R2019b(P);
 %   legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 %
-%   % Example 2: Manually setting the axes limits. All non-specified,
-%                optional arguments are set to their default values.
+%   % Example 2: Manually setting the axes limits and axes precision.
+%                All non-specified, optional arguments are set to their
+%                default values.
 %
 %   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
 %   spider_plot_R2019b(P,...
-%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
+%       'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10],... % [min axes limits; max axes limits]
+%       'AxesPrecision', [0, 1, 1, 1, 1]);
 %
 %   % Example 3: Set fill option on. The fill transparency can be adjusted.
 %
@@ -213,7 +215,8 @@ function spider_plot_R2019b(P, options)
 %   title(t, 'Spider Plots');
 %
 % Author:
-%   Moses Yoo, (jyoo at hatci dot com)
+%   Moses Yoo, (jyoo at hatci dot com)'
+%   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: -Updated examples.
 %   	        -Added feature to change spider axes and axes labels edge color.
 %   	        -Allow logarithmic scale to be set to one or more axis.
@@ -241,15 +244,15 @@ function spider_plot_R2019b(P, options)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
-%   Mariusz Sepczuk, & Mohamed Abubakr for their feature recommendations
-%   and suggested bug fixes.
+%   Mariusz Sepczuk, Mohamed Abubakr & Nicolai for their feature
+%   recommendations and suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
     P (:, :) double
     options.AxesLabels {validateAxesLabels(options.AxesLabels, P)} = cellstr("Label " + (1:size(P, 2)))
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
-    options.AxesPrecision (1, 1) double {mustBeInteger, mustBeNonnegative} = 1
+    options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption char {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
@@ -274,6 +277,20 @@ end
 [num_data_groups, num_data_points] = size(P);
 
 %%% Validate Properties %%%
+%%% Validate Axes Precision
+% Check if axes precision is numeric
+if isnumeric(options.AxesPrecision)
+    % Check is length is one
+    if length(options.AxesPrecision) == 1
+        % Repeat array to number of data points
+        options.AxesPrecision = repmat(options.AxesPrecision, num_data_points, 1);
+    elseif length(options.AxesPrecision) ~= num_data_points
+        error('Error: Please specify the same number of axes precision as number of data points.');
+    end
+else
+    error('Error: Please make sure the axes precision is a numeric value.');
+end
+
 %%% Validate Line Style
 % Check if line style is a char
 if ischar(options.LineStyle)
@@ -585,7 +602,7 @@ for ii = 1:theta_end_index
         end
         
         % Display axes text
-        text_str = sprintf(sprintf('%%.%if', options.AxesPrecision), axes_value);
+        text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', 'k',...
