@@ -113,7 +113,7 @@ spider_plot(P,...
     'AxesPrecision', [0, 1, 1, 1, 1]);
 ```
 <p align="center">
-  <img src="screenshot/example2.PNG">
+  <img src="screenshot/example2.png">
 </p>
 
 
