@@ -26,7 +26,7 @@ Create a spider or radar plot with customizable individual axes.
                          [3 (default) | integer]
 
 - **AxesPrecision**    - Used to change the precision level on the value displayed on the axes.
-                         [1 (default) | integer]
+                         [1 (default) | integer | vector]
                          
 - **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify the plot appearance for normalized data.
                          ['all' (default) | 'none' | 'one']
@@ -65,7 +65,7 @@ Create a spider or radar plot with customizable individual axes.
                          ['clockwise' (default) | 'counterclockwise']
                          
 - **AxesDirection**    - Used to change the direction of axes.
-                         ['normal' (default) | 'reverse']
+                         ['normal' (default) | 'reverse' | cell array of character vectors]
                          
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
                          [0.1 (default) | positive value]
@@ -99,7 +99,7 @@ legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 </p>
 
 
-### Example 2: Manually setting the axes limits. All other optional arguments are set to their default values.
+### Example 2: Manually setting the axes limits and axes precision. All other optional arguments are set to their default values.
 ```matlab
 % Initialize data points
 D1 = [5 3 9 1 2];   
@@ -109,7 +109,8 @@ P = [D1; D2; D3];
 
 % Spider plot
 spider_plot(P,...
-    'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]); % [min axes limits; max axes limits]
+    'AxesLimits', [1, 2, 1, 1, 1; 10, 8, 9, 5, 10],... % [min axes limits; max axes limits]
+    'AxesPrecision', [0, 1, 1, 1, 1]);
 ```
 <p align="center">
   <img src="screenshot/example2.PNG">
@@ -272,6 +273,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-10-08: Adjust axes precision to be set to one or more axis.
+
 - 2020-09-30: Updated examples and added ability to reverse axes direction.
 
 - 2020-07-05: Added feature to change spider axes and axes labels edge color.
