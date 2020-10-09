@@ -227,9 +227,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   2020-10-08: Adjust axes precision to be set to one or more axis.
     %   2020-10-01: Fix legend feature with inherited legend class.
     %   2020-09-30: -Fix axes limit bug. Updated examples.
-    %   	        -Added feature to change spider axes and axes labels edge color.
-    %   	        -Allow logarithmic scale to be set to one or more axis.
-    %   	        -Added feature to allow different line styles, line width,
+    %               -Added feature to change spider axes and axes labels edge color.
+    %               -Allow logarithmic scale to be set to one or more axis.
+    %               -Added feature to allow different line styles, line width,
     %                marker type, and marker sizes for the data groups.
     %               -Allow ability to reverse axes direction.
     %   2020-02-17: Major revision in converting the function into a custom
