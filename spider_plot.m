@@ -208,6 +208,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-11-06: Fix bug in reverse axes direction feature.
 %   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: Updated examples and added ability to reverse axes direction.
 %   2020-07-05: Added feature to change spider axes and axes labels edge color.

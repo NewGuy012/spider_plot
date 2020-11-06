@@ -224,6 +224,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-11-06: Fix bug in reverse axes direction feature.
     %   2020-10-08: Adjust axes precision to be set to one or more axis.
     %   2020-10-01: Fix legend feature with inherited legend class.
     %   2020-09-30: -Fix axes limit bug. Updated examples.
