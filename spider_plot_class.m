@@ -116,7 +116,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   end
     %   s = spider_plot_class(P);
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
-    %   s.LegendHandle.Location = 'northeastoutside';
+    %   s.LegendHandle.Location = 'southoutside';
     %
     %   % Example 2: Manually setting the axes limits and axes precision.
     %                All non-specified, optional arguments are set to their
