@@ -807,26 +807,23 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % If any log scaling is specified
             if any(log_index)
-                % If any log scaling is specified
-                if any(log_index)
-                    % Initialize copy
-                    P_log = P_selected(:, log_index);
-                    
-                    % Logarithm of base 10, account for numbers less than 1
-                    P_log = sign(P_log) .* log10(abs(P_log));
-                    
-                    % Minimum and maximun log limits
-                    min_limit = min(min(fix(P_log)));
-                    max_limit = max(max(ceil(P_log)));
-                    recommended_axes_interval = max_limit - min_limit;
-                    
-                    % Warning message
-                    warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
-                        10^min_limit, 10^max_limit, recommended_axes_interval);
-                    
-                    % Replace original
-                    P_selected(:, log_index) = P_log;
-                end
+                % Initialize copy
+                P_log = P_selected(:, log_index);
+                
+                % Logarithm of base 10, account for numbers less than 1
+                P_log = sign(P_log) .* log10(abs(P_log));
+                
+                % Minimum and maximun log limits
+                min_limit = min(min(fix(P_log)));
+                max_limit = max(max(ceil(P_log)));
+                recommended_axes_interval = max_limit - min_limit;
+                
+                % Warning message
+                warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
+                    10^min_limit, 10^max_limit, recommended_axes_interval);
+                
+                % Replace original
+                P_selected(:, log_index) = P_log;
             end
             
             % Axes handles
@@ -840,6 +837,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Pre-allocation
             P_scaled = zeros(size(P_selected));
             axes_range = zeros(3, obj.NumDataPoints);
+            
+            % Check axes scaling option
+            axes_direction_index = strcmp(obj.AxesDirection, 'reverse');
             
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints
@@ -860,11 +860,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Range of min and max values
                 range = max_value - min_value;
                 
-                % Check if axes_limits is empty
-                if isempty(obj.AxesLimits)
-                    % Scale points to range from [rho_increment, 1]
-                    P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
-                else
+                % Check if axes_limits is not empty
+                if ~isempty(obj.AxesLimits)
                     % Check for log axes scaling option
                     if log_index(ii)
                         % Logarithm of base 10, account for numbers less than 1
@@ -885,24 +882,23 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     if min_value > min(group_points) || max_value < max(group_points)
                         error('Error: Please make the manually specified axes limits are within range of the data points.');
                     end
-                    
-                    % Scale points to range from [rho_increment, 1]
-                    P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
                 end
                 
-                % Store to array
-                axes_range(:, ii) = [min_value; max_value; range];
-            end
-            
-            %%% Axes Direction Properties %%%
-            % Check axes scaling option
-            axes_direction_index = strcmp(obj.AxesDirection, 'reverse');
-            
-            % If any reverse axes direction is specified
-            if any(axes_direction_index)
-                % Reverse direction
-                P_scaled(:, axes_direction_index) = flipud(P_scaled(:, axes_direction_index));
-                axes_range(1:2, axes_direction_index) = flipud(axes_range(1:2, axes_direction_index));
+                % Scale points to range from [0, 1]
+                P_scaled(:, ii) = ((group_points - min_value) / range);
+                
+                % If reverse axes direction is specified
+                if axes_direction_index(ii)
+                    % Store to array
+                    axes_range(:, ii) = [max_value; min_value; range];
+                    P_scaled(:, ii) = -(P_scaled(:, ii) - 1);
+                else
+                    % Store to array
+                    axes_range(:, ii) = [min_value; max_value; range];
+                end
+                
+                % Add offset of [rho_increment] and scaling factor of [1 - rho_increment]
+                P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_increment) + rho_increment;
             end
             
             %%% Polar Axes %%%

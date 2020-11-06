@@ -457,6 +457,9 @@ rho_increment = 1/(options.AxesInterval+1);
 P_scaled = zeros(size(P));
 axes_range = zeros(3, num_data_points);
 
+% Check axes scaling option
+axes_direction_index = strcmp(options.AxesDirection, 'reverse');
+
 % Iterate through number of data points
 for ii = 1:num_data_points
     % Group of points
@@ -476,11 +479,8 @@ for ii = 1:num_data_points
     % Range of min and max values
     range = max_value - min_value;
     
-    % Check if options.AxesLimits is empty
-    if isempty(options.AxesLimits)
-        % Scale points to range from [rho_increment, 1]
-        P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
-    else
+    % Check if options.AxesLimits is not empty
+    if ~isempty(options.AxesLimits)
         % Check for log axes scaling option
         if log_index(ii)
             % Logarithm of base 10, account for numbers less than 1
@@ -501,24 +501,23 @@ for ii = 1:num_data_points
         if min_value > min(group_points) || max_value < max(group_points)
             error('Error: Please make the manually specified axes limits are within range of the data points.');
         end
-        
-        % Scale points to range from [rho_increment, 1]
-        P_scaled(:, ii) = ((group_points - min_value) / range) * (1 - rho_increment) + rho_increment;
     end
     
-    % Store to array
-    axes_range(:, ii) = [min_value; max_value; range];
-end
-
-%%% Axes Direction Properties %%%
-% Check axes scaling option
-axes_direction_index = strcmp(options.AxesDirection, 'reverse');
-
-% If any reverse axes direction is specified
-if any(axes_direction_index)
-    % Reverse direction
-    P_scaled(:, axes_direction_index) = flipud(P_scaled(:, axes_direction_index));
-    axes_range(1:2, axes_direction_index) = flipud(axes_range(1:2, axes_direction_index));
+    % Scale points to range from [0, 1]
+    P_scaled(:, ii) = ((group_points - min_value) / range);
+    
+    % If reverse axes direction is specified
+    if axes_direction_index(ii)
+        % Store to array
+        axes_range(:, ii) = [max_value; min_value; range];
+        P_scaled(:, ii) = -(P_scaled(:, ii) - 1);
+    else
+        % Store to array
+        axes_range(:, ii) = [min_value; max_value; range];
+    end
+    
+    % Add offset of [rho_increment] and scaling factor of [1 - rho_increment]
+    P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_increment) + rho_increment;
 end
 
 %%% Polar Axes %%%
