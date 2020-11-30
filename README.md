@@ -54,6 +54,12 @@ Create a spider or radar plot with customizable individual axes.
 
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
                          [8 (default) | positive value | vector]
+                         
+- **AxesFont**         - Used to change the font type of the values displayed on the axes.
+                         [Helvetica (default) | supported font name]
+                         
+- **LabelFont**        - Used to change the font type of the labels.
+                         [Helvetica (default) | supported font name]                     
                      
 - **AxesFontSize**     - Used to change the font size of the values displayed on the axes.
                          [10 (default) | scalar value greater than zero]
@@ -159,6 +165,8 @@ spider_plot(P,...
     'LineWidth', [1, 2, 3],...
     'Marker', {'o', 'd', 's'},...
     'MarkerSize', [8, 10, 12],...
+    'AxesFont', 'Times New Roman',...
+    'LabelFont', 'Times New Roman',...
     'AxesFontSize', 12,...
     'LabelFontSize', 10,...
     'Direction', 'clockwise',...
@@ -273,6 +281,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-11-30: Added support for changing axes and label font type.
+
 - 2020-10-08: Adjust axes precision to be set to one or more axis.
 
 - 2020-09-30: Updated examples and added ability to reverse axes direction.
@@ -321,5 +331,7 @@ Special thanks to the following people for their feature recommendations and sug
 - Mohamed Abubakr
 - Maruis Mueller
 - Nicolai
+- Jingwei Too
+- Cedric Jamet
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
