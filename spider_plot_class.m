@@ -62,6 +62,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      1/72 of an inch.
     %                      [8 (default) | positive value]
     %
+    %   AxesFont         - Used to change the font type of the values
+    %                      displayed on the axes.
+    %                      [Helvetica (default) | supported font name]
+    %
+    %   LabelFont        - Used to change the font type of the labels.
+    %                      [Helvetica (default) | supported font name]
+    %
     %   AxesFontSize     - Used to change the font size of the values
     %                      displayed on the axes.
     %                      [10 (default) | scalar value greater than zero]
@@ -170,6 +177,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LineWidth = 3;
     %   s.Marker =  'd';
     %   s.MarkerSize = 10;
+    %   s.AxesFont = 'Times New Roman';
+    %   s.LabelFont = 'Times New Roman';
     %   s.AxesFontSize = 12;
     %   s.LabelFontSize = 10;
     %   s.Direction = 'clockwise';
@@ -224,6 +233,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-11-30: Added support for changing axes and label font type.
     %   2020-11-06: Fix bug in reverse axes direction feature.
     %   2020-10-08: Adjust axes precision to be set to one or more axis.
     %   2020-10-01: Fix legend feature with inherited legend class.
@@ -256,10 +266,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     % Special Thanks:
     %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-    %   Mohamed Abubakr, Maruis Mueller & Nicolai for their feature
-    %   recommendations and bug finds. A huge thanks to Jiro Doke and
-    %   Sean de Wolski for demonstrating the implementation of argument
-    %   validation and custom chart class introduced in R2019b.
+    %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too, &
+    %   Cedric Jamet for their feature recommendations and bug finds.
+    %   A huge thanks to Jiro Doke and Sean de Wolski for demonstrating
+    %   the implementation of argument validation and custom chart class
+    %   introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -279,6 +290,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         LineWidth (:, :) double {mustBePositive} = 2 % Data line width
         Marker = 'o' % Data marker
         MarkerSize (:, :) double {mustBePositive} = 8 % Data marker size
+        AxesFont char ='Helvetica' % Axes tick font type
+        LabelFont char = 'Helvetica' % Label font type
         AxesFontSize (1, 1) double {mustBePositive} = 10 % Axes tick font size
         LabelFontSize (1, 1) double {mustBePositive} = 10 % Label font size
         Direction char {mustBeMember(Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
@@ -457,6 +470,22 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.MarkerSize = value;
             
             % Toggle re-initialize to true if MarkerSize was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesFont(obj, value)
+            % Set property
+            obj.AxesFont = value;
+            
+            % Toggle re-initialize to true if AxesFont was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.LabelFont(obj, value)
+            % Set property
+            obj.LabelFont = value;
+            
+            % Toggle re-initialize to true if LabelFont was changed
             obj.InitializeToggle = true;
         end
         
@@ -997,6 +1026,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'VerticalAlignment', vert_align,...
                     'EdgeColor', obj.AxesLabelsEdge,...
                     'BackgroundColor', 'w',...
+                    'FontName', obj.LabelFont,...
                     'FontSize', obj.LabelFontSize,...
                     'Visible', 'off');
             end
@@ -1032,6 +1062,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.AxesTickLabels(ii, jj-1) = text(ax, x_axes(jj), y_axes(jj), '',...
                         'Units', 'Data',...
                         'Color', 'k',...
+                        'FontName', obj.AxesFont,...
                         'FontSize', obj.AxesFontSize,...
                         'HorizontalAlignment', 'center',...
                         'VerticalAlignment', 'middle',...
@@ -1078,6 +1109,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 for ii = 1:obj.NumDataPoints
                     % Display text label
                     obj.AxesTextLabels(ii).String = obj.AxesLabels{ii};
+                    obj.AxesTextLabels(ii).FontName = obj.LabelFont;
                     obj.AxesTextLabels(ii).FontSize = obj.LabelFontSize;
                     obj.AxesTextLabels(ii).EdgeColor = obj.AxesLabelsEdge;
                 end
@@ -1098,6 +1130,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         % Display and set axes tick label settings
                         text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
                         obj.AxesTickLabels(ii, jj).String = text_str;
+                        obj.AxesTickLabels(ii, jj).FontName= obj.AxesFont;
                         obj.AxesTickLabels(ii, jj).FontSize = obj.AxesFontSize;
                     end
                 end

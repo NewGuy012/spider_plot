@@ -60,6 +60,13 @@ function spider_plot(P, varargin)
 %                      1/72 of an inch.
 %                      [8 (default) | positive value | vector]
 %
+%   AxesFont         - Used to change the font type of the values
+%                      displayed on the axes.
+%                      [Helvetica (default) | supported font name]
+%
+%   LabelFont        - Used to change the font type of the labels.
+%                      [Helvetica (default) | supported font name]
+%
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
 %                      [10 (default) | scalar value greater than zero]
@@ -142,6 +149,8 @@ function spider_plot(P, varargin)
 %       'LineWidth', [1, 2, 3],...
 %       'Marker', {'o', 'd', 's'},...
 %       'MarkerSize', [8, 10, 12],...
+%       'AxesFont', 'Times New Roman',...
+%       'LabelFont', 'Times New Roman',...
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
@@ -208,6 +217,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%	2020-11-30: Added support for changing axes and label font type.
 %   2020-11-06: Fix bug in reverse axes direction feature.
 %   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: Updated examples and added ability to reverse axes direction.
@@ -233,8 +243,8 @@ function spider_plot(P, varargin)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-%   Mohamed Abubakr & Nicolai for their feature recommendations and
-%   suggested bug fixes.
+%   Mohamed Abubakr, Nicolai, Jingwei Too, & Cedric Jamet for their
+%	feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -269,6 +279,8 @@ line_style = '-';
 line_width = 2;
 marker_type = 'o';
 marker_size = 8;
+axes_font = 'Helvetica';
+label_font = 'Helvetica';
 axes_font_size = 10;
 label_font_size = 10;
 direction = 'clockwise';
@@ -312,6 +324,10 @@ if numvarargs > 1
                 marker_type = value_arguments{ii};
             case 'markersize'
                 marker_size = value_arguments{ii};
+            case 'axesfont'
+                axes_font = value_arguments{ii};
+            case 'labelfont'
+                label_font = value_arguments{ii};
             case 'axesfontsize'
                 axes_font_size = value_arguments{ii};
             case 'labelfontsize'
@@ -739,6 +755,7 @@ for ii = 1:theta_end_index
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', 'k',...
+            'FontName', axes_font,...
             'FontSize', axes_font_size,...
             'HorizontalAlignment', 'center',...
             'VerticalAlignment', 'middle');
@@ -877,6 +894,7 @@ if ~strcmp(axes_labels, 'none')
             'VerticalAlignment', vert_align,...
             'EdgeColor', axes_labels_edge,...
             'BackgroundColor', 'w',...
+            'FontName', label_font,...
             'FontSize', label_font_size);
     end
 end

@@ -60,6 +60,13 @@ function spider_plot_R2019b(P, options)
 %                      1/72 of an inch.
 %                      [8 (default) | positive value | vector]
 %
+%   AxesFont         - Used to change the font type of the values
+%                      displayed on the axes.
+%                      [Helvetica (default) | supported font name]
+%
+%   LabelFont        - Used to change the font type of the labels.
+%                      [Helvetica (default) | supported font name]
+%
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
 %                      [10 (default) | scalar value greater than zero]
@@ -142,6 +149,8 @@ function spider_plot_R2019b(P, options)
 %       'LineWidth', [1, 2, 3],...
 %       'Marker', {'o', 'd', 's'},...
 %       'MarkerSize', [8, 10, 12],...
+%       'AxesFont', 'Times New Roman',...
+%       'LabelFont', 'Times New Roman',...
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
@@ -216,6 +225,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-11-30: Added support for changing axes and label font type.
 %   2020-11-06: Fix bug in reverse axes direction feature.
 %   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: -Updated examples.
@@ -245,8 +255,8 @@ function spider_plot_R2019b(P, options)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
-%   Mariusz Sepczuk, Mohamed Abubakr & Nicolai for their feature
-%   recommendations and suggested bug fixes.
+%   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too, &
+%   Cedric Jamet for their feature recommendations and suggested bug fixes.
 
 %%% Argument Validation %%%
 arguments
@@ -263,6 +273,8 @@ arguments
     options.LineWidth (:, :) double {mustBePositive} = 2
     options.Marker = 'o'
     options.MarkerSize (:, :) double {mustBePositive} = 8
+    options.AxesFont char = 'Helvetica'
+    options.LabelFont char = 'Helvetica'
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
@@ -606,6 +618,7 @@ for ii = 1:theta_end_index
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', 'k',...
+            'FontName', options.AxesFont,...
             'FontSize', options.AxesFontSize,...
             'HorizontalAlignment', 'center',...
             'VerticalAlignment', 'middle');
@@ -756,6 +769,7 @@ if ~strcmp(options.AxesLabels, 'none')
             'VerticalAlignment', vert_align,...
             'EdgeColor', options.AxesLabelsEdge,...
             'BackgroundColor', 'w',...
+            'FontName', options.LabelFont,...
             'FontSize', options.LabelFontSize);
     end
 end
