@@ -229,9 +229,9 @@ function spider_plot_R2019b(P, options)
 %   2020-11-06: Fix bug in reverse axes direction feature.
 %   2020-10-08: Adjust axes precision to be set to one or more axis.
 %   2020-09-30: -Updated examples.
-%   	        -Added feature to change spider axes and axes labels edge color.
-%   	        -Allow logarithmic scale to be set to one or more axis.
-%   	        -Added feature to allow different line styles, line width,
+%               -Added feature to change spider axes and axes labels edge color.
+%               -Allow logarithmic scale to be set to one or more axis.
+%               -Added feature to allow different line styles, line width,
 %                marker type, and marker sizes for the data groups.
 %               -Allow ability to reverse axes direction.
 %   2020-02-12: Fixed condition and added error checking for when only one
