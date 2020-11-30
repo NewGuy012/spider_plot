@@ -244,7 +244,7 @@ function spider_plot(P, varargin)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, & Cedric Jamet for their
-%	feature recommendations and suggested bug fixes.
+%   feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
