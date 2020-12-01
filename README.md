@@ -84,6 +84,9 @@ Create a spider or radar plot with customizable individual axes.
                          
 - **AxesLabelsEdge**   - Used to change the edge color of the axes labels.
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
+
+- **AxesOffset**       - Used to change to axes offset from the origin.
+                         [1 (default) | any integer less than the axes interval]
                          
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
@@ -174,7 +177,8 @@ spider_plot(P,...
     'AxesLabelsOffset', 0.1,...
     'AxesScaling', 'linear',...
     'AxesColor', [0.6, 0.6, 0.6],...
-    'AxesLabelsEdge', 'none');
+    'AxesLabelsEdge', 'none',...
+    'AxesOffset', 1);
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -281,6 +285,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-12-01: Added support for adjust the axes offset from origin.
+
 - 2020-11-30: Allow for one data group without specified axes limits.
 
 - 2020-11-30: Added support for changing axes and label font type.
