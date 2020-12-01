@@ -233,6 +233,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-11-30: Allow for one data group without specified axes limits.
     %   2020-11-30: Added support for changing axes and label font type.
     %   2020-11-06: Fix bug in reverse axes direction feature.
     %   2020-10-08: Adjust axes precision to be set to one or more axis.
@@ -266,11 +267,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     % Special Thanks:
     %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-    %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too, &
-    %   Cedric Jamet for their feature recommendations and bug finds.
-    %   A huge thanks to Jiro Doke and Sean de Wolski for demonstrating
-    %   the implementation of argument validation and custom chart class
-    %   introduced in R2019b.
+    %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
+    %   Cedric Jamet & Richard Ruff for their feature recommendations
+    %   and bug finds. A huge thanks to Jiro Doke and Sean de Wolski for
+    %   demonstrating the implementation of argument validation and custom chart
+    %   class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -598,11 +599,6 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function axes_limits = get.AxesLimits(obj)
-            % Check number of data groups and axes limits
-            if obj.NumDataGroups == 1 && isempty(obj.AxesLimits)
-                error('Error: For one data group, please enter in a range for the axes limits.');
-            end
-            
             % Validate axes limits
             validateAxesLimits(obj.AxesLimits, obj.P);
             
@@ -873,8 +869,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints
-                % Group of points
-                group_points = P_selected(:, ii);
+                % Check for one data group and no axes limits
+                if obj.NumDataGroups == 1 && isempty(obj.AxesLimits)
+                    % Group of points
+                    group_points = P_selected(:, :);
+                else
+                    % Group of points
+                    group_points = P_selected(:, ii);
+                end
                 
                 % Check for log axes scaling option
                 if log_index(ii)
@@ -896,17 +898,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     if log_index(ii)
                         % Logarithm of base 10, account for numbers less than 1
                         obj.AxesLimits(:, ii) = sign(obj.AxesLimits(:, ii)) .* log10(abs(obj.AxesLimits(:, ii)));
-                        
-                        % Manually set the range of each group
-                        min_value = obj.AxesLimits(1, ii);
-                        max_value = obj.AxesLimits(2, ii);
-                        range = max_value - min_value;
-                    else
-                        % Manually set the range of each group
-                        min_value = obj.AxesLimits(1, ii);
-                        max_value = obj.AxesLimits(2, ii);
-                        range = max_value - min_value;
                     end
+                    
+                    % Manually set the range of each group
+                    min_value = obj.AxesLimits(1, ii);
+                    max_value = obj.AxesLimits(2, ii);
+                    range = max_value - min_value;
                     
                     % Check if the axes limits are within range of points
                     if min_value > min(group_points) || max_value < max(group_points)
@@ -915,7 +912,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 end
                 
                 % Scale points to range from [0, 1]
-                P_scaled(:, ii) = ((group_points - min_value) / range);
+                P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
                 
                 % If reverse axes direction is specified
                 if axes_direction_index(ii)

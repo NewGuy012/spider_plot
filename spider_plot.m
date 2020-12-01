@@ -217,6 +217,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-11-30: Allow for one data group without specified axes limits.
 %   2020-11-30: Added support for changing axes and label font type.
 %   2020-11-06: Fix bug in reverse axes direction feature.
 %   2020-10-08: Adjust axes precision to be set to one or more axis.
@@ -243,8 +244,8 @@ function spider_plot(P, varargin)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-%   Mohamed Abubakr, Nicolai, Jingwei Too, & Cedric Jamet for their
-%   feature recommendations and suggested bug fixes.
+%   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet & Richard Ruff
+%   for their feature recommendations and suggested bug fixes.
 
 %%% Data Properties %%%
 % Point properties
@@ -467,11 +468,6 @@ else
     axes_scaling = repmat({axes_scaling}, num_data_points, 1);
 end
 
-% Check axis limits if num_data_groups is one
-if num_data_groups == 1 && isempty(axes_limits)
-    error('Error: For one data group, please enter in a range for the axes limits.');
-end
-
 % Check if line style is a char
 if ischar(line_style)
     % Convert to cell array of char
@@ -612,8 +608,14 @@ axes_direction_index = strcmp(axes_direction, 'reverse');
 
 % Iterate through number of data points
 for ii = 1:num_data_points
-    % Group of points
-    group_points = P(:, ii);
+    % Check for one data group and no axes limits
+    if num_data_groups == 1 && isempty(axes_limits)
+        % Group of points
+        group_points = P(:, :);
+    else
+        % Group of points
+        group_points = P(:, ii);
+    end
     
     % Check for log axes scaling option
     if log_index(ii)
@@ -635,17 +637,12 @@ for ii = 1:num_data_points
         if log_index(ii)
             % Logarithm of base 10, account for numbers less than 1
             axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii))); %#ok<AGROW>
-            
-            % Manually set the range of each group
-            min_value = axes_limits(1, ii);
-            max_value = axes_limits(2, ii);
-            range = max_value - min_value;
-        else
-            % Manually set the range of each group
-            min_value = axes_limits(1, ii);
-            max_value = axes_limits(2, ii);
-            range = max_value - min_value;
         end
+
+        % Manually set the range of each group
+        min_value = axes_limits(1, ii);
+        max_value = axes_limits(2, ii);
+        range = max_value - min_value;
         
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
@@ -654,7 +651,7 @@ for ii = 1:num_data_points
     end
     
     % Scale points to range from [0, 1]
-    P_scaled(:, ii) = ((group_points - min_value) / range);
+    P_scaled(:, ii) = ((P(:, ii) - min_value) / range);
     
     % If reverse axes direction is specified
     if axes_direction_index(ii)
