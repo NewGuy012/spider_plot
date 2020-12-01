@@ -102,6 +102,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   LegendHandle     - Used to customize legend settings. 
     %                      [legend handle object]
     %
+    %   AxesOffset       - Used to change to axes offset from the origin.
+    %                      [1 (default) | any integer less than the axes interval]
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -185,6 +188,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesDirection = {'reverse', 'normal', 'normal', 'normal', 'normal'};
     %   s.AxesLabelsOffset = 0;
     %   s.AxesScaling = 'linear';
+    %   s.AxesOffset = 1;
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
     %   s.LegendHandle.Location = 'northeastoutside';
     %
@@ -233,6 +237,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-12-01: Added support for adjust the axes offset from origin.
     %   2020-11-30: Allow for one data group without specified axes limits.
     %   2020-11-30: Added support for changing axes and label font type.
     %   2020-11-06: Fix bug in reverse axes direction feature.
@@ -301,6 +306,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesScaling = 'linear' % Scaling of axes
         AxesColor = [0.6, 0.6, 0.6] % Axes color
         AxesLabelsEdge = 'k' % Axes label color
+        AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1 % Axes offset
     end
     
     %%% Private, NonCopyable, Transient Properties %%%
@@ -553,6 +559,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Toggle re-initialize to true if AxesLabelsEdge was changed
             obj.InitializeToggle = true;
         end
+
+        function set.AxesOffset(obj, value)
+            % Set property
+            obj.AxesOffset = value;
+            
+            % Toggle re-initialize to true if AxesOffset was changed
+            obj.InitializeToggle = true;
+        end
         
         %%% Get Methods %%%
         function num_data_points = get.NumDataPoints(obj)
@@ -749,6 +763,16 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get property
             axes_direction = obj.AxesDirection;
         end
+
+        function axes_offset = get.AxesOffset(obj)
+            % Check if axes offset is valid
+            if obj.AxesOffset > obj.AxesInterval
+                error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+            end
+            
+            % Get property
+            axes_offset = obj.AxesOffset;
+        end
     end
     
     methods (Access = public)
@@ -857,7 +881,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Polar increments
             theta_increment = 2*pi/obj.NumDataPoints;
-            rho_increment = 1/(obj.AxesInterval+1);
+            full_interval = obj.AxesInterval+1;
+            rho_offset = obj.AxesOffset/full_interval;
             
             %%% Scale Data %%%
             % Pre-allocation
@@ -924,12 +949,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     axes_range(:, ii) = [min_value; max_value; range];
                 end
                 
-                % Add offset of [rho_increment] and scaling factor of [1 - rho_increment]
-                P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_increment) + rho_increment;
+                % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
+                P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
             end
             
             %%% Polar Axes %%%
             % Polar coordinates
+            rho_increment = 1/full_interval;
             rho = 0:rho_increment:1;
             
             % Check specified direction of rotation
@@ -978,6 +1004,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     theta_end_index = 0;
             end
             
+            % Rho start index and offset interval
+            rho_start_index = obj.AxesOffset+1;
+            offset_interval = full_interval - obj.AxesOffset;
+
             %%% Plot %%%
             % Initialize data children
             for ii = 1:obj.NumDataGroups
@@ -1034,7 +1064,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 [x_axes, y_axes] = pol2cart(theta(ii), rho);
                 
                 % Iterate through points on isocurve
-                for jj = 2:length(rho)
+                for jj = rho_start_index:length(rho)
                     % Axes increment value
                     min_value = axes_range(1, ii);
                     range = axes_range(3, ii);
@@ -1042,10 +1072,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % If reverse axes direction is specified
                     if axes_direction_index(ii)
                         % Axes increment value
-                        axes_value = min_value - (range/obj.AxesInterval) * (jj-2);
+                        axes_value = min_value - (range/offset_interval) * (jj-rho_start_index);
                     else
                         % Axes increment value
-                        axes_value = min_value + (range/obj.AxesInterval) * (jj-2);
+                        axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
                     end
                     
                     % Check for log axes scaling option

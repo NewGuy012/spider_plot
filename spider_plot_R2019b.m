@@ -94,6 +94,9 @@ function spider_plot_R2019b(P, options)
 %   AxesLabelsEdge   - Used to change the edge color of the axes labels.
 %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
 %
+%   AxesOffset       - Used to change to axes offset from the origin.
+%                      [1 (default) | any integer less than the axes interval]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -158,7 +161,8 @@ function spider_plot_R2019b(P, options)
 %       'AxesLabelsOffset', 0.1,...
 %       'AxesScaling', 'linear',...
 %       'AxesColor', [0.6, 0.6, 0.6],...
-%       'AxesLabelsEdge', 'none');
+%       'AxesLabelsEdge', 'none',...
+%       'AxesOffset', 1);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -225,6 +229,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
 %   2020-11-30: Added support for changing axes and label font type.
 %   2020-11-06: Fix bug in reverse axes direction feature.
@@ -285,6 +290,7 @@ arguments
     options.AxesScaling = 'linear'
     options.AxesColor = [0.6, 0.6, 0.6]
     options.AxesLabelsEdge = 'k'
+    options.AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1
 end
 
 %%% Data Properties %%%
@@ -292,6 +298,11 @@ end
 [num_data_groups, num_data_points] = size(P);
 
 %%% Validate Properties %%%
+% Check if axes offset is valid
+if options.AxesOffset > options.AxesInterval
+    error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+end
+
 %%% Validate Axes Precision
 % Check if axes precision is numeric
 if isnumeric(options.AxesPrecision)
@@ -459,7 +470,8 @@ ax.YColor = 'none';
 
 % Polar increments
 theta_increment = 2*pi/num_data_points;
-rho_increment = 1/(options.AxesInterval+1);
+full_interval = options.AxesInterval+1;
+rho_offset = options.AxesOffset/full_interval;
 
 %%% Scale Data %%%
 % Pre-allocation
@@ -526,12 +538,13 @@ for ii = 1:num_data_points
         axes_range(:, ii) = [min_value; max_value; range];
     end
     
-    % Add offset of [rho_increment] and scaling factor of [1 - rho_increment]
-    P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_increment) + rho_increment;
+    % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
+    P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
 end
 
 %%% Polar Axes %%%
 % Polar coordinates
+rho_increment = 1/full_interval;
 rho = 0:rho_increment:1;
 
 % Check specified direction of rotation
@@ -584,13 +597,17 @@ switch options.AxesDisplay
         theta_end_index = 0;
 end
 
+% Rho start index and offset interval
+rho_start_index = options.AxesOffset+1;
+offset_interval = full_interval - options.AxesOffset;
+
 % Iterate through each theta
 for ii = 1:theta_end_index
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
     
     % Iterate through points on isocurve
-    for jj = 2:length(rho)
+    for jj = rho_start_index:length(rho)
         % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
@@ -598,10 +615,10 @@ for ii = 1:theta_end_index
         % If reverse axes direction is specified
         if axes_direction_index(ii)
             % Axes increment value
-            axes_value = min_value - (range/options.AxesInterval) * (jj-2);
+            axes_value = min_value - (range/offset_interval) * (jj-rho_start_index);
         else
             % Axes increment value
-            axes_value = min_value + (range/options.AxesInterval) * (jj-2);
+            axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
         end
         
         % Check for log axes scaling option
