@@ -1096,6 +1096,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'Visible', 'off');
                 end
             end
+            
+            % Keep only valid entries
+            obj.AxesValues = obj.AxesValues(:, rho_start_index:end);
+            obj.AxesTickLabels = obj.AxesTickLabels(:, rho_start_index:end);
         end
         
         function update_plot(obj)
