@@ -281,6 +281,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-11-30: Allow for one data group without specified axes limits.
+
 - 2020-11-30: Added support for changing axes and label font type.
 
 - 2020-10-08: Adjust axes precision to be set to one or more axis.
@@ -333,5 +335,6 @@ Special thanks to the following people for their feature recommendations and sug
 - Nicolai
 - Jingwei Too
 - Cedric Jamet
+- Richard Ruff
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
