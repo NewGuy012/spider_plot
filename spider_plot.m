@@ -37,10 +37,10 @@ function spider_plot(P, varargin)
 %                      [auto-scaled (default) | matrix]
 %
 %   FillOption       - Used to toggle color fill option.
-%                      ['off' (default) | 'on']
+%                      ['off' (default) | 'on' | cell array of character vectors]
 %
 %   FillTransparency - Used to set color fill transparency.
-%                      [0.1 (default) | scalar in range (0, 1)]
+%                      [0.1 (default) | scalar in range (0, 1) | vector]
 %
 %   Color            - Used to specify the line color, specified as an RGB
 %                      triplet. The intensities must be in the range (0, 1).
@@ -130,8 +130,8 @@ function spider_plot(P, varargin)
 %   spider_plot(P,...
 %       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
 %       'AxesInterval', 2,...
-%       'FillOption', 'on',...
-%       'FillTransparency', 0.1);
+%       'FillOption', {'on', 'on', 'off'},...
+%       'FillTransparency', [0.2, 0.1, 0.1]);
 %
 %   % Example 4: Maximum number of arguments.
 %
@@ -221,6 +221,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
 %   2020-11-30: Added support for changing axes and label font type.
@@ -249,8 +250,8 @@ function spider_plot(P, varargin)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-%   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet & Richard Ruff
-%   for their feature recommendations and suggested bug fixes.
+%   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff
+%   & Marie-Kristin Schreiber for their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -428,12 +429,12 @@ if ~ismember(axes_display, {'all', 'none', 'one'})
 end
 
 % Check if not a valid fill option arguement
-if ~ismember(fill_option, {'off', 'on'})
+if any(~ismember(fill_option, {'off', 'on'}))
     error('Error: Please enter either "off" or "on" for fill option.');
 end
 
 % Check if fill transparency is valid
-if fill_transparency < 0 || fill_transparency > 1
+if any(fill_transparency < 0) || any(fill_transparency > 1)
     error('Error: Please enter a transparency value between [0, 1].');
 end
 
@@ -548,7 +549,7 @@ end
 if iscell(axes_direction)
     % Check is length is one
     if length(axes_direction) == 1
-        % Repeat array to number of data groups
+        % Repeat array to number of data points
         axes_direction = repmat(axes_direction, num_data_points, 1);
     elseif length(axes_direction) ~= num_data_points
         error('Error: Please specify the same number of axes direction as number of data points.');
@@ -557,6 +558,34 @@ else
     % Repeat array to number of data groups
     axes_direction = repmat({axes_direction}, num_data_points, 1);
 end
+
+% Check if fill option is a cell
+if iscell(fill_option)
+    % Check is length is one
+    if length(fill_option) == 1
+        % Repeat array to number of data groups
+        fill_option = repmat(fill_option, num_data_groups, 1);
+    elseif length(fill_option) ~= num_data_groups
+        error('Error: Please specify the same number of fill option as number of data groups.');
+    end
+else
+    % Repeat array to number of data groups
+    fill_option = repmat({fill_option}, num_data_groups, 1);
+end
+
+% Check if fill transparency is numeric
+if isnumeric(fill_transparency)
+    % Check is length is one
+    if length(fill_transparency) == 1
+        % Repeat array to number of data groups
+        fill_transparency = repmat(fill_transparency, num_data_groups, 1);
+    elseif length(fill_transparency) ~= num_data_groups
+        error('Error: Please specify the same number of fill transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
+end
+
 
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
@@ -779,6 +808,9 @@ for ii = 1:theta_end_index
 end
 
 %%% Plot %%%
+% Fill option index
+fill_option_index = strcmp(fill_option, 'on');
+
 % Iterate through number of data groups
 for ii = 1:num_data_groups
     % Convert polar to cartesian coordinates
@@ -798,11 +830,11 @@ for ii = 1:num_data_groups
         'MarkerFaceColor', colors(ii, :));
     
     % Check if fill option is toggled on
-    if strcmp(fill_option, 'on')
+    if fill_option_index(ii)
         % Fill area within polygon
         h = patch(x_circular, y_circular, colors(ii, :),...
             'EdgeColor', 'none',...
-            'FaceAlpha', fill_transparency);
+            'FaceAlpha', fill_transparency(ii));
         
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';

@@ -39,10 +39,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      [auto-scaled (default) | matrix]
     %
     %   FillOption       - Used to toggle color fill option.
-    %                      ['off' (default) | 'on']
+    %                      ['off' (default) | 'on' | cell array of character vectors]
     %
     %   FillTransparency - Used to set color fill transparency.
-    %                      [0.1 (default) | scalar in range (0, 1)]
+    %                      [0.1 (default) | scalar in range (0, 1) | vector]
     %
     %   Color            - Used to specify the line color, specified as an RGB
     %                      triplet. The intensities must be in the range (0, 1).
@@ -155,8 +155,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s = spider_plot_class(P);
     %   s.AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
     %   s.AxesInterval = 2;
-    %   s.FillOption = 'on';
-    %   s.FillTransparency = 0.1;
+    %   s.FillOption = {'on', 'on', 'off'};
+    %   s.FillTransparency = [0.2, 0.1, 0.1];
     %
     %   % Example 4: Maximum number of arguments.
     %
@@ -237,6 +237,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2020-12-09: Allow fill option and fill transparency for each data group.
     %   2020-12-01: Added support for adjust the axes offset from origin.
     %   2020-11-30: Allow for one data group without specified axes limits.
     %   2020-11-30: Added support for changing axes and label font type.
@@ -273,10 +274,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
-    %   Cedric Jamet & Richard Ruff for their feature recommendations
-    %   and bug finds. A huge thanks to Jiro Doke and Sean de Wolski for
-    %   demonstrating the implementation of argument validation and custom chart
-    %   class introduced in R2019b.
+    %   Cedric Jamet, Richard Ruff & Marie-Kristin Schreiber for their
+    %   feature recommendations and bug finds. A huge thanks to Jiro Doke and
+    %   Sean de Wolski for demonstrating the implementation of argument
+    %   validation and custom chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -289,8 +290,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
-        FillOption matlab.lang.OnOffSwitchState = 'off' % Whether to shade data
-        FillTransparency (1, 1) double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} % Shading alpha
+        FillOption {mustBeMember(FillOption, {'on', 'off'})} = 'off' % Whether to shade data
+        FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.1 % Shading alpha
         Color = get(groot,'defaultAxesColorOrder') % Color order
         LineStyle = '-' % Data line style
         LineWidth (:, :) double {mustBePositive} = 2 % Data line width
@@ -750,13 +751,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             if iscell(obj.AxesDirection)
                 % Check is length is one
                 if length(obj.AxesDirection) == 1
-                    % Repeat array to number of data groups
+                    % Repeat array to number of data points
                     obj.AxesDirection = repmat(obj.AxesDirection, obj.NumDataPoints, 1);
                 elseif length(obj.AxesDirection) ~= obj.NumDataPoints
                     error('Error: Please specify the same number of axes direction as number of data points.');
                 end
             else
-                % Repeat array to number of data groups
+                % Repeat array to number of data points
                 obj.AxesDirection = repmat({obj.AxesDirection}, obj.NumDataPoints, 1);
             end
             
@@ -772,6 +773,43 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Get property
             axes_offset = obj.AxesOffset;
+        end
+        
+        function fill_option = get.FillOption(obj)
+            % Check if fill option is a cell
+            if iscell(obj.FillOption)
+                % Check is length is one
+                if length(obj.FillOption) == 1
+                    % Repeat array to number of data groups
+                    obj.FillOption = repmat(obj.FillOption, obj.NumDataGroups, 1);
+                elseif length(obj.FillOption) ~= obj.NumDataGroups
+                    error('Error: Please specify the same number of fill options as number of data groups.');
+                end
+            else
+                % Repeat array to number of data groups
+                obj.FillOption = repmat({obj.FillOption}, obj.NumDataGroups, 1);
+            end
+            
+            % Get property
+            fill_option = obj.FillOption;
+        end
+
+        function fill_transparency = get.FillTransparency(obj)
+            % Check if fill transparency is numeric
+            if isnumeric(obj.FillTransparency)
+                % Check is length is one
+                if length(obj.FillTransparency) == 1
+                    % Repeat array to number of data groups
+                    obj.FillTransparency = repmat(obj.FillTransparency, obj.NumDataGroups, 1);
+                elseif length(obj.FillTransparency) ~= obj.NumDataGroups
+                    error('Error: Please specify the same number of fill transparency as number of data groups.');
+                end
+            else
+                error('Error: Please make sure the fill transparency is a numeric value.');
+            end
+            
+            % Get property
+            fill_transparency = obj.FillTransparency;
         end
     end
     
@@ -1103,13 +1141,16 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function update_plot(obj)
+            % Fill option index
+            fill_option_index = strcmp(obj.FillOption, 'on');
+
             % Iterate through patch objects
             for ii = 1:numel(obj.FillPatches)
                 % Check fill option argument
-                if obj.FillOption
+                if fill_option_index(ii)
                     % Fill in patch with specified color and transparency
                     obj.FillPatches(ii).FaceColor = obj.Color(ii, :);
-                    obj.FillPatches(ii).FaceAlpha = obj.FillTransparency;
+                    obj.FillPatches(ii).FaceAlpha = obj.FillTransparency(ii);
                 else
                     % Set no patch color
                     obj.FillPatches(ii).FaceColor = 'none';

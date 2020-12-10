@@ -35,10 +35,10 @@ Create a spider or radar plot with customizable individual axes.
                          [auto-scaled (default) | matrix]
 
 - **FillOption**       - Used to toggle color fill option.
-                         ['off' (default) | 'on']
+                         ['off' (default) | 'on' | cell array of character vectors]
 
 - **FillTransparency** - Used to set color fill transparency.
-                         [0.1 (default) | scalar in range (0, 1)]
+                         [0.1 (default) | scalar in range (0, 1) | vector]
                      
 - **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
                          [MATLAB colors (default) | RGB triplet | hexadecimal color code]
@@ -138,11 +138,11 @@ P = [D1; D2; D3];
 spider_plot(P,...
     'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
     'AxesInterval', 2,...
-    'FillOption', 'on',...
-    'FillTransparency', 0.1);
+    'FillOption', {'on', 'on', 'off'},...
+    'FillTransparency', [0.2, 0.1, 0.1]);
 ```
 <p align="center">
-  <img src="screenshot/example3.PNG">
+  <img src="screenshot/example3.png">
 </p>
 
 
@@ -285,6 +285,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2020-12-09: Allow fill option and fill transparency for each data group.
+
 - 2020-12-01: Added support for adjust the axes offset from origin.
 
 - 2020-11-30: Allow for one data group without specified axes limits.
@@ -324,7 +326,7 @@ Moses Yoo, (jyoo at hatci dot com)
 - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
-Special thanks to the following people for their feature recommendations and suggested bug fixes.
+Special thanks to the following people for their feature recommendations and bug finds.
 - Gabriela Andrade
 - Andrés Garcia
 - Jiro Doke
@@ -342,5 +344,6 @@ Special thanks to the following people for their feature recommendations and sug
 - Jingwei Too
 - Cedric Jamet
 - Richard Ruff
+- Marie-Kristin Schreiber
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

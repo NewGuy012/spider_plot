@@ -37,10 +37,10 @@ function spider_plot_R2019b(P, options)
 %                      [auto-scaled (default) | matrix]
 %
 %   FillOption       - Used to toggle color fill option.
-%                      ['off' (default) | 'on']
+%                      ['off' (default) | 'on' | cell array of character vectors]
 %
 %   FillTransparency - Used to set color fill transparency.
-%                      [0.1 (default) | scalar in range (0, 1)]
+%                      [0.1 (default) | scalar in range (0, 1) | vector]
 %
 %   Color            - Used to specify the line color, specified as an RGB
 %                      triplet. The intensities must be in the range (0, 1).
@@ -130,8 +130,8 @@ function spider_plot_R2019b(P, options)
 %   spider_plot_R2019b(P,...
 %       'AxesLabels', {'S1', 'S2', 'S3', 'S4', 'S5'},...
 %       'AxesInterval', 2,...
-%       'FillOption', 'on',...
-%       'FillTransparency', 0.1);
+%       'FillOption', {'on', 'on', 'off'},...
+%       'FillTransparency', [0.2, 0.1, 0.1]);
 %
 %   % Example 4: Maximum number of arguments.
 %
@@ -229,6 +229,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (jyoo at hatci dot com)
+%   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
 %   2020-11-30: Added support for changing axes and label font type.
@@ -262,8 +263,8 @@ function spider_plot_R2019b(P, options)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
-%   Cedric Jamet & Richard Ruff for their feature recommendations
-%   and suggested bug fixes.
+%   Cedric Jamet, Richard Ruff & Marie-Kristin Schreiber for their
+%   feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -273,8 +274,8 @@ arguments
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
-    options.FillOption char {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
-    options.FillTransparency (1, 1) double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
+    options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
+    options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
     options.Color = get(groot,'defaultAxesColorOrder')
     options.LineStyle = '-'
     options.LineWidth (:, :) double {mustBePositive} = 2
@@ -409,14 +410,43 @@ end
 if iscell(options.AxesDirection)
     % Check is length is one
     if length(options.AxesDirection) == 1
-        % Repeat array to number of data groups
+        % Repeat array to number of data points
         options.AxesDirection = repmat(options.AxesDirection, num_data_points, 1);
     elseif length(options.AxesDirection) ~= num_data_points
         error('Error: Please specify the same number of axes direction as number of data points.');
     end
 else
-    % Repeat array to number of data groups
+    % Repeat array to number of data points
     options.AxesDirection = repmat({options.AxesDirection}, num_data_points, 1);
+end
+
+%%% Validate Fill Option
+% Check if fill option is a cell
+if iscell(options.FillOption)
+    % Check is length is one
+    if length(options.FillOption) == 1
+        % Repeat array to number of data groups
+        options.FillOption = repmat(options.FillOption, num_data_groups, 1);
+    elseif length(options.FillOption) ~= num_data_groups
+        error('Error: Please specify the same number of fill option as number of data groups.');
+    end
+else
+    % Repeat array to number of data groups
+    options.FillOption = repmat({options.FillOption}, num_data_groups, 1);
+end
+
+%%% Validate Fill Transparency
+% Check if fill transparency is numeric
+if isnumeric(options.FillTransparency)
+    % Check is length is one
+    if length(options.FillTransparency) == 1
+        % Repeat array to number of data groups
+        options.FillTransparency = repmat(options.FillTransparency, num_data_groups, 1);
+    elseif length(options.FillTransparency) ~= num_data_groups
+        error('Error: Please specify the same number of fill transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
 end
 
 %%% Axes Scaling Properties %%%
@@ -640,6 +670,9 @@ for ii = 1:theta_end_index
 end
 
 %%% Plot %%%
+% Fill option index
+fill_option_index = strcmp(options.FillOption, 'on');
+
 % Iterate through number of data groups
 for ii = 1:num_data_groups
     % Convert polar to cartesian coordinates
@@ -659,11 +692,11 @@ for ii = 1:num_data_groups
         'MarkerFaceColor', options.Color(ii, :));
     
     % Check if fill option is toggled on
-    if strcmp(options.FillOption, 'on')
+    if fill_option_index(ii)
         % Fill area within polygon
         h = patch(x_circular, y_circular, options.Color(ii, :),...
             'EdgeColor', 'none',...
-            'FaceAlpha', options.FillTransparency);
+            'FaceAlpha', options.FillTransparency(ii));
         
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
