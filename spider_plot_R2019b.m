@@ -395,13 +395,13 @@ end
 if iscell(options.AxesScaling)
     % Check is length is one
     if length(options.AxesScaling) == 1
-        % Repeat array to number of data groups
+        % Repeat array to number of data points
         options.AxesScaling = repmat(options.AxesScaling, num_data_points, 1);
     elseif length(options.AxesScaling) ~= num_data_points
         error('Error: Please specify the same number of axes scaling as number of data points.');
     end
 else
-    % Repeat array to number of data groups
+    % Repeat array to number of data points
     options.AxesScaling = repmat({options.AxesScaling}, num_data_points, 1);
 end
 

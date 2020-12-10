@@ -555,7 +555,7 @@ if iscell(axes_direction)
         error('Error: Please specify the same number of axes direction as number of data points.');
     end
 else
-    % Repeat array to number of data groups
+    % Repeat array to number of data points
     axes_direction = repmat({axes_direction}, num_data_points, 1);
 end
 
