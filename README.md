@@ -104,7 +104,7 @@ spider_plot(P);
 legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ```
 <p align="center">
-  <img src="screenshot/example1.PNG">
+  <img src="screenshot/example1.png">
 </p>
 
 
@@ -142,7 +142,7 @@ spider_plot(P,...
     'FillTransparency', [0.2, 0.1, 0.1]);
 ```
 <p align="center">
-  <img src="screenshot/example3.PNG">
+  <img src="screenshot/example3.png">
 </p>
 
 
@@ -279,7 +279,7 @@ t.Padding = 'compact';
 title(t, 'Spider Plots');
 ```
 <p align="center">
-  <img src="screenshot/example7.PNG">
+  <img src="screenshot/example7.png">
 </p>
 
 
