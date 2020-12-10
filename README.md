@@ -142,7 +142,7 @@ spider_plot(P,...
     'FillTransparency', [0.2, 0.1, 0.1]);
 ```
 <p align="center">
-  <img src="screenshot/example3.png">
+  <img src="screenshot/example3.PNG">
 </p>
 
 
