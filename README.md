@@ -285,6 +285,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (jyoo at hatci dot com)
+- 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
+- 
 - 2020-12-09: Allow fill option and fill transparency for each data group.
 
 - 2020-12-01: Added support for adjust the axes offset from origin.
@@ -345,5 +347,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Cedric Jamet
 - Richard Ruff
 - Marie-Kristin Schreiber
+- Jean-Baptise Billaud
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
