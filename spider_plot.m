@@ -220,7 +220,7 @@ function spider_plot(P, varargin)
 %       'AxesPrecision', 0);
 %
 % Author:
-%   Moses Yoo, (jyoo at hatci dot com)
+%   Moses Yoo, (juyoung.m.yoo at gmail dot com)
 %   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
@@ -248,7 +248,7 @@ function spider_plot(P, varargin)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
+%   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff
 %   & Marie-Kristin Schreiber for their feature recommendations and bug finds.

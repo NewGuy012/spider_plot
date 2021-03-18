@@ -228,7 +228,7 @@ function spider_plot_R2019b(P, options)
 %   title(t, 'Spider Plots');
 %
 % Author:
-%   Moses Yoo, (jyoo at hatci dot com)
+%   Moses Yoo, (juyoung.m.yoo at gmail dot com)
 %   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.

@@ -263,7 +263,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   title(s1.TiledLayoutHandle, "Spider Plots");
     %
     % Author:
-    %   Moses Yoo, (jyoo at hatci dot com)
+    %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
     %   2021-03-17: Implement tiledlayout and nexttile compatibility.
     %   2020-12-09: Allow fill option and fill transparency for each data group.
     %   2020-12-01: Added support for adjust the axes offset from origin.
