@@ -284,7 +284,7 @@ title(t, 'Spider Plots');
 
 
 ## Author:
-Moses Yoo, (jyoo at hatci dot com)
+Moses Yoo, (juyoung.m.yoo at gmail dot com)
 - 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
 
 - 2020-12-09: Allow fill option and fill transparency for each data group.
