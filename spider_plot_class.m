@@ -80,7 +80,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      plotted data and axis labels.
     %                      ['clockwise' (default) | 'counterclockwise']
     %
-    %   AxesDirection     - Used to change the direction of axes.
+    %   AxesDirection    - Used to change the direction of axes.
     %                      ['normal' (default) | 'reverse' | cell array of character vectors]
     %
     %   AxesLabelsOffset - Used to adjust the position offset of the axes
@@ -104,6 +104,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     %   AxesOffset       - Used to change to axes offset from the origin.
     %                      [1 (default) | any integer less than the axes interval]
+    %
+    %   TiledLayoutHandle- Used to customize tiled layout settings. 
+    %                      [tiled chart layout handle object]
+    %
+    %   NextTileIter     - Iterates with consecutive tile plots. 
+    %                      [1 (default)]
     %
     % Output Arguments:
     %   (Optional)
@@ -235,8 +241,30 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 100];
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
     %
+    %   % Example 7: Spider plot with tiledlayout.
+    %
+    %   D1 = [5 3 9 1 2];
+    %   D2 = [5 8 7 2 9];
+    %   D3 = [8 2 1 4 6];
+    %   P = [D1; D2; D3];
+    %   close all;
+    %   figure;
+    %   s1 = spider_plot_class(P);
+    %   figure;
+    %   s2 = spider_plot_class(P);
+    %   figure;
+    %   s3 = spider_plot_class(P);
+    %   s1.tiledlayout(2, 2);
+    %   s1.nexttile(s1);
+    %   s1.nexttile(s2);
+    %   s1.nexttile(s3, 3, [1, 2]);
+    %   s1.TiledLayoutHandle.TileSpacing = 'compact';
+    %   s1.TiledLayoutHandle.Padding = 'compact';
+    %   title(s1.TiledLayoutHandle, "Spider Plots");
+    %
     % Author:
     %   Moses Yoo, (jyoo at hatci dot com)
+    %   2021-03-17: Implement tiledlayout and nexttile compatibility.
     %   2020-12-09: Allow fill option and fill transparency for each data group.
     %   2020-12-01: Added support for adjust the axes offset from origin.
     %   2020-11-30: Allow for one data group without specified axes limits.
@@ -271,13 +299,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   2019-09-17: Major revision to improve speed, clarity, and functionality
     %
     % Special Thanks:
-    %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
+    %   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
-    %   Cedric Jamet, Richard Ruff & Marie-Kristin Schreiber for their
-    %   feature recommendations and bug finds. A huge thanks to Jiro Doke and
-    %   Sean de Wolski for demonstrating the implementation of argument
-    %   validation and custom chart class introduced in R2019b.
+    %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber & Jean-Baptise
+    %   Billaud for their feature recommendations and bug finds. A huge
+    %   to Jiro Doke and Sean de Wolski for demonstrating the
+    %   implementation of argument validation and custom chart class
+    %   introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -308,6 +337,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesColor = [0.6, 0.6, 0.6] % Axes color
         AxesLabelsEdge = 'k' % Axes label color
         AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1 % Axes offset
+        TiledLayoutHandle % Tiled layout handle
     end
     
     %%% Private, NonCopyable, Transient Properties %%%
@@ -331,6 +361,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         
         % Initialize toggle state
         InitializeToggle = true;
+        
+        % NextTile iterator
+        NextTileIter (1, 1) double {mustBeInteger, mustBePositive} = 1 
     end
     
     %%% Protected, Dependent, Hidden Properties %%%
@@ -389,7 +422,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Set legend handle
             obj.LegendHandle = getLegend(obj);
             
-            % Toggle re-initialize to true iLegendLabels was changed
+            % Toggle re-initialize to true if LegendLabels was changed
             obj.InitializeToggle = true;
         end
         
@@ -833,6 +866,50 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 value = value_arguments{ii};
                 tlt.(name) = value;
             end
+        end
+        
+        function tiledlayout(obj, varargin)
+            % Figure properties
+            fig = figure;
+            fig.Color = 'w';
+            
+            % Tiled layout
+            obj.TiledLayoutHandle = tiledlayout(fig, varargin{:});
+            drawnow;
+        end
+        
+        function nexttile(obj, object_handle, varargin)
+            % Copy over axes
+            object_axes = getAxes(object_handle);
+            current_axes = copyobj(object_axes, obj.TiledLayoutHandle);
+            
+            % Check input variable length
+            switch length(varargin)
+                case 2
+                    tile_location = varargin{1};
+                    span = varargin{2};
+                case 1
+                    % Check first variable length
+                    if length(varargin{1}) == 1
+                        tile_location = varargin{1};
+                        span = [1, 1];
+                    else
+                        tile_location = obj.NextTileIter;
+                        span = varargin{1};
+                    end
+                case 0
+                    tile_location = obj.NextTileIter;
+                    span = [1, 1];
+                otherwise
+                    error("Error using nexttile. Invalid arguments.")
+            end
+               
+            % Axes settings
+            current_axes.Layout.Tile = tile_location;
+            current_axes.Layout.TileSpan = span;
+            
+            % Iterate next tile number
+            obj.NextTileIter = obj.NextTileIter + 1;
         end
     end
     

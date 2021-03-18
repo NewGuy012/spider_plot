@@ -260,7 +260,7 @@ function spider_plot_R2019b(P, options)
 %   2019-09-17: Major revision to improve speed, clarity, and functionality
 %
 % Special Thanks:
-%   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
+%   Special thanks to Gabriela Andrade, AndrÃ©s Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff & Marie-Kristin Schreiber for their
