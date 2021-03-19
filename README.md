@@ -285,6 +285,8 @@ title(t, 'Spider Plots');
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-03-19: Allow legend to be global in tiledlayout. Allow axes values to be shifted in spider_plot_class.
+
 - 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
 
 - 2020-12-09: Allow fill option and fill transparency for each data group.
