@@ -105,8 +105,20 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesOffset       - Used to change to axes offset from the origin.
     %                      [1 (default) | any integer less than the axes interval]
     %
+    %   AxesZoom         - Used to change zoom of axes.
+    %                      [0.7 (default) | scalar in range (0, 1)]
+    %
+    %   AxesHorzAlign    - Used to change the horizontal alignment of axes labels.
+    %                      ['center' (default) | 'left' | 'right' | 'quadrant']
+    %
+    %   AxesVertAlign    - Used to change the vertical aligment of axes labels.
+    %                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
+    %
     %   TiledLayoutHandle- Used to customize tiled layout settings. 
     %                      [tiled chart layout handle object]
+    %
+    %   TiledLegendHandle- Used to customize tiled legend settings. 
+    %                      [legend handle object of tiled layout]
     %
     %   NextTileIter     - Iterates with consecutive tile plots. 
     %                      [1 (default)]
@@ -250,20 +262,37 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   close all;
     %   figure;
     %   s1 = spider_plot_class(P);
+    %   s1.LegendLabels = {'Data1a', 'Data1b', 'Data1c'};
+    %   s1.AxesZoom = 1;
+    %   s1.AxesHorzAlign = 'quadrant';
+    %   s1.AxesVertAlign = 'quadrant';
     %   figure;
     %   s2 = spider_plot_class(P);
+    %   s2.LegendLabels = {'Data2a', 'Data2b', 'Data2c'};
+    %   s2.AxesZoom = 1;
+    %   s2.AxesHorzAlign = 'center';
+    %   s2.AxesVertAlign = 'top';
     %   figure;
     %   s3 = spider_plot_class(P);
+    %   s3.LegendLabels = {'Data3a', 'Data3b', 'Data3c'};
+    %   s3.AxesZoom = 1;
+    %   s3.AxesHorzAlign = 'left';
+    %   s3.AxesVertAlign = 'middle';
     %   s1.tiledlayout(2, 2);
     %   s1.nexttile(s1);
     %   s1.nexttile(s2);
     %   s1.nexttile(s3, 3, [1, 2]);
-    %   s1.TiledLayoutHandle.TileSpacing = 'compact';
+    %   s1.TiledLayoutHandle.TileSpacing = 'none';
     %   s1.TiledLayoutHandle.Padding = 'compact';
     %   title(s1.TiledLayoutHandle, "Spider Plots");
+    %   s1.tiledlegend('FontSize', 8);
+    %   s1.TiledLegendHandle.Layout.TileSpan = [1, 2];
+    %   s1.TiledLegendHandle.Layout.Tile = 1;
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-03-19: -Allow legend to be global in tiledlayout.
+    %               -Allow axes values to be shifted.
     %   2021-03-17: Implement tiledlayout and nexttile compatibility.
     %   2020-12-09: Allow fill option and fill transparency for each data group.
     %   2020-12-01: Added support for adjust the axes offset from origin.
@@ -314,7 +343,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         P (:, :) double
         AxesLabels cell % Axes labels
         LegendLabels cell % Legend labels
-        LegendHandle % Lengend handle
+        LegendHandle % Legend handle
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
         AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one'})} = 'all'  % Number of tick label groups shown on axes
@@ -337,7 +366,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesColor = [0.6, 0.6, 0.6] % Axes color
         AxesLabelsEdge = 'k' % Axes label color
         AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1 % Axes offset
+        AxesZoom double {mustBeGreaterThanOrEqual(AxesZoom, 0), mustBeLessThanOrEqual(AxesZoom, 1)} = 0.7 % Axes scale
+        AxesHorzAlign char {mustBeMember(AxesHorzAlign, {'center', 'left', 'right', 'quadrant'})} = 'center' % Horizontal alignment of axes labels
+        AxesVertAlign char {mustBeMember(AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
         TiledLayoutHandle % Tiled layout handle
+        TiledLegendHandle % Tiled legend handle
     end
     
     %%% Private, NonCopyable, Transient Properties %%%
@@ -599,6 +632,30 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesOffset = value;
             
             % Toggle re-initialize to true if AxesOffset was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesZoom(obj, value)
+            % Set property
+            obj.AxesZoom = value;
+            
+            % Toggle re-initialize to true if AxesZoom was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesHorzAlign(obj, value)
+            % Set property
+            obj.AxesHorzAlign = value;
+            
+            % Toggle re-initialize to true if AxesHorzAlign was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesVertAlign(obj, value)
+            % Set property
+            obj.AxesVertAlign = value;
+            
+            % Toggle re-initialize to true if AxesVertAlign was changed
             obj.InitializeToggle = true;
         end
         
@@ -911,6 +968,25 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Iterate next tile number
             obj.NextTileIter = obj.NextTileIter + 1;
         end
+        
+        function tiledlegend(obj, varargin)
+            % Relevant graphic handles
+            current_axes = gca;
+            axes_handles = findobj(obj.TiledLayoutHandle, 'Type', 'axes');
+            line_handles = cell(length(axes_handles), 1);
+            
+            % Iterate through axes handles
+            for ii = 1:length(axes_handles)
+                % Find and store all line handles
+                line_handles{ii} = findobj(axes_handles(ii), 'Type', 'line');
+            end
+            
+            % Concatenate contents of array
+            line_handles = vertcat(line_handles{:});
+            
+            % Create and store legend handle
+            obj.TiledLegendHandle = legend(current_axes, line_handles(:), varargin{:});
+        end
     end
     
     methods (Access = protected)
@@ -921,11 +997,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             fig.Color = 'w';
             
             % Axis properties
+            scaling_factor = 1 + (1 - obj.AxesZoom);
             ax = getAxes(obj);
             hold(ax, 'on');
             axis(ax, 'square');
             axis(ax, 'off');
-            axis(ax, [-1, 1, -1, 1] * 1.3);
+            axis(ax, [-1, 1, -1, 1] * scaling_factor);
         end
         
         %%% Update Methods %%%
@@ -964,6 +1041,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function initialize(obj)
+            % Axis properties
+            scaling_factor = 1 + (1 - obj.AxesZoom);
+            ax = getAxes(obj);
+            hold(ax, 'on');
+            axis(ax, 'square');
+            axis(ax, 'off');
+            axis(ax, [-1, 1, -1, 1] * scaling_factor);
+            
             % Selected data
             P_selected = obj.P;
             
@@ -1173,10 +1258,26 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Visible', 'off');
             end
             
+            % Alignment for axes labels
+            horz_align = obj.AxesHorzAlign;
+            vert_align = obj.AxesVertAlign;
+            
             % Iterate through each theta
             for ii = 1:theta_end_index
                 % Convert polar to cartesian coordinates
                 [x_axes, y_axes] = pol2cart(theta(ii), rho);
+                
+                % Check if horizontal alignment is quadrant based
+                if strcmp(obj.AxesHorzAlign, 'quadrant')
+                    % Alignment based on quadrant
+                    [horz_align, ~, ~, ~] = obj.quadrant_position(theta(ii));
+                end
+                
+                % Check if vertical alignment is quadrant based
+                if strcmp(obj.AxesVertAlign, 'quadrant')
+                    % Alignment based on quadrant
+                    [~, vert_align, ~, ~] = obj.quadrant_position(theta(ii));
+                end
                 
                 % Iterate through points on isocurve
                 for jj = rho_start_index:length(rho)
@@ -1206,8 +1307,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'Color', 'k',...
                         'FontName', obj.AxesFont,...
                         'FontSize', obj.AxesFontSize,...
-                        'HorizontalAlignment', 'center',...
-                        'VerticalAlignment', 'middle',...
+                        'HorizontalAlignment', horz_align,...
+                        'VerticalAlignment', vert_align,...
                         'Visible', 'off');
                 end
             end
@@ -1279,7 +1380,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         % Display and set axes tick label settings
                         text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
                         obj.AxesTickLabels(ii, jj).String = text_str;
-                        obj.AxesTickLabels(ii, jj).FontName= obj.AxesFont;
+                        obj.AxesTickLabels(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickLabels(ii, jj).FontSize = obj.AxesFontSize;
                     end
                 end
