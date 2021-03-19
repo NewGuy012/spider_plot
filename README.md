@@ -244,7 +244,7 @@ legend('D1', 'D2', 'D3', 'Location', 'northeast');
 </p>
 
 
-  ### Example 7: Spider plot with tiledlayout feature in R2019b.
+  ### Example 7a: Spider plot with tiledlayout feature in R2019b.
 ```matlab
 % Initialize data points
 D1 = [5 3 9 1 2];
@@ -282,10 +282,64 @@ title(t, 'Spider Plots');
   <img src="screenshot/example7.PNG">
 </p>
 
+### Example 7b: Spider plot class with tiledlayout feature.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+close all;
+clc;
+
+% Individual spider plots
+figure;
+s1 = spider_plot_class(P);
+s1.LegendLabels = {'Data1a', 'Data1b', 'Data1c'};
+s1.AxesZoom = 1;
+s1.AxesHorzAlign = 'quadrant';
+s1.AxesVertAlign = 'quadrant';
+
+figure;
+s2 = spider_plot_class(P);
+s2.LegendLabels = {'Data2a', 'Data2b', 'Data2c'};
+s2.AxesZoom = 1;
+s2.AxesHorzAlign = 'center';
+s2.AxesVertAlign = 'top';
+
+figure;
+s3 = spider_plot_class(P);
+s3.LegendLabels = {'Data3a', 'Data3b', 'Data3c'};
+s3.AxesZoom = 1;
+s3.AxesHorzAlign = 'left';
+s3.AxesVertAlign = 'middle';
+
+% Tiled layout
+s1.tiledlayout(2, 2);
+
+% Next tiles
+s1.nexttile(s1);
+s1.nexttile(s2);
+s1.nexttile(s3, 3, [1, 2]);
+
+% Tiled layout settings
+s1.TiledLayoutHandle.TileSpacing = 'none';
+s1.TiledLayoutHandle.Padding = 'compact';
+title(s1.TiledLayoutHandle, "Spider Plots");
+
+% Legend settings
+s1.tiledlegend('FontSize', 8);
+s1.TiledLegendHandle.Layout.TileSpan = [1, 2];
+s1.TiledLegendHandle.Layout.Tile = 1;
+```
+<p align="center">
+  <img src="screenshot/example7b.PNG">
+</p>
+
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
-- 2021-03-19: Allow legend to be global in tiledlayout. Allow axes values to be shifted in spider_plot_class.
+- 2021-03-19: Allow legend to be global in tiledlayout in spider_plot_class. Allow axes values to be shifted. Allow axes zoom level to be adjusted.
 
 - 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
 
