@@ -97,6 +97,15 @@ function spider_plot_R2019b(P, options)
 %   AxesOffset       - Used to change to axes offset from the origin.
 %                      [1 (default) | any integer less than the axes interval]
 %
+%   AxesZoom         - Used to change zoom of axes.
+%                      [0.7 (default) | scalar in range (0, 1)]
+%
+%   AxesHorzAlign    - Used to change the horizontal alignment of axes labels.
+%                      ['center' (default) | 'left' | 'right' | 'quadrant']
+%
+%   AxesVertAlign    - Used to change the vertical aligment of axes labels.
+%                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -162,7 +171,10 @@ function spider_plot_R2019b(P, options)
 %       'AxesScaling', 'linear',...
 %       'AxesColor', [0.6, 0.6, 0.6],...
 %       'AxesLabelsEdge', 'none',...
-%       'AxesOffset', 1);
+%       'AxesOffset', 1,...
+%       'AxesZoom', 1,...
+%       'AxesHorzAlign', 'quadrant',...
+%       'AxesVertAlign', 'quadrant');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -229,6 +241,8 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-03-19: -Allow axes values to be shifted.
+%               -Allow axes zoom level to be adjusted.
 %   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
@@ -292,6 +306,9 @@ arguments
     options.AxesColor = [0.6, 0.6, 0.6]
     options.AxesLabelsEdge = 'k'
     options.AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1
+    options.AxesZoom double {mustBeGreaterThanOrEqual(options.AxesZoom, 0), mustBeLessThanOrEqual(options.AxesZoom, 1)} = 0.7 % Axes scale
+    options.AxesHorzAlign char {mustBeMember(options.AxesHorzAlign, {'center', 'left', 'right', 'quadrant'})} = 'center' % Horizontal alignment of axes labels
+    options.AxesVertAlign char {mustBeMember(options.AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
 end
 
 %%% Data Properties %%%
@@ -488,9 +505,10 @@ cla reset;
 ax = gca;
 
 % Axis limits
+scaling_factor = 1 + (1 - options.AxesZoom);
 hold on;
 axis square;
-axis([-1, 1, -1, 1] * 1.3);
+axis([-1, 1, -1, 1] * scaling_factor);
 
 % Axis properties
 ax.XTickLabel = [];
@@ -631,11 +649,27 @@ end
 rho_start_index = options.AxesOffset+1;
 offset_interval = full_interval - options.AxesOffset;
 
+% Alignment for axes labels
+horz_align = options.AxesHorzAlign;
+vert_align = options.AxesVertAlign;
+
 % Iterate through each theta
 for ii = 1:theta_end_index
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
     
+    % Check if horizontal alignment is quadrant based
+    if strcmp(options.AxesHorzAlign, 'quadrant')
+        % Alignment based on quadrant
+        [horz_align, ~, ~, ~] = quadrant_position(options.AxesLabelsOffset, theta(ii));
+    end
+    
+    % Check if vertical alignment is quadrant based
+    if strcmp(options.AxesVertAlign, 'quadrant')
+        % Alignment based on quadrant
+        [~, vert_align, ~, ~] = quadrant_position(options.AxesLabelsOffset, theta(ii));
+    end
+                
     % Iterate through points on isocurve
     for jj = rho_start_index:length(rho)
         % Axes increment range
@@ -664,8 +698,8 @@ for ii = 1:theta_end_index
             'Color', 'k',...
             'FontName', options.AxesFont,...
             'FontSize', options.AxesFontSize,...
-            'HorizontalAlignment', 'center',...
-            'VerticalAlignment', 'middle');
+            'HorizontalAlignment', horz_align,...
+            'VerticalAlignment', vert_align);
     end
 end
 
@@ -742,72 +776,7 @@ if ~strcmp(options.AxesLabels, 'none')
     % Iterate through number of data points
     for ii = 1:length(options.AxesLabels)
         % Angle of point in radians
-        theta_point = theta(ii);
-        
-        % Find out which quadrant the point is in
-        if theta_point == 0
-            quadrant = 0;
-        elseif theta_point == pi/2
-            quadrant = 1.5;
-        elseif theta_point == pi
-            quadrant = 2.5;
-        elseif theta_point == 3*pi/2
-            quadrant = 3.5;
-        elseif theta_point == 2*pi
-            quadrant = 0;
-        elseif theta_point > 0 && theta_point < pi/2
-            quadrant = 1;
-        elseif theta_point > pi/2 && theta_point < pi
-            quadrant = 2;
-        elseif theta_point > pi && theta_point < 3*pi/2
-            quadrant = 3;
-        elseif theta_point > 3*pi/2 && theta_point < 2*pi
-            quadrant = 4;
-        end
-        
-        % Adjust label alignment depending on quadrant
-        switch quadrant
-            case 0
-                horz_align = 'left';
-                vert_align = 'middle';
-                x_pos = options.AxesLabelsOffset;
-                y_pos = 0;
-            case 1
-                horz_align = 'left';
-                vert_align = 'bottom';
-                x_pos = options.AxesLabelsOffset;
-                y_pos = options.AxesLabelsOffset;
-            case 1.5
-                horz_align = 'center';
-                vert_align = 'bottom';
-                x_pos = 0;
-                y_pos = options.AxesLabelsOffset;
-            case 2
-                horz_align = 'right';
-                vert_align = 'bottom';
-                x_pos = -options.AxesLabelsOffset;
-                y_pos = options.AxesLabelsOffset;
-            case 2.5
-                horz_align = 'right';
-                vert_align = 'middle';
-                x_pos = -options.AxesLabelsOffset;
-                y_pos = 0;
-            case 3
-                horz_align = 'right';
-                vert_align = 'top';
-                x_pos = -options.AxesLabelsOffset;
-                y_pos = -options.AxesLabelsOffset;
-            case 3.5
-                horz_align = 'center';
-                vert_align = 'top';
-                x_pos = 0;
-                y_pos = -options.AxesLabelsOffset;
-            case 4
-                horz_align = 'left';
-                vert_align = 'top';
-                x_pos = options.AxesLabelsOffset;
-                y_pos = -options.AxesLabelsOffset;
-        end
+        [horz_align, vert_align, x_pos, y_pos] = quadrant_position(options.AxesLabelsOffset, theta(ii));
         
         % Display text label
         text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, options.AxesLabels{ii},...
@@ -819,6 +788,73 @@ if ~strcmp(options.AxesLabels, 'none')
             'FontName', options.LabelFont,...
             'FontSize', options.LabelFontSize);
     end
+end
+end
+
+function [horz_align, vert_align, x_pos, y_pos] = quadrant_position(AxesLabelsOffset, theta_point)
+% Find out which quadrant the point is in
+if theta_point == 0
+    quadrant = 0;
+elseif theta_point == pi/2
+    quadrant = 1.5;
+elseif theta_point == pi
+    quadrant = 2.5;
+elseif theta_point == 3*pi/2
+    quadrant = 3.5;
+elseif theta_point == 2*pi
+    quadrant = 0;
+elseif theta_point > 0 && theta_point < pi/2
+    quadrant = 1;
+elseif theta_point > pi/2 && theta_point < pi
+    quadrant = 2;
+elseif theta_point > pi && theta_point < 3*pi/2
+    quadrant = 3;
+elseif theta_point > 3*pi/2 && theta_point < 2*pi
+    quadrant = 4;
+end
+
+% Adjust label alignment depending on quadrant
+switch quadrant
+    case 0
+        horz_align = 'left';
+        vert_align = 'middle';
+        x_pos = AxesLabelsOffset;
+        y_pos = 0;
+    case 1
+        horz_align = 'left';
+        vert_align = 'bottom';
+        x_pos = AxesLabelsOffset;
+        y_pos = AxesLabelsOffset;
+    case 1.5
+        horz_align = 'center';
+        vert_align = 'bottom';
+        x_pos = 0;
+        y_pos = AxesLabelsOffset;
+    case 2
+        horz_align = 'right';
+        vert_align = 'bottom';
+        x_pos = -AxesLabelsOffset;
+        y_pos = AxesLabelsOffset;
+    case 2.5
+        horz_align = 'right';
+        vert_align = 'middle';
+        x_pos = -AxesLabelsOffset;
+        y_pos = 0;
+    case 3
+        horz_align = 'right';
+        vert_align = 'top';
+        x_pos = -AxesLabelsOffset;
+        y_pos = -AxesLabelsOffset;
+    case 3.5
+        horz_align = 'center';
+        vert_align = 'top';
+        x_pos = 0;
+        y_pos = -AxesLabelsOffset;
+    case 4
+        horz_align = 'left';
+        vert_align = 'top';
+        x_pos = AxesLabelsOffset;
+        y_pos = -AxesLabelsOffset;
 end
 end
 

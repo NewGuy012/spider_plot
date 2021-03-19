@@ -97,6 +97,15 @@ function spider_plot(P, varargin)
 %   AxesOffset       - Used to change to axes offset from the origin.
 %                      [1 (default) | any integer less than the axes interval]
 %
+%   AxesZoom         - Used to change zoom of axes.
+%                      [0.7 (default) | scalar in range (0, 1)]
+%
+%   AxesHorzAlign    - Used to change the horizontal alignment of axes labels.
+%                      ['center' (default) | 'left' | 'right' | 'quadrant']
+%
+%   AxesVertAlign    - Used to change the vertical aligment of axes labels.
+%                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -162,7 +171,10 @@ function spider_plot(P, varargin)
 %       'AxesScaling', 'linear',...
 %       'AxesColor', [0.6, 0.6, 0.6],...
 %       'AxesLabelsEdge', 'none',...
-%       'AxesOffset', 1);
+%       'AxesOffset', 1,...
+%       'AxesZoom', 1,...
+%       'AxesHorzAlign', 'quadrant',...
+%       'AxesVertAlign', 'quadrant');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -221,6 +233,8 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-03-19: -Allow axes values to be shifted.
+%               -Allow axes zoom level to be adjusted.
 %   2020-12-09: Allow fill option and fill transparency for each data group.
 %   2020-12-01: Added support for adjust the axes offset from origin.
 %   2020-11-30: Allow for one data group without specified axes limits.
@@ -297,6 +311,9 @@ axes_scaling = 'linear';
 axes_color = [0.6, 0.6, 0.6];
 axes_labels_edge = 'k';
 axes_offset = 1;
+axes_zoom = 0.7;
+axes_horz_align = 'center';
+axes_vert_align = 'middle';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -354,6 +371,12 @@ if numvarargs > 1
                 axes_labels_edge = value_arguments{ii};
             case 'axesoffset'
                 axes_offset = value_arguments{ii};
+            case 'axeszoom'
+                axes_zoom = value_arguments{ii};
+            case 'axeshorzalign'
+                axes_horz_align = value_arguments{ii};
+            case 'axesvertalign'
+                axes_vert_align = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -466,6 +489,21 @@ end
 % Check if axes offset is valid
 if floor(axes_offset)~=axes_offset || axes_offset < 0 || axes_offset > axes_interval
     error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+end
+
+% Check if axes zoom value is valid
+if ~isnumeric(axes_zoom) || length(axes_zoom) ~= 1 || axes_zoom < 0 || axes_zoom > 1
+    error('Error: Please enter an axes zoom value between [0, 1].');
+end
+
+% Check if axes horizontal alignment is valid
+if any(~ismember(axes_horz_align, {'center', 'left', 'right', 'quadrant'}))
+    error('Error: Invalid axes horizontal alignment entry.');
+end
+
+% Check if axes vertical alignment is valid
+if any(~ismember(axes_vert_align, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'}))
+    error('Error: Invalid axes vertical alignment entry.');
 end
 
 % Check if axes scaling is a cell
