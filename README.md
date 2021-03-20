@@ -1,7 +1,12 @@
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
 
-# spider_plot | spider_plot_R2019b | spider_plot_class
+# spider_plot
 Create a spider or radar plot with customizable individual axes.
+
+The three functions included have the same functionality but with 3 different implementation:
+- **spider_plot()** is compatible with most MATLAB versions.
+- **spider_plot_R2019b()** is compatible with R2019b and above. It uses the new argument validation feature.
+- **spider_plot_class()** is compatible with R2019b and above. It uses the new chart class feature.
 
 ## Syntax:
 **spider_plot(P)**
