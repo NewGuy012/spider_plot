@@ -92,29 +92,29 @@ The three functions included have the same functionality but with 3 different im
 
 - **AxesOffset**       - Used to change to axes offset from the origin.
 
-- **AxesZoom           - Used to change zoom of axes.
+- **AxesZoom**         - Used to change zoom of axes.
                          [0.7 (default) | scalar in range (0, 1)]
 
-- **AxesHorzAlign      - Used to change the horizontal alignment of axes labels.
+- **AxesHorzAlign**    - Used to change the horizontal alignment of axes labels.
                          ['center' (default) | 'left' | 'right' | 'quadrant']
 
-- **AxesVertAlign      - Used to change the vertical aligment of axes labels.
+- **AxesVertAlign**    - Used to change the vertical aligment of axes labels.
                          ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
 
 *(Spider_plot_class Only)*
-- **LegendLabels       - Used to add the labels to the legend.
+- **LegendLabels**     - Used to add the labels to the legend.
                          [cell array of character vectors]
                          
-- **LegendHandle       - Used to customize legend settings.
+- **LegendHandle**     - Used to customize legend settings.
                          [legend handle object]
                          
-- **TiledLayoutHandle  - Used to customize tiled layout settings.
+- **TiledLayoutHandle**- Used to customize tiled layout settings.
                          [tiled chart layout handle object]
 
-- **TiledLegendHandle  - Used to customize tiled legend settings.
+- **TiledLegendHandle**- Used to customize tiled legend settings.
                          [legend handle object of tiled layout]
 
-- **NextTileIter       - Iterates with consecutive tile plots.
+- **NextTileIter**     - Iterates with consecutive tile plots.
                          [1 (default)]
                          
 ## Examples:
