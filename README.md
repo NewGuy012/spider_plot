@@ -101,7 +101,7 @@ The three functions included have the same functionality but with 3 different im
 - **AxesVertAlign**    - Used to change the vertical aligment of axes labels.
                          ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
 
-*(Spider_plot_class Only)*
+*(spider_plot_class only properties)*
 - **LegendLabels**     - Used to add the labels to the legend.
                          [cell array of character vectors]
                          
