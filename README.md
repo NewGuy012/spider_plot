@@ -91,7 +91,31 @@ The three functions included have the same functionality but with 3 different im
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
 
 - **AxesOffset**       - Used to change to axes offset from the origin.
-                         [1 (default) | any integer less than the axes interval]
+
+- **AxesZoom           - Used to change zoom of axes.
+                         [0.7 (default) | scalar in range (0, 1)]
+
+- **AxesHorzAlign      - Used to change the horizontal alignment of axes labels.
+                         ['center' (default) | 'left' | 'right' | 'quadrant']
+
+- **AxesVertAlign      - Used to change the vertical aligment of axes labels.
+                         ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
+
+*(Spider_plot_class Only)*
+- **LegendLabels       - Used to add the labels to the legend.
+                         [cell array of character vectors]
+                         
+- **LegendHandle       - Used to customize legend settings.
+                         [legend handle object]
+                         
+- **TiledLayoutHandle  - Used to customize tiled layout settings.
+                         [tiled chart layout handle object]
+
+- **TiledLegendHandle  - Used to customize tiled legend settings.
+                         [legend handle object of tiled layout]
+
+- **NextTileIter       - Iterates with consecutive tile plots.
+                         [1 (default)]
                          
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
