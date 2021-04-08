@@ -108,10 +108,10 @@ The three functions included have the same functionality but with 3 different im
 - **LegendHandle**     - Used to customize legend settings.
                          [legend handle object]
                          
-- **TiledLayoutHandle**- Used to customize tiled layout settings.
+- **TiledLayoutHandle** - Used to customize tiled layout settings.
                          [tiled chart layout handle object]
 
-- **TiledLegendHandle**- Used to customize tiled legend settings.
+- **TiledLegendHandle** - Used to customize tiled legend settings.
                          [legend handle object of tiled layout]
 
 - **NextTileIter**     - Iterates with consecutive tile plots.
