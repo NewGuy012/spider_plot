@@ -31,7 +31,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesDisplay      - Used to change the number of axes in which the
     %                      axes text are displayed. 'None' or 'one' can be used
     %                      to simplify the plot appearance for normalized data.
-    %                      ['all' (default) | 'none' | 'one']
+    %                      ['all' (default) | 'none' | 'one' | 'data']
     %
     %   AxesLimits       - Used to manually set the axes limits. A matrix of
     %                      2 x size(P, 2). The top row is the minimum axes
@@ -55,10 +55,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      1/72 of an inch.
     %                      [0.5 (default) | positive value]
     %
-    %   Marker           - Used to change the options.Marker symbol of the plots.
+    %   Marker           - Used to change the marker symbol of the plots.
     %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
     %
-    %   MarkerSize       - Used to change the options.Marker size, where 1 point is
+    %   MarkerSize       - Used to change the marker size, where 1 point is
     %                      1/72 of an inch.
     %                      [8 (default) | positive value]
     %
@@ -72,6 +72,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesFontSize     - Used to change the font size of the values
     %                      displayed on the axes.
     %                      [10 (default) | scalar value greater than zero]
+    %
+    %   AxesFontColor    - Used to change the font color of the values
+    %                      displayed on the axes.
+    %                      [black (default) | RGB triplet]
     %
     %   LabelFontSize    - Used to change the font size of the labels.
     %                      [10 (default) | scalar value greater than zero]
@@ -201,6 +205,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesFont = 'Times New Roman';
     %   s.LabelFont = 'Times New Roman';
     %   s.AxesFontSize = 12;
+    %   s.AxesFontColor = 'k';
     %   s.LabelFontSize = 10;
     %   s.Direction = 'clockwise';
     %   s.AxesDirection = {'reverse', 'normal', 'normal', 'normal', 'normal'};
@@ -289,8 +294,26 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s1.TiledLegendHandle.Layout.TileSpan = [1, 2];
     %   s1.TiledLegendHandle.Layout.Tile = 1;
     %
+    %   % Example 8: Spider plot with values only on data points.
+	%   
+	%   D1 = [1 3 4 1 2];
+	%   D2 = [5 8 7 5 9];
+	%   P = [D1; D2];
+	%   if exist('s', 'var')
+	%       delete(s);
+	%   end
+	%   s = spider_plot_class(P);
+	%   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
+	%   s.AxesDisplay = 'data';
+	%   s.AxesLabelsOffset = 0.1;
+	%   s.AxesFontColor = [0, 0, 1; 1, 0, 0];
+	%   s.LegendLabels = {'D1', 'D2'};
+	%   s.LegendHandle.Location = 'northeastoutside';
+    %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-04-08: -Add option for data values to be displayed on axes.
+    %               -Add support to adjust axes font colors.
     %   2021-03-19: -Allow legend to be global in tiledlayout.
     %               -Allow axes values to be shifted.
     %               -Allow axes zoom level to be adjusted.
@@ -332,11 +355,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
-    %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber & Jean-Baptise
-    %   Billaud for their feature recommendations and bug finds. A huge
-    %   to Jiro Doke and Sean de Wolski for demonstrating the
-    %   implementation of argument validation and custom chart class
-    %   introduced in R2019b.
+    %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
+    %   Billaud & Juan Carlos Vargas Rubio for their feature recommendations
+    %   and bug finds. A huge to Jiro Doke and Sean de Wolski for
+    %   demonstrating the implementation of argument validation and custom
+    %   chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -347,7 +370,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         LegendHandle % Legend handle
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
         AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
-        AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one'})} = 'all'  % Number of tick label groups shown on axes
+        AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
         FillOption {mustBeMember(FillOption, {'on', 'off'})} = 'off' % Whether to shade data
         FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.1 % Shading alpha
@@ -357,6 +380,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         Marker = 'o' % Data marker
         MarkerSize (:, :) double {mustBePositive} = 8 % Data marker size
         AxesFont char ='Helvetica' % Axes tick font type
+        AxesFontColor = [0, 0, 0] % Axes font color
         LabelFont char = 'Helvetica' % Label font type
         AxesFontSize (1, 1) double {mustBePositive} = 10 % Axes tick font size
         LabelFontSize (1, 1) double {mustBePositive} = 10 % Label font size
@@ -392,6 +416,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         % Axes label object
         AxesTextLabels = gobjects(0)
         AxesTickLabels = gobjects(0)
+        AxesDataLabels = gobjects(0)
         
         % Initialize toggle state
         InitializeToggle = true;
@@ -569,6 +594,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesFontSize = value;
             
             % Toggle re-initialize to true if AxesFontSize was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesFontColor(obj, value)
+            % Set property
+            obj.AxesFontColor = value;
+            
+            % Toggle re-initialize to true if AxesFontColor was changed
             obj.InitializeToggle = true;
         end
         
@@ -902,6 +935,23 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get property
             fill_transparency = obj.FillTransparency;
         end
+        
+        function axes_font_color = get.AxesFontColor(obj)
+            % Check if axes display is data
+            if strcmp(obj.AxesDisplay, 'data')
+                if size(obj.AxesFontColor, 1) ~= obj.NumDataGroups
+                    % Check axes font color dimensions
+                    if size(obj.AxesFontColor, 1) == 1 && size(obj.AxesFontColor, 2) == 3
+                        obj.AxesFontColor = repmat(obj.AxesFontColor, obj.NumDataGroups, 1);
+                    else
+                        error('Error: Please specify axes font color as a RGB triplet normalized to 1.');
+                    end
+                end
+            end
+            
+            % Get property
+            axes_font_color = obj.AxesFontColor;
+        end
     end
     
     methods (Access = public)
@@ -1030,6 +1080,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.FillPatches)
             delete(obj.AxesTextLabels)
             delete(obj.AxesTickLabels)
+            delete(obj.AxesDataLabels)
             
             % Reset object with empty objects
             obj.DataLines = gobjects(0);
@@ -1039,6 +1090,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesValues = [];
             obj.AxesTextLabels = gobjects(0);
             obj.AxesTickLabels = gobjects(0);
+            obj.AxesDataLabels = gobjects(0);
         end
         
         function initialize(obj)
@@ -1137,6 +1189,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     end
                 end
                 
+                % Check if range is valid
+                if range == 0
+                    error('Error: Range of data values is not valid. Please specify the axes limits.');
+                end
+                
                 % Scale points to range from [0, 1]
                 P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
                 
@@ -1203,6 +1260,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     theta_end_index = 1;
                 case 'none'
                     theta_end_index = 0;
+                case 'data'
+                    theta_end_index = 0;
             end
             
             % Rho start index and offset interval
@@ -1219,7 +1278,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.DataLines(ii) = line(nan, nan,...
                     'Parent', ax);
             end
-            
+                
             % Iterate through number of data groups
             for ii = 1:obj.NumDataGroups
                 % Convert polar to cartesian coordinates
@@ -1236,6 +1295,27 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Check if fill option is toggled on
                 obj.FillPatches(ii).XData = x_circular;
                 obj.FillPatches(ii).YData = y_circular;
+                
+                % Check axes display setting
+                if strcmp(obj.AxesDisplay, 'data')
+                    % Iterate through number of data points
+                    for jj = 1:obj.NumDataPoints
+                        % Angle of point in radians
+                        [horz_align, vert_align, x_pos, y_pos] = obj.quadrant_position(theta(jj));
+                        x_pos = x_pos * 0.1;
+                        y_pos = y_pos * 0.1;
+                        
+                        % Display axes text
+                        obj.AxesDataLabels(ii, jj) = text(ax, x_points(jj)+x_pos, y_points(jj)+y_pos, '',...
+                        'Units', 'Data',...
+                        'Color', obj.AxesFontColor(ii, :),...
+                        'FontName', obj.AxesFont,...
+                        'FontSize', obj.AxesFontSize,...
+                        'HorizontalAlignment', horz_align,...
+                        'VerticalAlignment', vert_align,...
+                        'Visible', 'off');
+                    end
+                end
             end
             
             %%% Labels %%%
@@ -1305,7 +1385,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.AxesValues(ii, jj) = axes_value;
                     obj.AxesTickLabels(ii, jj) = text(ax, x_axes(jj), y_axes(jj), '',...
                         'Units', 'Data',...
-                        'Color', 'k',...
+                        'Color', obj.AxesFontColor,...
                         'FontName', obj.AxesFont,...
                         'FontSize', obj.AxesFontSize,...
                         'HorizontalAlignment', horz_align,...
@@ -1313,7 +1393,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'Visible', 'off');
                 end
             end
-            
+             
             % Keep only valid entries
             obj.AxesValues = obj.AxesValues(:, rho_start_index:end);
             obj.AxesTickLabels = obj.AxesTickLabels(:, rho_start_index:end);
@@ -1348,7 +1428,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.DataLines(ii).DisplayName = obj.LegendLabels{ii};
             end
             
-            % Check axes display argument
+            % Check axes labels argument
             if isequal(obj.AxesLabels, 'none')
                 % Set axes text labels to invisible
                 set(obj.AxesTextLabels, 'Visible', 'off')
@@ -1366,8 +1446,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 end
             end
             
-            % Check axes precision argument
-            if isequal(obj.AxesPrecision, 'none')
+            % Check axes axes display argument
+            if isequal(obj.AxesDisplay, 'none') || isequal(obj.AxesDisplay, 'data')
                 % Set axes tick label invisible
                 set(obj.AxesTickLabels, 'Visible', 'off')
             else
@@ -1383,8 +1463,31 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         obj.AxesTickLabels(ii, jj).String = text_str;
                         obj.AxesTickLabels(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickLabels(ii, jj).FontSize = obj.AxesFontSize;
+                        obj.AxesTickLabels(ii, jj).Color = obj.AxesFontColor;
                     end
                 end
+            end
+            
+            % Check axes display
+            if isequal(obj.AxesDisplay, 'data')
+                % Set axes data label visible
+                set(obj.AxesDataLabels, 'Visible', 'on')
+                
+                % Iterate through axes values rows
+                for ii = 1:size(obj.AxesDataLabels, 1)
+                    % Iterate through axes values columns
+                    for jj = 1:size(obj.AxesDataLabels, 2)
+                        % Display axes text
+                        text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.P(ii, jj));
+                        obj.AxesDataLabels(ii, jj).String = text_str;
+                        obj.AxesDataLabels(ii, jj).FontName = obj.AxesFont;
+                        obj.AxesDataLabels(ii, jj).FontSize = obj.AxesFontSize;
+                        obj.AxesDataLabels(ii, jj).Color = obj.AxesFontColor(ii, :);
+                    end
+                end
+            else
+                % Set axes data label invisible
+                set(obj.AxesDataLabels, 'Visible', 'off')
             end
         end
         

@@ -29,7 +29,7 @@ function spider_plot(P, varargin)
 %   AxesDisplay      - Used to change the number of axes in which the
 %                      axes text are displayed. 'None' or 'one' can be used
 %                      to simplify the plot appearance for normalized data.
-%                      ['all' (default) | 'none' | 'one']
+%                      ['all' (default) | 'none' | 'one' | 'data']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
@@ -44,7 +44,7 @@ function spider_plot(P, varargin)
 %
 %   Color            - Used to specify the line color, specified as an RGB
 %                      triplet. The intensities must be in the range (0, 1).
-%                      [MATLAB colors (default) | RGB triplet | hexadecimal color code]
+%                      [MATLAB colors (default) | RGB triplet]
 %
 %   LineStyle        - Used to change the line style of the plots.
 %                      ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
@@ -70,6 +70,10 @@ function spider_plot(P, varargin)
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
 %                      [10 (default) | scalar value greater than zero]
+%
+%   AxesFontColor    - Used to change the font color of the values
+%                      displayed on the axes.
+%                      [black (default) | RGB triplet]
 %
 %   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
@@ -163,6 +167,7 @@ function spider_plot(P, varargin)
 %       'MarkerSize', [8, 10, 12],...
 %       'AxesFont', 'Times New Roman',...
 %       'LabelFont', 'Times New Roman',...
+%       'AxesFontColor', 'k',...
 %       'AxesFontSize', 12,...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
@@ -231,8 +236,22 @@ function spider_plot(P, varargin)
 %       'AxesInterval', 1,...
 %       'AxesPrecision', 0);
 %
+%   % Example 8: Spider plot with values only on data points.
+%   
+%   D1 = [1 3 4 1 2];
+%   D2 = [5 8 7 5 9];
+%   P = [D1; D2];
+%   spider_plot(P,...
+%       'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 10],...
+%       'AxesDisplay', 'data',...
+%       'AxesLabelsOffset', 0.1,...
+%       'AxesFontColor', [0, 0, 1; 1, 0, 0]);
+%   legend('D1', 'D2', 'Location', 'southoutside');
+%
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-04-08: -Add option for data values to be displayed on axes.
+%               -Add support to adjust axes font colors.
 %   2021-03-19: -Allow axes values to be shifted.
 %               -Allow axes zoom level to be adjusted.
 %   2020-12-09: Allow fill option and fill transparency for each data group.
@@ -264,8 +283,9 @@ function spider_plot(P, varargin)
 % Special Thanks:
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-%   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff
-%   & Marie-Kristin Schreiber for their feature recommendations and bug finds.
+%   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
+%   Marie-Kristin Schreiber & Juan Carlos Vargas Rubio for their feature
+%   recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -303,6 +323,7 @@ marker_size = 8;
 axes_font = 'Helvetica';
 label_font = 'Helvetica';
 axes_font_size = 10;
+axes_font_color = [0, 0, 0];
 label_font_size = 10;
 direction = 'clockwise';
 axes_direction = 'normal';
@@ -355,6 +376,8 @@ if numvarargs > 1
                 label_font = value_arguments{ii};
             case 'axesfontsize'
                 axes_font_size = value_arguments{ii};
+            case 'axesfontcolor'
+                axes_font_color = value_arguments{ii};
             case 'labelfontsize'
                 label_font_size = value_arguments{ii};
             case 'direction'
@@ -447,7 +470,7 @@ if axes_interval < 1 || any(axes_precision < 0)
 end
 
 % Check if axes display is valid char entry
-if ~ismember(axes_display, {'all', 'none', 'one'})
+if ~ismember(axes_display, {'all', 'none', 'one', 'data'})
     error('Error: Invalid axes display entry. Please enter in "all", "none", or "one" to set axes text.');
 end
 
@@ -624,6 +647,18 @@ else
     error('Error: Please make sure the transparency is a numeric value.');
 end
 
+% Check if axes display is data
+if strcmp(axes_display, 'data')
+    if size(axes_font_color, 1) ~= num_data_groups
+        % Check axes font color dimensions
+        if size(axes_font_color, 1) == 1 && size(axes_font_color, 2) == 3
+            axes_font_color = repmat(axes_font_color, num_data_groups, 1);
+        else
+            error('Error: Please specify axes font color as a RGB triplet normalized to 1.');
+        end
+    end
+end
+
 
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
@@ -719,7 +754,7 @@ for ii = 1:num_data_points
             % Logarithm of base 10, account for numbers less than 1
             axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii))); %#ok<AGROW>
         end
-
+        
         % Manually set the range of each group
         min_value = axes_limits(1, ii);
         max_value = axes_limits(2, ii);
@@ -729,6 +764,11 @@ for ii = 1:num_data_points
         if min_value > min(group_points) || max_value < max(group_points)
             error('Error: Please make the manually specified axes limits are within range of the data points.');
         end
+    end
+    
+    % Check if range is valid
+    if range == 0
+        error('Error: Range of data values is not valid. Please specify the axes limits.');
     end
     
     % Scale points to range from [0, 1]
@@ -801,16 +841,34 @@ switch axes_display
         theta_end_index = 1;
     case 'none'
         theta_end_index = 0;
+    case 'data'
+        theta_end_index = 0;
 end
 
 % Rho start index and offset interval
 rho_start_index = axes_offset+1;
 offset_interval = full_interval - axes_offset;
 
+% Alignment for axes labels
+horz_align = axes_horz_align;
+vert_align = axes_vert_align;
+
 % Iterate through each theta
 for ii = 1:theta_end_index
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
+    
+    % Check if horizontal alignment is quadrant based
+    if strcmp(axes_horz_align, 'quadrant')
+        % Alignment based on quadrant
+        [horz_align, ~, ~, ~] = quadrant_position(axes_labels_offset, theta(ii));
+    end
+    
+    % Check if vertical alignment is quadrant based
+    if strcmp(axes_horz_align, 'quadrant')
+        % Alignment based on quadrant
+        [~, vert_align, ~, ~] = quadrant_position(axes_labels_offset, theta(ii));
+    end
     
     % Iterate through points on isocurve
     for jj = rho_start_index:length(rho)
@@ -837,11 +895,11 @@ for ii = 1:theta_end_index
         text_str = sprintf(sprintf('%%.%if', axes_precision(ii)), axes_value);
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
-            'Color', 'k',...
+            'Color', axes_font_color,...
             'FontName', axes_font,...
             'FontSize', axes_font_size,...
-            'HorizontalAlignment', 'center',...
-            'VerticalAlignment', 'middle');
+            'HorizontalAlignment', horz_align,...
+            'VerticalAlignment', vert_align);
     end
 end
 
@@ -866,6 +924,27 @@ for ii = 1:num_data_groups
         'LineWidth', line_width(ii),...
         'MarkerSize', marker_size(ii),...
         'MarkerFaceColor', colors(ii, :));
+    
+    % Iterate through number of data points
+    if strcmp(axes_display, 'data')
+        for jj = 1:num_data_points
+            % Angle of point in radians
+            [horz_align, vert_align, x_pos, y_pos] = quadrant_position(axes_labels_offset, theta(jj));
+            x_pos = x_pos * 0.1;
+            y_pos = y_pos * 0.1;
+            
+            % Display axes text
+            data_value = P(ii, jj);
+            text_str = sprintf(sprintf('%%.%if', axes_precision(jj)), data_value);
+            text(x_points(jj)+x_pos, y_points(jj)+y_pos, text_str,...
+                'Units', 'Data',...
+                'Color', axes_font_color(ii, :),...
+                'FontName', axes_font,...
+                'FontSize', axes_font_size,...
+                'HorizontalAlignment', horz_align,...
+                'VerticalAlignment', vert_align);
+        end
+    end
     
     % Check if fill option is toggled on
     if fill_option_index(ii)
@@ -906,8 +985,21 @@ if ~strcmp(axes_labels, 'none')
     % Iterate through number of data points
     for ii = 1:length(axes_labels)
         % Angle of point in radians
-        theta_point = theta(ii);
+        [horz_align, vert_align, x_pos, y_pos] = quadrant_position(axes_labels_offset, theta(ii));
         
+        % Display text label
+        text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, axes_labels{ii},...
+            'Units', 'Data',...
+            'HorizontalAlignment', horz_align,...
+            'VerticalAlignment', vert_align,...
+            'EdgeColor', axes_labels_edge,...
+            'BackgroundColor', 'w',...
+            'FontName', label_font,...
+            'FontSize', label_font_size);
+    end
+end
+
+    function [horz_align, vert_align, x_pos, y_pos] = quadrant_position(axes_labels_offset, theta_point)
         % Find out which quadrant the point is in
         if theta_point == 0
             quadrant = 0;
@@ -972,15 +1064,5 @@ if ~strcmp(axes_labels, 'none')
                 x_pos = axes_labels_offset;
                 y_pos = -axes_labels_offset;
         end
-        
-        % Display text label
-        text(x_axes(ii)+x_pos, y_axes(ii)+y_pos, axes_labels{ii},...
-            'Units', 'Data',...
-            'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align,...
-            'EdgeColor', axes_labels_edge,...
-            'BackgroundColor', 'w',...
-            'FontName', label_font,...
-            'FontSize', label_font_size);
     end
 end

@@ -29,7 +29,7 @@ function spider_plot_R2019b(P, options)
 %   AxesDisplay      - Used to change the number of axes in which the
 %                      axes text are displayed. 'None' or 'one' can be used
 %                      to simplify the plot appearance for normalized data.
-%                      ['all' (default) | 'none' | 'one']
+%                      ['all' (default) | 'none' | 'one' | 'data']
 %
 %   AxesLimits       - Used to manually set the axes limits. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
@@ -53,10 +53,10 @@ function spider_plot_R2019b(P, options)
 %                      1/72 of an inch.
 %                      [0.5 (default) | positive value | vector]
 %
-%   Marker           - Used to change the options.Marker symbol of the plots.
+%   Marker           - Used to change the marker symbol of the plots.
 %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ... | cell array of character vectors]
 %
-%   MarkerSize       - Used to change the options.Marker size, where 1 point is
+%   MarkerSize       - Used to change the marker size, where 1 point is
 %                      1/72 of an inch.
 %                      [8 (default) | positive value | vector]
 %
@@ -70,6 +70,10 @@ function spider_plot_R2019b(P, options)
 %   AxesFontSize     - Used to change the font size of the values
 %                      displayed on the axes.
 %                      [10 (default) | scalar value greater than zero]
+%
+%   AxesFontColor    - Used to change the font color of the values
+%                      displayed on the axes.
+%                      [black (default) | RGB triplet]
 %
 %   LabelFontSize    - Used to change the font size of the labels.
 %                      [10 (default) | scalar value greater than zero]
@@ -164,6 +168,7 @@ function spider_plot_R2019b(P, options)
 %       'AxesFont', 'Times New Roman',...
 %       'LabelFont', 'Times New Roman',...
 %       'AxesFontSize', 12,...
+%       'AxesFontColor', 'k',...
 %       'LabelFontSize', 10,...
 %       'Direction', 'clockwise',...
 %       'AxesDirection', {'reverse', 'normal', 'normal', 'normal', 'normal'},...
@@ -239,8 +244,22 @@ function spider_plot_R2019b(P, options)
 %   t.Padding = 'compact';
 %   title(t, 'Spider Plots');
 %
+%   % Example 8: Spider plot with values only on data points.
+%   
+%   D1 = [1 3 4 1 2];
+%   D2 = [5 8 7 5 9];
+%   P = [D1; D2];
+%   spider_plot_R2019b(P,...
+%       'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 10],...
+%       'AxesDisplay', 'data',...
+%       'AxesLabelsOffset', 0.1,...
+%       'AxesFontColor', [0, 0, 1; 1, 0, 0]);
+%   legend('D1', 'D2', 'Location', 'southoutside');
+%
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-04-08: -Add option for data values to be displayed on axes.
+%               -Add support to adjust axes font colors.
 %   2021-03-19: -Allow axes values to be shifted.
 %               -Allow axes zoom level to be adjusted.
 %   2020-12-09: Allow fill option and fill transparency for each data group.
@@ -277,8 +296,8 @@ function spider_plot_R2019b(P, options)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
-%   Cedric Jamet, Richard Ruff & Marie-Kristin Schreiber for their
-%   feature recommendations and bug finds.
+%   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber &
+%   Juan Carlos Vargas Rubio for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -286,7 +305,7 @@ arguments
     options.AxesLabels {validateAxesLabels(options.AxesLabels, P)} = cellstr("Label " + (1:size(P, 2)))
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
-    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one'})} = 'all'
+    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
@@ -298,6 +317,7 @@ arguments
     options.AxesFont char = 'Helvetica'
     options.LabelFont char = 'Helvetica'
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
+    options.AxesFontColor = [0, 0, 0]
     options.LabelFontSize (1, 1) double {mustBePositive} = 10
     options.Direction char {mustBeMember(options.Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
     options.AxesDirection = 'normal'
@@ -466,6 +486,19 @@ else
     error('Error: Please make sure the transparency is a numeric value.');
 end
 
+%%% Validate Axes Font Color
+% Check if axes display is data
+if strcmp(options.AxesDisplay, 'data')
+    if size(options.AxesFontColor, 1) ~= num_data_groups
+        % Check axes font color dimensions
+        if size(options.AxesFontColor, 1) == 1 && size(options.AxesFontColor, 2) == 3
+            options.AxesFontColor = repmat(options.AxesFontColor, num_data_groups, 1);
+        else
+            error('Error: Please specify axes font color as a RGB triplet normalized to 1.');
+        end
+    end
+end
+
 %%% Axes Scaling Properties %%%
 % Check axes scaling option
 log_index = strcmp(options.AxesScaling, 'log');
@@ -573,6 +606,11 @@ for ii = 1:num_data_points
         end
     end
     
+    % Check if range is valid
+    if range == 0
+        error('Error: Range of data values is not valid. Please specify the axes limits.');
+    end
+    
     % Scale points to range from [0, 1]
     P_scaled(:, ii) = ((P(:, ii) - min_value) / range);
     
@@ -643,6 +681,8 @@ switch options.AxesDisplay
         theta_end_index = 1;
     case 'none'
         theta_end_index = 0;
+    case 'data'
+        theta_end_index = 0;
 end
 
 % Rho start index and offset interval
@@ -695,7 +735,7 @@ for ii = 1:theta_end_index
         text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
-            'Color', 'k',...
+            'Color', options.AxesFontColor,...
             'FontName', options.AxesFont,...
             'FontSize', options.AxesFontSize,...
             'HorizontalAlignment', horz_align,...
@@ -724,6 +764,27 @@ for ii = 1:num_data_groups
         'LineWidth', options.LineWidth(ii),...
         'MarkerSize', options.MarkerSize(ii),...
         'MarkerFaceColor', options.Color(ii, :));
+    
+    % Iterate through number of data points
+    if strcmp(options.AxesDisplay, 'data')
+        for jj = 1:num_data_points
+            % Angle of point in radians
+            [horz_align, vert_align, x_pos, y_pos] = quadrant_position(options.AxesLabelsOffset, theta(jj));
+            x_pos = x_pos * 0.1;
+            y_pos = y_pos * 0.1;
+            
+            % Display axes text
+            data_value = P(ii, jj);
+            text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(jj)), data_value);
+            text(x_points(jj)+x_pos, y_points(jj)+y_pos, text_str,...
+                'Units', 'Data',...
+                'Color', options.AxesFontColor(ii, :),...
+                'FontName', options.AxesFont,...
+                'FontSize', options.AxesFontSize,...
+                'HorizontalAlignment', horz_align,...
+                'VerticalAlignment', vert_align);
+        end
+    end
     
     % Check if fill option is toggled on
     if fill_option_index(ii)
