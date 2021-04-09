@@ -394,7 +394,7 @@ s.LegendHandle.Location = 'northeastoutside';
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
 - 2021-04-08: Add option for data values to be displayed on axes. Add support to adjust axes font colors.
-- 
+
 - 2021-03-19: Allow legend to be global in tiledlayout in spider_plot_class. Allow axes values to be shifted. Allow axes zoom level to be adjusted.
 
 - 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
@@ -460,5 +460,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Richard Ruff
 - Marie-Kristin Schreiber
 - Jean-Baptise Billaud
+- Juan Carlos Vargas Rubio
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
