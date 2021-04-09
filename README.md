@@ -46,7 +46,7 @@ The three functions included have the same functionality but with 3 different im
                          [0.1 (default) | scalar in range (0, 1) | vector]
                      
 - **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
-                         [MATLAB colors (default) | RGB triplet | hexadecimal color code]
+                         [MATLAB colors (default) | RGB triplet]
 
 - **LineStyle**        - Used to change the line style of the plots.
                          ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
@@ -69,6 +69,9 @@ The three functions included have the same functionality but with 3 different im
 - **AxesFontSize**     - Used to change the font size of the values displayed on the axes.
                          [10 (default) | scalar value greater than zero]
                          
+- **AxesFontColor**    - Used to change the font color of the values displayed on the axes.
+                         [black (default) | RGB triplet]
+                         
 - **LabelFontSize**    - Used to change the font size of the labels.
                          [10 (default) | scalar value greater than zero]
                          
@@ -85,7 +88,7 @@ The three functions included have the same functionality but with 3 different im
                          ['linear' (default) | 'log' | cell array of character vectors]
                          
 - **AxesColor**        - Used to change the color of the spider axes.
-                         [grey (default) | RGB triplet]
+                         [grey (default) | RGB triplet | hexadecimal color code]
                          
 - **AxesLabelsEdge**   - Used to change the edge color of the axes labels.
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
@@ -365,9 +368,33 @@ s1.TiledLegendHandle.Layout.Tile = 1;
   <img src="screenshot/example7b.PNG">
 </p>
 
+### Example 8: Spider plot with values only on data points.
+```matlab
+% Initialize data points
+D1 = [1 3 4 1 2];
+D2 = [5 8 7 5 9];
+P = [D1; D2];
+
+% Spider plot
+s = spider_plot_class(P);
+s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
+s.AxesDisplay = 'data';
+s.AxesLabelsOffset = 0.1;
+s.AxesFontColor = [0, 0, 1; 1, 0, 0];
+
+% Legend properties
+s.LegendLabels = {'D1', 'D2'};
+s.LegendHandle.Location = 'northeastoutside';
+```
+<p align="center">
+  <img src="screenshot/example8.PNG">
+</p>
+
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-04-08: Add option for data values to be displayed on axes. Add support to adjust axes font colors.
+- 
 - 2021-03-19: Allow legend to be global in tiledlayout in spider_plot_class. Allow axes values to be shifted. Allow axes zoom level to be adjusted.
 
 - 2021-03-17: Implement tiledlayout and nexttile compatibility in spider_plot_class.
