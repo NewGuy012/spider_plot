@@ -36,10 +36,10 @@ function spider_plot(P, varargin)
 %                      limits and the bottow row is the maximum axes limits.
 %                      [auto-scaled (default) | matrix]
 %
-%   FillOption       - Used to toggle color fill option.
+%   FillOption       - Used to toggle fill color option.
 %                      ['off' (default) | 'on' | cell array of character vectors]
 %
-%   FillTransparency - Used to set color fill transparency.
+%   FillTransparency - Used to set fill color transparency.
 %                      [0.1 (default) | scalar in range (0, 1) | vector]
 %
 %   Color            - Used to specify the line color, specified as an RGB
@@ -53,12 +53,18 @@ function spider_plot(P, varargin)
 %                      1/72 of an inch.
 %                      [0.5 (default) | positive value | vector]
 %
+%   LineTransparency - Used to set the line color transparency.
+%                      [1 (default) | scalar in range (0, 1) | vector]
+%
 %   Marker           - Used to change the marker symbol of the plots.
 %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ... | cell array of character vectors]
 %
 %   MarkerSize       - Used to change the marker size, where 1 point is
 %                      1/72 of an inch.
-%                      [8 (default) | positive value | vector]
+%                      [36 (default) | positive value | vector | vector]
+%
+%   MarkerTransparency-Used to set the marker color transparency.
+%                      [1 (default) | scalar in range (0, 1)]
 %
 %   AxesFont         - Used to change the font type of the values
 %                      displayed on the axes.
@@ -82,7 +88,7 @@ function spider_plot(P, varargin)
 %                      plotted data and axis labels.
 %                      ['clockwise' (default) | 'counterclockwise']
 %
-%   AxesDirection     - Used to change the direction of axes.
+%   AxesDirection    - Used to change the direction of axes.
 %                      ['normal' (default) | 'reverse' | cell array of character vectors]
 %
 %   AxesLabelsOffset - Used to adjust the position offset of the axes
@@ -163,8 +169,10 @@ function spider_plot(P, varargin)
 %       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
 %       'LineStyle', {'--', '-', '--'},...
 %       'LineWidth', [1, 2, 3],...
+%       'LineTransparency', 1,...
 %       'Marker', {'o', 'd', 's'},...
 %       'MarkerSize', [8, 10, 12],...
+%       'MarkerTransparency', 1,...
 %       'AxesFont', 'Times New Roman',...
 %       'LabelFont', 'Times New Roman',...
 %       'AxesFontColor', 'k',...
@@ -250,6 +258,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-04-13: Add option to adjust line and marker transparency.
 %   2021-04-08: -Add option for data values to be displayed on axes.
 %               -Add support to adjust axes font colors.
 %   2021-03-19: -Allow axes values to be shifted.
@@ -284,8 +293,8 @@ function spider_plot(P, varargin)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
-%   Marie-Kristin Schreiber & Juan Carlos Vargas Rubio for their feature
-%   recommendations and bug finds.
+%   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio & Anthony Wang
+%   for their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -318,8 +327,10 @@ fill_transparency = 0.2;
 colors = lines(num_data_groups);
 line_style = '-';
 line_width = 2;
+line_transparency = 1;
 marker_type = 'o';
-marker_size = 8;
+marker_size = 36;
+marker_transparency = 1;
 axes_font = 'Helvetica';
 label_font = 'Helvetica';
 axes_font_size = 10;
@@ -366,10 +377,14 @@ if numvarargs > 1
                 line_style = value_arguments{ii};
             case 'linewidth'
                 line_width = value_arguments{ii};
+            case 'linetransparency'
+                line_transparency = value_arguments{ii};
             case 'marker'
                 marker_type = value_arguments{ii};
             case 'markersize'
                 marker_size = value_arguments{ii};
+            case 'markertransparency'
+                marker_transparency = value_arguments{ii};
             case 'axesfont'
                 axes_font = value_arguments{ii};
             case 'labelfont'
@@ -481,6 +496,16 @@ end
 
 % Check if fill transparency is valid
 if any(fill_transparency < 0) || any(fill_transparency > 1)
+    error('Error: Please enter a transparency value between [0, 1].');
+end
+
+% Check if line transparency is valid
+if any(line_transparency < 0) || any(line_transparency > 1)
+    error('Error: Please enter a transparency value between [0, 1].');
+end
+
+% Check if marker transparency is valid
+if any(marker_transparency < 0) || any(marker_transparency > 1)
     error('Error: Please enter a transparency value between [0, 1].');
 end
 
@@ -642,6 +667,32 @@ if isnumeric(fill_transparency)
         fill_transparency = repmat(fill_transparency, num_data_groups, 1);
     elseif length(fill_transparency) ~= num_data_groups
         error('Error: Please specify the same number of fill transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
+end
+
+% Check if line transparency is numeric
+if isnumeric(line_transparency)
+    % Check is length is one
+    if length(line_transparency) == 1
+        % Repeat array to number of data groups
+        line_transparency = repmat(line_transparency, num_data_groups, 1);
+    elseif length(line_transparency) ~= num_data_groups
+        error('Error: Please specify the same number of line transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
+end
+
+% Check if marker transparency is numeric
+if isnumeric(marker_transparency)
+    % Check is length is one
+    if length(marker_transparency) == 1
+        % Repeat array to number of data groups
+        marker_transparency = repmat(marker_transparency, num_data_groups, 1);
+    elseif length(marker_transparency) ~= num_data_groups
+        error('Error: Please specify the same number of marker transparency as number of data groups.');
     end
 else
     error('Error: Please make sure the transparency is a numeric value.');
@@ -917,13 +968,22 @@ for ii = 1:num_data_groups
     y_circular = [y_points, y_points(1)];
     
     % Plot data points
-    plot(x_circular, y_circular,...
+    h = plot(x_circular, y_circular,...
         'LineStyle', line_style{ii},...
-        'Marker', marker_type{ii},...
         'Color', colors(ii, :),...
-        'LineWidth', line_width(ii),...
-        'MarkerSize', marker_size(ii),...
-        'MarkerFaceColor', colors(ii, :));
+        'LineWidth', line_width(ii));
+    h.Color(4) = line_transparency(ii);
+    
+    h = scatter(x_circular, y_circular,...
+        'Marker', marker_type{ii},...
+        'SizeData', marker_size(ii),...
+        'MarkerFaceColor', colors(ii, :),...
+        'MarkerEdgeColor', colors(ii, :),...
+        'MarkerFaceAlpha', marker_transparency(ii),...
+        'MarkerEdgeAlpha', marker_transparency(ii));
+    
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     
     % Iterate through number of data points
     if strcmp(axes_display, 'data')

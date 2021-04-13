@@ -36,10 +36,10 @@ function spider_plot_R2019b(P, options)
 %                      limits and the bottow row is the maximum axes limits.
 %                      [auto-scaled (default) | matrix]
 %
-%   FillOption       - Used to toggle color fill option.
+%   FillOption       - Used to toggle fill color option.
 %                      ['off' (default) | 'on' | cell array of character vectors]
 %
-%   FillTransparency - Used to set color fill transparency.
+%   FillTransparency - Used to set fill color transparency.
 %                      [0.1 (default) | scalar in range (0, 1) | vector]
 %
 %   Color            - Used to specify the line color, specified as an RGB
@@ -53,12 +53,18 @@ function spider_plot_R2019b(P, options)
 %                      1/72 of an inch.
 %                      [0.5 (default) | positive value | vector]
 %
+%   LineTransparency - Used to set the line color transparency.
+%                      [1 (default) | scalar in range (0, 1) | vector]
+%
 %   Marker           - Used to change the marker symbol of the plots.
 %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ... | cell array of character vectors]
 %
 %   MarkerSize       - Used to change the marker size, where 1 point is
 %                      1/72 of an inch.
-%                      [8 (default) | positive value | vector]
+%                      [36 (default) | positive value | vector]
+%
+%   MarkerTransparency-Used to set the marker color transparency.
+%                      [1 (default) | scalar in range (0, 1) | vector]
 %
 %   AxesFont         - Used to change the font type of the values
 %                      displayed on the axes.
@@ -163,8 +169,10 @@ function spider_plot_R2019b(P, options)
 %       'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
 %       'LineStyle', {'--', '-', '--'},...
 %       'LineWidth', [1, 2, 3],...
+%       'LineTransparency', 1,...
 %       'Marker', {'o', 'd', 's'},...
 %       'MarkerSize', [8, 10, 12],...
+%       'MarkerTransparency', 1,...
 %       'AxesFont', 'Times New Roman',...
 %       'LabelFont', 'Times New Roman',...
 %       'AxesFontSize', 12,...
@@ -258,6 +266,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-04-13: Add option to adjust line and marker transparency.
 %   2021-04-08: -Add option for data values to be displayed on axes.
 %               -Add support to adjust axes font colors.
 %   2021-03-19: -Allow axes values to be shifted.
@@ -296,8 +305,9 @@ function spider_plot_R2019b(P, options)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Jiro Doke,
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
-%   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber &
-%   Juan Carlos Vargas Rubio for their feature recommendations and bug finds.
+%   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
+%   Juan Carlos Vargas Rubio & Anthony Wang for their feature
+%   recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -308,12 +318,14 @@ arguments
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
     options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
-    options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.1
+    options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.2
     options.Color = get(groot,'defaultAxesColorOrder')
     options.LineStyle = '-'
     options.LineWidth (:, :) double {mustBePositive} = 2
+    options.LineTransparency double {mustBeGreaterThanOrEqual(options.LineTransparency, 0), mustBeLessThanOrEqual(options.LineTransparency, 1)} = 1
     options.Marker = 'o'
-    options.MarkerSize (:, :) double {mustBePositive} = 8
+    options.MarkerSize (:, :) double {mustBePositive} = 36
+    options.MarkerTransparency double {mustBeGreaterThanOrEqual(options.MarkerTransparency, 0), mustBeLessThanOrEqual(options.MarkerTransparency, 1)} = 1
     options.AxesFont char = 'Helvetica'
     options.LabelFont char = 'Helvetica'
     options.AxesFontSize (1, 1) double {mustBePositive} = 10
@@ -481,6 +493,34 @@ if isnumeric(options.FillTransparency)
         options.FillTransparency = repmat(options.FillTransparency, num_data_groups, 1);
     elseif length(options.FillTransparency) ~= num_data_groups
         error('Error: Please specify the same number of fill transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
+end
+
+%%% Validate Line Transparency
+% Check if line transparency is numeric
+if isnumeric(options.LineTransparency)
+    % Check is length is one
+    if length(options.LineTransparency) == 1
+        % Repeat array to number of data groups
+        options.LineTransparency = repmat(options.LineTransparency, num_data_groups, 1);
+    elseif length(options.LineTransparency) ~= num_data_groups
+        error('Error: Please specify the same number of line transparency as number of data groups.');
+    end
+else
+    error('Error: Please make sure the transparency is a numeric value.');
+end
+
+%%% Validate Marker Transparency
+% Check if marker transparency is numeric
+if isnumeric(options.MarkerTransparency)
+    % Check is length is one
+    if length(options.MarkerTransparency) == 1
+        % Repeat array to number of data groups
+        options.MarkerTransparency = repmat(options.MarkerTransparency, num_data_groups, 1);
+    elseif length(options.MarkerTransparency) ~= num_data_groups
+        error('Error: Please specify the same number of marker transparency as number of data groups.');
     end
 else
     error('Error: Please make sure the transparency is a numeric value.');
@@ -757,14 +797,23 @@ for ii = 1:num_data_groups
     y_circular = [y_points, y_points(1)];
     
     % Plot data points
-    plot(x_circular, y_circular,...
+    h = plot(x_circular, y_circular,...
         'LineStyle', options.LineStyle{ii},...
-        'Marker', options.Marker{ii},...
         'Color', options.Color(ii, :),...
-        'LineWidth', options.LineWidth(ii),...
-        'MarkerSize', options.MarkerSize(ii),...
-        'MarkerFaceColor', options.Color(ii, :));
+        'LineWidth', options.LineWidth(ii));
+    h.Color(4) = options.LineTransparency(ii);
     
+    h = scatter(x_circular, y_circular,...
+        'Marker', options.Marker{ii},...
+        'SizeData', options.MarkerSize(ii),...
+        'MarkerFaceColor', options.Color(ii, :),...
+        'MarkerEdgeColor', options.Color(ii, :),...
+        'MarkerFaceAlpha', options.MarkerTransparency(ii),...
+        'MarkerEdgeAlpha', options.MarkerTransparency(ii));
+    
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+        
     % Iterate through number of data points
     if strcmp(options.AxesDisplay, 'data')
         for jj = 1:num_data_points

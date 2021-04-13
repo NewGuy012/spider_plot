@@ -38,10 +38,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      limits and the bottow row is the maximum axes limits.
     %                      [auto-scaled (default) | matrix]
     %
-    %   FillOption       - Used to toggle color fill option.
+    %   FillOption       - Used to toggle fill color option.
     %                      ['off' (default) | 'on' | cell array of character vectors]
     %
-    %   FillTransparency - Used to set color fill transparency.
+    %   FillTransparency - Used to set fill color transparency.
     %                      [0.1 (default) | scalar in range (0, 1) | vector]
     %
     %   Color            - Used to specify the line color, specified as an RGB
@@ -55,12 +55,18 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      1/72 of an inch.
     %                      [0.5 (default) | positive value]
     %
+    %   LineTransparency - Used to set the line color transparency.
+    %                      [1 (default) | scalar in range (0, 1) | vector]
+    %
     %   Marker           - Used to change the marker symbol of the plots.
     %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
     %
     %   MarkerSize       - Used to change the marker size, where 1 point is
     %                      1/72 of an inch.
-    %                      [8 (default) | positive value]
+    %                      [36 (default) | positive value]
+    %
+    %   MarkerTransparency-Used to set the marker color transparency.
+    %                      [1 (default) | scalar in range (0, 1) | vector]
     %
     %   AxesFont         - Used to change the font type of the values
     %                      displayed on the axes.
@@ -200,8 +206,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.Color = [1, 0, 0; 0, 1, 0; 0, 0, 1];
     %   s.LineStyle = '--';
     %   s.LineWidth = 3;
+    %   s.LineTransparency = 1;
     %   s.Marker =  'd';
     %   s.MarkerSize = 10;
+    %   s.MarkerTransparency = 1;
     %   s.AxesFont = 'Times New Roman';
     %   s.LabelFont = 'Times New Roman';
     %   s.AxesFontSize = 12;
@@ -312,6 +320,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-04-13: Add option to adjust line and marker transparency.
     %   2021-04-08: -Add option for data values to be displayed on axes.
     %               -Add support to adjust axes font colors.
     %   2021-03-19: -Allow legend to be global in tiledlayout.
@@ -356,10 +365,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
-    %   Billaud & Juan Carlos Vargas Rubio for their feature recommendations
-    %   and bug finds. A huge to Jiro Doke and Sean de Wolski for
-    %   demonstrating the implementation of argument validation and custom
-    %   chart class introduced in R2019b.
+    %   Billaud, Juan Carlos Vargas Rubio & Anthony Wang for their feature
+    %   recommendations and bug finds. A huge to Jiro Doke and
+    %   Sean de Wolski for demonstrating the implementation of argument
+    %   validation and custom chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -373,12 +382,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
         FillOption {mustBeMember(FillOption, {'on', 'off'})} = 'off' % Whether to shade data
-        FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.1 % Shading alpha
+        FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.2 % Shading alpha
         Color = get(groot,'defaultAxesColorOrder') % Color order
         LineStyle = '-' % Data line style
         LineWidth (:, :) double {mustBePositive} = 2 % Data line width
+        LineTransparency double {mustBeGreaterThanOrEqual(LineTransparency, 0), mustBeLessThanOrEqual(LineTransparency, 1)} = 1 % Shading alpha
         Marker = 'o' % Data marker
-        MarkerSize (:, :) double {mustBePositive} = 8 % Data marker size
+        MarkerSize (:, :) double {mustBePositive} = 36 % Data marker size
+        MarkerTransparency double {mustBeGreaterThanOrEqual(MarkerTransparency, 0), mustBeLessThanOrEqual(MarkerTransparency, 1)} = 1 % Shading alpha
         AxesFont char ='Helvetica' % Axes tick font type
         AxesFontColor = [0, 0, 0] % Axes font color
         LabelFont char = 'Helvetica' % Label font type
@@ -402,6 +413,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     properties(Access = private, NonCopyable, Transient)
         % Data line object
         DataLines = gobjects(0)
+        ScatterPoints = gobjects(0)
         
         % Background web object
         ThetaAxesLines = gobjects(0)
@@ -557,6 +569,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.InitializeToggle = true;
         end
         
+        function set.LineTransparency(obj, value)
+            % Set property
+            obj.LineTransparency = value;
+            
+            % Toggle re-initialize to true if LineTransparency was changed
+            obj.InitializeToggle = true;
+        end
+        
         function set.Marker(obj, value)
             % Set property
             obj.Marker = value;
@@ -570,6 +590,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.MarkerSize = value;
             
             % Toggle re-initialize to true if MarkerSize was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.MarkerTransparency(obj, value)
+            % Set property
+            obj.MarkerTransparency = value;
+            
+            % Toggle re-initialize to true if MarkerTransparency was changed
             obj.InitializeToggle = true;
         end
 
@@ -936,6 +964,42 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             fill_transparency = obj.FillTransparency;
         end
         
+        function line_transparency = get.LineTransparency(obj)
+            % Check if line transparency is numeric
+            if isnumeric(obj.LineTransparency)
+                % Check is length is one
+                if length(obj.LineTransparency) == 1
+                    % Repeat array to number of data groups
+                    obj.LineTransparency = repmat(obj.LineTransparency, obj.NumDataGroups, 1);
+                elseif length(obj.LineTransparency) ~= obj.NumDataGroups
+                    error('Error: Please specify the same number of line transparency as number of data groups.');
+                end
+            else
+                error('Error: Please make sure the line transparency is a numeric value.');
+            end
+            
+            % Get property
+            line_transparency = obj.LineTransparency;
+        end
+        
+        function marker_transparency = get.MarkerTransparency(obj)
+            % Check if marker transparency is numeric
+            if isnumeric(obj.MarkerTransparency)
+                % Check is length is one
+                if length(obj.MarkerTransparency) == 1
+                    % Repeat array to number of data groups
+                    obj.MarkerTransparency = repmat(obj.MarkerTransparency, obj.NumDataGroups, 1);
+                elseif length(obj.MarkerTransparency) ~= obj.NumDataGroups
+                    error('Error: Please specify the same number of marker transparency as number of data groups.');
+                end
+            else
+                error('Error: Please make sure the marker transparency is a numeric value.');
+            end
+            
+            % Get property
+            marker_transparency = obj.MarkerTransparency;
+        end
+        
         function axes_font_color = get.AxesFontColor(obj)
             % Check if axes display is data
             if strcmp(obj.AxesDisplay, 'data')
@@ -1075,6 +1139,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function reset_objects(obj)
             % Delete old objects
             delete(obj.DataLines)
+            delete(obj.ScatterPoints)
             delete(obj.ThetaAxesLines)
             delete(obj.RhoAxesLines)
             delete(obj.FillPatches)
@@ -1084,6 +1149,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Reset object with empty objects
             obj.DataLines = gobjects(0);
+            obj.ScatterPoints = gobjects(0);
             obj.ThetaAxesLines = gobjects(0);
             obj.RhoAxesLines = gobjects(0);
             obj.FillPatches = gobjects(0);
@@ -1277,6 +1343,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'HandleVisibility', 'off');
                 obj.DataLines(ii) = line(nan, nan,...
                     'Parent', ax);
+                obj.ScatterPoints(ii) = scatter(nan, nan,...
+                    'Parent', ax);
+                
+                % Turn off legend annotation
+                obj.ScatterPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
             end
                 
             % Iterate through number of data groups
@@ -1291,6 +1362,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Plot data points
                 obj.DataLines(ii).XData = x_circular;
                 obj.DataLines(ii).YData = y_circular;
+                
+                % Plot data points
+                obj.ScatterPoints(ii).XData = x_circular;
+                obj.ScatterPoints(ii).YData = y_circular;
                 
                 % Check if fill option is toggled on
                 obj.FillPatches(ii).XData = x_circular;
@@ -1420,12 +1495,18 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             for ii = 1:numel(obj.DataLines)
                 % Set line settings
                 obj.DataLines(ii).LineStyle = obj.LineStyle{ii};
-                obj.DataLines(ii).Marker =  obj.Marker{ii};
                 obj.DataLines(ii).Color = obj.Color(ii, :);
                 obj.DataLines(ii).LineWidth = obj.LineWidth(ii);
-                obj.DataLines(ii).MarkerSize = obj.MarkerSize(ii);
-                obj.DataLines(ii).MarkerFaceColor = obj.Color(ii, :);
                 obj.DataLines(ii).DisplayName = obj.LegendLabels{ii};
+                obj.DataLines(ii).Color(4) = obj.LineTransparency(ii);
+                
+                % Set scatter settings
+                obj.ScatterPoints(ii).Marker =  obj.Marker{ii};
+                obj.ScatterPoints(ii).SizeData = obj.MarkerSize(ii);
+                obj.ScatterPoints(ii).MarkerFaceColor = obj.Color(ii, :);
+                obj.ScatterPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
+                obj.ScatterPoints(ii).MarkerFaceAlpha = obj.MarkerTransparency(ii);
+                obj.ScatterPoints(ii).MarkerEdgeAlpha = obj.MarkerTransparency(ii);
             end
             
             % Check axes labels argument
