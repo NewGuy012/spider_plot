@@ -39,10 +39,10 @@ The three functions included have the same functionality but with 3 different im
 - **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
                          [auto-scaled (default) | matrix]
 
-- **FillOption**       - Used to toggle color fill option.
+- **FillOption**       - Used to toggle fill color option.
                          ['off' (default) | 'on' | cell array of character vectors]
 
-- **FillTransparency** - Used to set color fill transparency.
+- **FillTransparency** - Used to set fill color transparency.
                          [0.1 (default) | scalar in range (0, 1) | vector]
                      
 - **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
@@ -53,12 +53,18 @@ The three functions included have the same functionality but with 3 different im
 
 - **LineWidth**        - Used to change the line width, where 1 point is  1/72 of an inch.
                          [0.5 (default) | positive value | vector]
+                         
+- **LineTransparency** - Used to set the line color transparency.
+                         [1 (default) | scalar in range (0, 1) | vector]
 
 - **Marker**           - Used to change the marker symbol of the plots.
                          ['o' (default) | '*' | 's' | 'd' | '+' | '.' | 'x' | '^' | 'v' | 'h' | 'none' | cell array of character vectors]
 
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
-                         [8 (default) | positive value | vector]
+                         [36 (default) | positive value | vector]
+                         
+- **MarkerTransparency**-Used to set the marker color transparency.
+                         [1 (default) | scalar in range (0, 1) | vector]
                          
 - **AxesFont**         - Used to change the font type of the values displayed on the axes.
                          [Helvetica (default) | supported font name]
@@ -198,8 +204,10 @@ spider_plot(P,...
     'Color', [1, 0, 0; 0, 1, 0; 0, 0, 1],...
     'LineStyle', {'--', '-', '--'},...
     'LineWidth', [1, 2, 3],...
+    'LineTransparency', 1,...
     'Marker', {'o', 'd', 's'},...
     'MarkerSize', [8, 10, 12],...
+    'MarkerTransparency', 1,...
     'AxesFont', 'Times New Roman',...
     'LabelFont', 'Times New Roman',...
     'AxesFontSize', 12,...
@@ -393,6 +401,8 @@ s.LegendHandle.Location = 'northeastoutside';
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-04-13: Add option to adjust line and marker transparency.
+
 - 2021-04-08: Add option for data values to be displayed on axes. Add support to adjust axes font colors.
 
 - 2021-03-19: Allow legend to be global in tiledlayout in spider_plot_class. Allow axes values to be shifted. Allow axes zoom level to be adjusted.
@@ -461,5 +471,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Marie-Kristin Schreiber
 - Jean-Baptise Billaud
 - Juan Carlos Vargas Rubio
+- Anthony Wang
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
