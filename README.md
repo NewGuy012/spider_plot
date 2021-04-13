@@ -63,7 +63,7 @@ The three functions included have the same functionality but with 3 different im
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
                          [36 (default) | positive value | vector]
                          
-- **MarkerTransparency**-Used to set the marker color transparency.
+- **MarkerTransparency** - Used to set the marker color transparency.
                          [1 (default) | scalar in range (0, 1) | vector]
                          
 - **AxesFont**         - Used to change the font type of the values displayed on the axes.
