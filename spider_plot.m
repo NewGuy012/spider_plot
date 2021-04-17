@@ -258,6 +258,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-04-17: Fix data display values when log scale is set.
 %   2021-04-13: Add option to adjust line and marker transparency.
 %   2021-04-08: -Add option for data values to be displayed on axes.
 %               -Add support to adjust axes font colors.
@@ -712,13 +713,16 @@ end
 
 
 %%% Axes Scaling Properties %%%
+% Selected data
+P_selected = P;
+            
 % Check axes scaling option
 log_index = strcmp(axes_scaling, 'log');
 
 % If any log scaling is specified
 if any(log_index)
     % Initialize copy
-    P_log = P(:, log_index);
+    P_log = P_selected(:, log_index);
     
     % Logarithm of base 10, account for numbers less than 1
     P_log = sign(P_log) .* log10(abs(P_log));
@@ -733,7 +737,7 @@ if any(log_index)
         10^min_limit, 10^max_limit, recommended_axes_interval);
     
     % Replace original
-    P(:, log_index) = P_log;
+    P_selected(:, log_index) = P_log;
 end
 
 %%% Figure Properties %%%
@@ -767,7 +771,7 @@ rho_offset = axes_offset/full_interval;
 
 %%% Scale Data %%%
 % Pre-allocation
-P_scaled = zeros(size(P));
+P_scaled = zeros(size(P_selected));
 axes_range = zeros(3, num_data_points);
 
 % Check axes scaling option
@@ -778,10 +782,10 @@ for ii = 1:num_data_points
     % Check for one data group and no axes limits
     if num_data_groups == 1 && isempty(axes_limits)
         % Group of points
-        group_points = P(:, :);
+        group_points = P_selected(:, :);
     else
         % Group of points
-        group_points = P(:, ii);
+        group_points = P_selected(:, ii);
     end
     
     % Check for log axes scaling option
@@ -823,7 +827,7 @@ for ii = 1:num_data_points
     end
     
     % Scale points to range from [0, 1]
-    P_scaled(:, ii) = ((P(:, ii) - min_value) / range);
+    P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
     
     % If reverse axes direction is specified
     if axes_direction_index(ii)
@@ -916,7 +920,7 @@ for ii = 1:theta_end_index
     end
     
     % Check if vertical alignment is quadrant based
-    if strcmp(axes_horz_align, 'quadrant')
+    if strcmp(axes_vert_align, 'quadrant')
         % Alignment based on quadrant
         [~, vert_align, ~, ~] = quadrant_position(axes_labels_offset, theta(ii));
     end
@@ -1031,10 +1035,10 @@ plot_handles = findobj(ax.Children, '-not',...
     '-and', 'Type', 'Line');
 
 % Manually set the stack order
-uistack(text_handles, 'bottom');
 uistack(plot_handles, 'bottom');
 uistack(patch_handles, 'bottom');
 uistack(isocurve_handles, 'bottom');
+uistack(text_handles, 'top');
 
 %%% Labels %%%
 % Check labels argument
