@@ -401,6 +401,8 @@ s.LegendHandle.Location = 'northeastoutside';
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-04-17: Fix data display values when log scale is set.
+
 - 2021-04-13: Add option to adjust line and marker transparency.
 
 - 2021-04-08: Add option for data values to be displayed on axes. Add support to adjust axes font colors.
