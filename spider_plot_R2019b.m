@@ -266,6 +266,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-09-16: Fix bug for default colors when data groups exceeds 7.
 %   2021-04-17: Fix data display values when log scale is set.
 %   2021-04-13: Add option to adjust line and marker transparency.
 %   2021-04-08: -Add option for data values to be displayed on axes.
@@ -307,7 +308,7 @@ function spider_plot_R2019b(P, options)
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
-%   Juan Carlos Vargas Rubio & Anthony Wang for their feature
+%   Juan Carlos Vargas Rubio, Anthony Wang & Hanting Zhu for their feature
 %   recommendations and bug finds.
 
 %%% Argument Validation %%%
@@ -347,6 +348,13 @@ end
 %%% Data Properties %%%
 % Point properties
 [num_data_groups, num_data_points] = size(P);
+
+%%% Validate Colors %%%
+% Check if there is enough colors
+if size(options.Color, 1) < num_data_groups
+    warning('Warning: Default colors have been applied to match the number of data group. Please enter in "Color" option if specific colors are desired.');
+    options.Color = lines(num_data_groups);
+end
 
 %%% Validate Properties %%%
 % Check if axes offset is valid
