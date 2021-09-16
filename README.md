@@ -474,5 +474,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Jean-Baptise Billaud
 - Juan Carlos Vargas Rubio
 - Anthony Wang
+- Hanting Zhu 
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
