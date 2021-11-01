@@ -116,6 +116,12 @@ function spider_plot_R2019b(P, options)
 %   AxesVertAlign    - Used to change the vertical aligment of axes labels.
 %                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
 %
+%   PlotVisible      - Used to change the visibility of the plotted lines and markers.
+%                      ['on' (default) | 'off']
+%
+%   AxesTickLabels   - Used to change the axes tick labels.
+%                      ['data' (default) | cell array of character vectors]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -187,7 +193,9 @@ function spider_plot_R2019b(P, options)
 %       'AxesOffset', 1,...
 %       'AxesZoom', 1,...
 %       'AxesHorzAlign', 'quadrant',...
-%       'AxesVertAlign', 'quadrant');
+%       'AxesVertAlign', 'quadrant',...
+%       'PlotVisible', 'on',...
+%       'AxesTickLabels', 'data');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -266,6 +274,8 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-11-01: -Allow for plot lines and markers to be hidden.
+%               -Allow for custom text of axes tick labels.
 %   2021-09-16: Fix bug for default colors when data groups exceeds 7.
 %   2021-04-17: Fix data display values when log scale is set.
 %   2021-04-13: Add option to adjust line and marker transparency.
@@ -308,8 +318,8 @@ function spider_plot_R2019b(P, options)
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
-%   Juan Carlos Vargas Rubio, Anthony Wang & Hanting Zhu for their feature
-%   recommendations and bug finds.
+%   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu & Pauline Oeuvray
+%   for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -343,6 +353,8 @@ arguments
     options.AxesZoom double {mustBeGreaterThanOrEqual(options.AxesZoom, 0), mustBeLessThanOrEqual(options.AxesZoom, 1)} = 0.7 % Axes scale
     options.AxesHorzAlign char {mustBeMember(options.AxesHorzAlign, {'center', 'left', 'right', 'quadrant'})} = 'center' % Horizontal alignment of axes labels
     options.AxesVertAlign char {mustBeMember(options.AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
+    options.PlotVisible {mustBeMember(options.PlotVisible, {'off', 'on'})} = 'on'
+    options.AxesTickLabels {mustBeText} = 'data'
 end
 
 %%% Data Properties %%%
@@ -545,6 +557,18 @@ if strcmp(options.AxesDisplay, 'data')
         else
             error('Error: Please specify axes font color as a RGB triplet normalized to 1.');
         end
+    end
+end
+
+%%% Validate Axes Tick Labels %%%
+% Check if axes tick labels is valid
+if iscell(options.AxesTickLabels)
+    if length(options.AxesTickLabels) ~= options.AxesInterval+1
+        error('Error: Invalid axes tick labels entry. Please enter in a cell array with the same length of axes interval + 1.');
+    end
+else
+    if ~strcmp(options.AxesTickLabels, 'data')
+        error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
     end
 end
 
@@ -784,7 +808,12 @@ for ii = 1:theta_end_index
         end
         
         % Display axes text
-        text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
+        if strcmp(options.AxesTickLabels, 'data')
+            text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
+        else
+            text_str = options.AxesTickLabels{jj-axes_offset};
+        end
+
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', options.AxesFontColor,...
@@ -812,7 +841,8 @@ for ii = 1:num_data_groups
     h = plot(x_circular, y_circular,...
         'LineStyle', options.LineStyle{ii},...
         'Color', options.Color(ii, :),...
-        'LineWidth', options.LineWidth(ii));
+        'LineWidth', options.LineWidth(ii),...
+        'Visible', options.PlotVisible);
     h.Color(4) = options.LineTransparency(ii);
     
     h = scatter(x_circular, y_circular,...
@@ -821,7 +851,8 @@ for ii = 1:num_data_groups
         'MarkerFaceColor', options.Color(ii, :),...
         'MarkerEdgeColor', options.Color(ii, :),...
         'MarkerFaceAlpha', options.MarkerTransparency(ii),...
-        'MarkerEdgeAlpha', options.MarkerTransparency(ii));
+        'MarkerEdgeAlpha', options.MarkerTransparency(ii),...
+        'Visible', options.PlotVisible);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';

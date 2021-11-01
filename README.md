@@ -100,6 +100,7 @@ The three functions included have the same functionality but with 3 different im
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
 
 - **AxesOffset**       - Used to change to axes offset from the origin.
+                         [1 (default) | any integer less than the axes interval]
 
 - **AxesZoom**         - Used to change zoom of axes.
                          [0.7 (default) | scalar in range (0, 1)]
@@ -109,6 +110,12 @@ The three functions included have the same functionality but with 3 different im
 
 - **AxesVertAlign**    - Used to change the vertical aligment of axes labels.
                          ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
+
+- **PlotVisible**      - Used to change the visibility of the plotted lines and markers.
+                         ['on' (default) | 'off']
+
+- **AxesTickLabels**   - Used to change the axes tick labels.
+                         ['data' (default) | cell array of character vectors]
 
 *(spider_plot_class only properties)*
 - **LegendLabels**     - Used to add the labels to the legend.
@@ -218,7 +225,12 @@ spider_plot(P,...
     'AxesScaling', 'linear',...
     'AxesColor', [0.6, 0.6, 0.6],...
     'AxesLabelsEdge', 'none',...
-    'AxesOffset', 1);
+    'AxesOffset', 1,...
+    'AxesZoom', 1,...
+    'AxesHorzAlign', 'quadrant',...
+    'AxesVertAlign', 'quadrant',...
+    'PlotVisible', 'on',...
+    'AxesTickLabels', 'data');
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -401,6 +413,8 @@ s.LegendHandle.Location = 'northeastoutside';
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-11-01: Allow for plot lines and markers to be hidden. Allow for custom text of axes tick labels.
+
 - 2021-04-17: Fix data display values when log scale is set.
 
 - 2021-04-13: Add option to adjust line and marker transparency.
@@ -474,6 +488,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Jean-Baptise Billaud
 - Juan Carlos Vargas Rubio
 - Anthony Wang
-- Hanting Zhu 
+- Hanting Zhu
+- Pauline Oeuvray
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

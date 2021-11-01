@@ -133,6 +133,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   NextTileIter     - Iterates with consecutive tile plots. 
     %                      [1 (default)]
     %
+    %   PlotVisible      - Used to change the visibility of the plotted lines and markers.
+    %                      ['on' (default) | 'off']
+    %
+    %   AxesTickText     - Used to change the axes tick labels.
+    %                      ['data' (default) | cell array of character vectors]
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -222,6 +228,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesOffset = 1;
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
     %   s.LegendHandle.Location = 'northeastoutside';
+    %   s.PlotVisible = 'on';
+    %   s.AxesTickText = 'data';
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -320,6 +328,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-11-01: -Allow for plot lines and markers to be hidden.
+    %               -Allow for custom text of axes tick labels.
     %   2021-04-17: Fix data display values when log scale is set.
     %   2021-04-13: Add option to adjust line and marker transparency.
     %   2021-04-08: -Add option for data values to be displayed on axes.
@@ -366,10 +376,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
-    %   Billaud, Juan Carlos Vargas Rubio & Anthony Wang for their feature
-    %   recommendations and bug finds. A huge to Jiro Doke and
-    %   Sean de Wolski for demonstrating the implementation of argument
-    %   validation and custom chart class introduced in R2019b.
+    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang & Pauline Oeuvray
+    %   for their feature recommendations and bug finds. A huge to
+    %   Jiro Doke and Sean de Wolski for demonstrating the implementation
+    %   of argument validation and custom chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -408,7 +418,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesVertAlign char {mustBeMember(AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
         TiledLayoutHandle % Tiled layout handle
         TiledLegendHandle % Tiled legend handle
+        PlotVisible {mustBeMember(PlotVisible, {'off', 'on'})} = 'on'
+        AxesTickText {mustBeText} = 'data'
     end
+
     
     %%% Private, NonCopyable, Transient Properties %%%
     properties(Access = private, NonCopyable, Transient)
@@ -721,6 +734,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Toggle re-initialize to true if AxesVertAlign was changed
             obj.InitializeToggle = true;
         end
+
+        function set.AxesTickText(obj, value)
+            % Set property
+            obj.AxesTickText = value;
+            
+            % Toggle re-initialize to true if AxesTickText was changed
+            obj.InitializeToggle = true;
+        end
         
         %%% Get Methods %%%
         function num_data_points = get.NumDataPoints(obj)
@@ -1017,6 +1038,22 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get property
             axes_font_color = obj.AxesFontColor;
         end
+
+        function axes_tick_text = get.AxesTickText(obj)
+            % Check if axes tick labels is valid
+            if iscell(obj.AxesTickText)
+                if length(obj.AxesTickText) ~= obj.AxesInterval+1
+                    error('Error: Invalid axes tick labels entry. Please enter in a cell array with the same length of axes interval + 1.');
+                end
+            else
+                if ~strcmp(obj.AxesTickText, 'data')
+                    error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
+                end
+            end
+
+            % Get property
+            axes_tick_text = obj.AxesTickText;
+        end
     end
     
     methods (Access = public)
@@ -1145,7 +1182,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.RhoAxesLines)
             delete(obj.FillPatches)
             delete(obj.AxesTextLabels)
-            delete(obj.AxesTickLabels)
+            delete(obj.AxesTickLabels);
             delete(obj.AxesDataLabels)
             
             % Reset object with empty objects
@@ -1500,6 +1537,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.DataLines(ii).LineWidth = obj.LineWidth(ii);
                 obj.DataLines(ii).DisplayName = obj.LegendLabels{ii};
                 obj.DataLines(ii).Color(4) = obj.LineTransparency(ii);
+                obj.DataLines(ii).Visible = obj.PlotVisible;
                 
                 % Set scatter settings
                 obj.ScatterPoints(ii).Marker =  obj.Marker{ii};
@@ -1508,6 +1546,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.ScatterPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
                 obj.ScatterPoints(ii).MarkerFaceAlpha = obj.MarkerTransparency(ii);
                 obj.ScatterPoints(ii).MarkerEdgeAlpha = obj.MarkerTransparency(ii);
+                obj.ScatterPoints(ii).Visible = obj.PlotVisible;
             end
             
             % Check axes labels argument
@@ -1540,8 +1579,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 for ii = 1:size(obj.AxesValues, 1)
                     % Iterate through axes values columns
                     for jj = 1:size(obj.AxesValues, 2)
+                        % Display axes text
+                        if strcmp(obj.AxesTickText, 'data')
+                            text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
+                        else
+                            text_str = obj.AxesTickText{jj};
+                        end
+
                         % Display and set axes tick label settings
-                        text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
                         obj.AxesTickLabels(ii, jj).String = text_str;
                         obj.AxesTickLabels(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickLabels(ii, jj).FontSize = obj.AxesFontSize;

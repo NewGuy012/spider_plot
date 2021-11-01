@@ -116,6 +116,12 @@ function spider_plot(P, varargin)
 %   AxesVertAlign    - Used to change the vertical aligment of axes labels.
 %                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
 %
+%   PlotVisible      - Used to change the visibility of the plotted lines and markers.
+%                      ['on' (default) | 'off']
+%
+%   AxesTickLabels   - Used to change the axes tick labels.
+%                      ['data' (default) | cell array of character vectors]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -187,7 +193,9 @@ function spider_plot(P, varargin)
 %       'AxesOffset', 1,...
 %       'AxesZoom', 1,...
 %       'AxesHorzAlign', 'quadrant',...
-%       'AxesVertAlign', 'quadrant');
+%       'AxesVertAlign', 'quadrant',...
+%       'PlotVisible', 'on',...
+%       'AxesTickLabels', 'data');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -258,6 +266,8 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-11-01: -Allow for plot lines and markers to be hidden.
+%               -Allow for custom text of axes tick labels.
 %   2021-04-17: Fix data display values when log scale is set.
 %   2021-04-13: Add option to adjust line and marker transparency.
 %   2021-04-08: -Add option for data values to be displayed on axes.
@@ -294,8 +304,8 @@ function spider_plot(P, varargin)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
-%   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio & Anthony Wang
-%   for their feature recommendations and bug finds.
+%   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang &
+%   Pauline Oeuvray for their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -347,6 +357,8 @@ axes_offset = 1;
 axes_zoom = 0.7;
 axes_horz_align = 'center';
 axes_vert_align = 'middle';
+plot_visible = 'on';
+axes_tick_labels = 'data';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -416,6 +428,10 @@ if numvarargs > 1
                 axes_horz_align = value_arguments{ii};
             case 'axesvertalign'
                 axes_vert_align = value_arguments{ii};
+            case 'plotvisible'
+                plot_visible = value_arguments{ii};
+            case 'axesticklabels'
+                axes_tick_labels = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -553,6 +569,22 @@ end
 % Check if axes vertical alignment is valid
 if any(~ismember(axes_vert_align, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'}))
     error('Error: Invalid axes vertical alignment entry.');
+end
+
+% Check if plot visible is valid
+if ~ismember(plot_visible, {'on', 'off'})
+    error('Error: Invalid plot visible entry. Please enter in "on" or "off" to set plot visiblity.');
+end
+
+% Check if axes tick labels is valid
+if iscell(axes_tick_labels)
+    if length(axes_tick_labels) ~= axes_interval+1
+        error('Error: Invalid axes tick labels entry. Please enter in a cell array with the same length of axes interval + 1.');
+    end
+else
+    if ~strcmp(axes_tick_labels, 'data')
+        error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
+    end
 end
 
 % Check if axes scaling is a cell
@@ -947,7 +979,12 @@ for ii = 1:theta_end_index
         end
         
         % Display axes text
-        text_str = sprintf(sprintf('%%.%if', axes_precision(ii)), axes_value);
+        if strcmp(axes_tick_labels, 'data')
+            text_str = sprintf(sprintf('%%.%if', axes_precision(ii)), axes_value);
+        else
+            text_str = axes_tick_labels{jj-axes_offset};
+        end
+
         text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', axes_font_color,...
@@ -975,7 +1012,8 @@ for ii = 1:num_data_groups
     h = plot(x_circular, y_circular,...
         'LineStyle', line_style{ii},...
         'Color', colors(ii, :),...
-        'LineWidth', line_width(ii));
+        'LineWidth', line_width(ii),...
+        'Visible', plot_visible);
     h.Color(4) = line_transparency(ii);
     
     h = scatter(x_circular, y_circular,...
@@ -984,7 +1022,8 @@ for ii = 1:num_data_groups
         'MarkerFaceColor', colors(ii, :),...
         'MarkerEdgeColor', colors(ii, :),...
         'MarkerFaceAlpha', marker_transparency(ii),...
-        'MarkerEdgeAlpha', marker_transparency(ii));
+        'MarkerEdgeAlpha', marker_transparency(ii),...
+        'Visible', plot_visible);
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
