@@ -132,9 +132,6 @@ The three functions included have the same functionality but with 3 different im
 
 - **NextTileIter**      - Iterates with consecutive tile plots.
                           [1 (default)]
-
-- **AxesTickText**      - Used to change the axes tick labels.
-                          ['data' (default) | cell array of character vectors]
                          
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
@@ -413,6 +410,21 @@ s.LegendHandle.Location = 'northeastoutside';
   <img src="screenshot/example8.PNG">
 </p>
 
+### Example 9: Spider plot with text as axes tick labels.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesTickLabels', {'first', 'second', 'third', 'fourth'});
+```
+<p align="center">
+  <img src="screenshot/example9.png">
+</p>
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
