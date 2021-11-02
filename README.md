@@ -118,20 +118,23 @@ The three functions included have the same functionality but with 3 different im
                          ['data' (default) | cell array of character vectors]
 
 *(spider_plot_class only properties)*
-- **LegendLabels**     - Used to add the labels to the legend.
-                         [cell array of character vectors]
+- **LegendLabels**      - Used to add the labels to the legend.
+                          [cell array of character vectors]
                          
-- **LegendHandle**     - Used to customize legend settings.
-                         [legend handle object]
+- **LegendHandle**      - Used to customize legend settings.
+                          [legend handle object]
                          
 - **TiledLayoutHandle** - Used to customize tiled layout settings.
-                         [tiled chart layout handle object]
+                          [tiled chart layout handle object]
 
 - **TiledLegendHandle** - Used to customize tiled legend settings.
-                         [legend handle object of tiled layout]
+                          [legend handle object of tiled layout]
 
-- **NextTileIter**     - Iterates with consecutive tile plots.
-                         [1 (default)]
+- **NextTileIter**      - Iterates with consecutive tile plots.
+                          [1 (default)]
+
+- **AxesTickText**      - Used to change the axes tick labels.
+                          ['data' (default) | cell array of character vectors]
                          
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
