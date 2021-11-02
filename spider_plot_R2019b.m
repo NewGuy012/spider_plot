@@ -811,7 +811,7 @@ for ii = 1:theta_end_index
         if strcmp(options.AxesTickLabels, 'data')
             text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
         else
-            text_str = options.AxesTickLabels{jj-axes_offset};
+            text_str = options.AxesTickLabels{jj-options.AxesOffset};
         end
 
         text(x_axes(jj), y_axes(jj), text_str,...
