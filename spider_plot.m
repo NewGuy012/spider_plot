@@ -591,6 +591,25 @@ if any(~ismember(axes_interpreter, {'tex', 'latex', 'none'}))
     error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
 end
 
+% Check if axes interpreter is a char
+if ischar(axes_interpreter)
+    % Convert to cell array of char
+    axes_interpreter = cellstr(axes_interpreter);
+    
+    % Repeat cell to number of data groups
+    axes_interpreter = repmat(axes_interpreter, length(axes_labels), 1);
+elseif iscellstr(axes_interpreter)
+    % Check is length is one
+    if length(axes_interpreter) == 1
+        % Repeat cell to number of data groups
+        axes_interpreter = repmat(axes_interpreter, length(axes_labels), 1);
+    elseif length(axes_interpreter) ~= length(axes_labels)
+        error('Error: Please specify the same number of axes interpreters as axes labels.');
+    end
+else
+    error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
+end
+
 % Check if axes tick labels is valid
 if iscell(axes_tick_labels)
     if length(axes_tick_labels) ~= axes_interval+1
@@ -1010,7 +1029,7 @@ for ii = 1:theta_end_index
 
         % Apply to axes tick labels only when not data
         if iscellstr(axes_tick_labels)
-            t.Interpreter = axes_interpreter;
+            t.Interpreter = axes_interpreter{1};
         end
     end
 end
@@ -1119,7 +1138,7 @@ if ~strcmp(axes_labels, 'none')
             'BackgroundColor', 'w',...
             'FontName', label_font,...
             'FontSize', label_font_size,...
-            'Interpreter', axes_interpreter);
+            'Interpreter', axes_interpreter{ii});
     end
 end
 
