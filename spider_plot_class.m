@@ -1608,7 +1608,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         obj.AxesTickText(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickText(ii, jj).FontSize = obj.AxesFontSize;
                         obj.AxesTickText(ii, jj).Color = obj.AxesFontColor;
-                        obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter;
+
+                        % Apply to axes tick labels only when not data
+                        if iscellstr(obj.AxesTickLabels)
+                            obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter;
+                        end
                     end
                 end
             end

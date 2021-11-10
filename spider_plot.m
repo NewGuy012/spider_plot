@@ -1006,8 +1006,12 @@ for ii = 1:theta_end_index
             'FontName', axes_font,...
             'FontSize', axes_font_size,...
             'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align,...
-            'Interpreter', axes_interpreter);
+            'VerticalAlignment', vert_align);
+
+        % Apply to axes tick labels only when not data
+        if iscellstr(axes_tick_labels)
+            t.Interpreter = axes_interpreter;
+        end
     end
 end
 
