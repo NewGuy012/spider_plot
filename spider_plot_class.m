@@ -139,6 +139,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesTickLabels   - Used to change the axes tick labels.
     %                      ['data' (default) | cell array of character vectors]
     %
+    %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
+    %                      ['tex' (default) | 'latex' | 'none']
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -230,6 +233,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LegendHandle.Location = 'northeastoutside';
     %   s.PlotVisible = 'on';
     %   s.AxesTickLabels = 'data';
+    %   s.AxesInterpreter =  'tex';
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -310,24 +314,26 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s1.TiledLegendHandle.Layout.TileSpan = [1, 2];
     %   s1.TiledLegendHandle.Layout.Tile = 1;
     %
-    %   % Example 8: Spider plot with values only on data points.
-	%   
-	%   D1 = [1 3 4 1 2];
-	%   D2 = [5 8 7 5 9];
-	%   P = [D1; D2];
-	%   if exist('s', 'var')
-	%       delete(s);
-	%   end
-	%   s = spider_plot_class(P);
-	%   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
-	%   s.AxesDisplay = 'data';
-	%   s.AxesLabelsOffset = 0.1;
-	%   s.AxesFontColor = [0, 0, 1; 1, 0, 0];
-	%   s.LegendLabels = {'D1', 'D2'};
-	%   s.LegendHandle.Location = 'northeastoutside';
+    % Example 8: Spider plot with values only on data points.
+    %   
+    %   D1 = [1 3 4 1 2];
+    %   D2 = [5 8 7 5 9];
+    %   P = [D1; D2];
+    %   if exist('s', 'var')
+    %       delete(s);
+    %   end
+    %   s = spider_plot_class(P);
+    %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
+    %   s.AxesDisplay = 'data';
+    %   s.AxesLabelsOffset = 0.1;
+    %   s.AxesFontColor = [0, 0, 1; 1, 0, 0];
+    %   s.LegendLabels = {'D1', 'D2'};
+    %   s.LegendHandle.Location = 'northeastoutside';
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-11-09: Add option to change the text interpreter of axes labels
+    %               and axes tick labels.
     %   2021-11-01: -Allow for plot lines and markers to be hidden.
     %               -Allow for custom text of axes tick labels.
     %   2021-04-17: Fix data display values when log scale is set.
@@ -376,10 +382,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
-    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang & Pauline Oeuvray
-    %   for their feature recommendations and bug finds. A huge to
-    %   Jiro Doke and Sean de Wolski for demonstrating the implementation
-    %   of argument validation and custom chart class introduced in R2019b.
+    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray &
+    %   Oliver Nicholls for their feature recommendations and bug finds.
+    %   A huge to Jiro Doke and Sean de Wolski for demonstrating the
+    %   implementation of argument validation and custom chart class
+    %   introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -420,6 +427,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         TiledLegendHandle % Tiled legend handle
         PlotVisible {mustBeMember(PlotVisible, {'off', 'on'})} = 'on'
         AxesTickLabels {mustBeText} = 'data'
+        AxesInterpreter char {mustBeMember(AxesInterpreter, {'tex', 'latex', 'none'})} = 'tex'
     end
 
     
@@ -740,6 +748,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesTickLabels = value;
             
             % Toggle re-initialize to true if AxesTickLabels was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesInterpreter(obj, value)
+            % Set property
+            obj.AxesInterpreter = value;
+            
+            % Toggle re-initialize to true if AxesInterpreter was changed
             obj.InitializeToggle = true;
         end
         
@@ -1564,6 +1580,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.AxesTextLabels(ii).FontName = obj.LabelFont;
                     obj.AxesTextLabels(ii).FontSize = obj.LabelFontSize;
                     obj.AxesTextLabels(ii).EdgeColor = obj.AxesLabelsEdge;
+                    obj.AxesTextLabels(ii).Interpreter = obj.AxesInterpreter;
                 end
             end
             
@@ -1591,6 +1608,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         obj.AxesTickText(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickText(ii, jj).FontSize = obj.AxesFontSize;
                         obj.AxesTickText(ii, jj).Color = obj.AxesFontColor;
+                        obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter;
                     end
                 end
             end

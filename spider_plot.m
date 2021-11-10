@@ -122,6 +122,9 @@ function spider_plot(P, varargin)
 %   AxesTickLabels   - Used to change the axes tick labels.
 %                      ['data' (default) | cell array of character vectors]
 %
+%   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
+%                      ['tex' (default) | 'latex' | 'none']
+% 
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -195,7 +198,8 @@ function spider_plot(P, varargin)
 %       'AxesHorzAlign', 'quadrant',...
 %       'AxesVertAlign', 'quadrant',...
 %       'PlotVisible', 'on',...
-%       'AxesTickLabels', 'data');
+%       'AxesTickLabels', 'data',...
+%       'AxesInterpreter', 'tex');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -266,6 +270,8 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-11-09: Add option to change the text interpreter of axes labels
+%               and axes tick labels.
 %   2021-11-01: -Allow for plot lines and markers to be hidden.
 %               -Allow for custom text of axes tick labels.
 %   2021-04-17: Fix data display values when log scale is set.
@@ -304,8 +310,9 @@ function spider_plot(P, varargin)
 %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
-%   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang &
-%   Pauline Oeuvray for their feature recommendations and bug finds.
+%   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
+%   Pauline Oeuvray & Oliver Nicholls for their feature recommendations
+%   and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -359,6 +366,7 @@ axes_horz_align = 'center';
 axes_vert_align = 'middle';
 plot_visible = 'on';
 axes_tick_labels = 'data';
+axes_interpreter = 'tex';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -432,6 +440,8 @@ if numvarargs > 1
                 plot_visible = value_arguments{ii};
             case 'axesticklabels'
                 axes_tick_labels = value_arguments{ii};
+            case 'axesinterpreter'
+                axes_interpreter = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -506,7 +516,7 @@ if ~ismember(axes_display, {'all', 'none', 'one', 'data'})
     error('Error: Invalid axes display entry. Please enter in "all", "none", or "one" to set axes text.');
 end
 
-% Check if not a valid fill option arguement
+% Check if fill option is valid
 if any(~ismember(fill_option, {'off', 'on'}))
     error('Error: Please enter either "off" or "on" for fill option.');
 end
@@ -574,6 +584,11 @@ end
 % Check if plot visible is valid
 if ~ismember(plot_visible, {'on', 'off'})
     error('Error: Invalid plot visible entry. Please enter in "on" or "off" to set plot visiblity.');
+end
+
+% Check if axes interpreter is valid
+if any(~ismember(axes_interpreter, {'tex', 'latex', 'none'}))
+    error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
 end
 
 % Check if axes tick labels is valid
@@ -985,13 +1000,14 @@ for ii = 1:theta_end_index
             text_str = axes_tick_labels{jj-axes_offset};
         end
 
-        text(x_axes(jj), y_axes(jj), text_str,...
+        t = text(x_axes(jj), y_axes(jj), text_str,...
             'Units', 'Data',...
             'Color', axes_font_color,...
             'FontName', axes_font,...
             'FontSize', axes_font_size,...
             'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align);
+            'VerticalAlignment', vert_align,...
+            'Interpreter', axes_interpreter);
     end
 end
 
@@ -1098,7 +1114,8 @@ if ~strcmp(axes_labels, 'none')
             'EdgeColor', axes_labels_edge,...
             'BackgroundColor', 'w',...
             'FontName', label_font,...
-            'FontSize', label_font_size);
+            'FontSize', label_font_size,...
+            'Interpreter', axes_interpreter);
     end
 end
 

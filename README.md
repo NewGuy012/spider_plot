@@ -117,6 +117,9 @@ The three functions included have the same functionality but with 3 different im
 - **AxesTickLabels**   - Used to change the axes tick labels.
                          ['data' (default) | cell array of character vectors]
 
+- **AxesInterpreter**  - Used to change the text interpreter of axes labels and axes tick labels.
+                         ['tex' (default) | 'latex' | 'none']
+
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
                           [cell array of character vectors]
@@ -230,7 +233,8 @@ spider_plot(P,...
     'AxesHorzAlign', 'quadrant',...
     'AxesVertAlign', 'quadrant',...
     'PlotVisible', 'on',...
-    'AxesTickLabels', 'data');
+    'AxesTickLabels', 'data',...
+    'AxesInterpreter', 'tex');
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -428,6 +432,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-11-09: Add option to change the text interpreter of axes labels and axes tick labels.
+
 - 2021-11-01: Allow for plot lines and markers to be hidden. Allow for custom text of axes tick labels.
 
 - 2021-04-17: Fix data display values when log scale is set.
@@ -505,5 +511,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Anthony Wang
 - Hanting Zhu
 - Pauline Oeuvray
+- Oliver Nicholls
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

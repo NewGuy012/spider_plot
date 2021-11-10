@@ -122,6 +122,9 @@ function spider_plot_R2019b(P, options)
 %   AxesTickLabels   - Used to change the axes tick labels.
 %                      ['data' (default) | cell array of character vectors]
 %
+%   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
+%                      ['tex' (default) | 'latex' | 'none']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -195,7 +198,8 @@ function spider_plot_R2019b(P, options)
 %       'AxesHorzAlign', 'quadrant',...
 %       'AxesVertAlign', 'quadrant',...
 %       'PlotVisible', 'on',...
-%       'AxesTickLabels', 'data');
+%       'AxesTickLabels', 'data',...
+%       'AxesInterpreter', 'tex');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -274,6 +278,8 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2021-11-09: Add option to change the text interpreter of axes labels
+%               and axes tick labels.
 %   2021-11-01: -Allow for plot lines and markers to be hidden.
 %               -Allow for custom text of axes tick labels.
 %   2021-09-16: Fix bug for default colors when data groups exceeds 7.
@@ -318,8 +324,8 @@ function spider_plot_R2019b(P, options)
 %   Alex Grenyer, Omar Hadri, Zafar Ali, Christophe Hurlin, Roman,
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
-%   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu & Pauline Oeuvray
-%   for their feature recommendations and bug finds.
+%   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray &
+%   Oliver Nicholls for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -355,6 +361,7 @@ arguments
     options.AxesVertAlign char {mustBeMember(options.AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
     options.PlotVisible {mustBeMember(options.PlotVisible, {'off', 'on'})} = 'on'
     options.AxesTickLabels {mustBeText} = 'data'
+    options.AxesInterpreter char {mustBeMember(options.AxesInterpreter, {'tex', 'latex', 'none'})} = 'tex'
 end
 
 %%% Data Properties %%%
@@ -820,7 +827,8 @@ for ii = 1:theta_end_index
             'FontName', options.AxesFont,...
             'FontSize', options.AxesFontSize,...
             'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align);
+            'VerticalAlignment', vert_align,...
+            'Interpreter', options.AxesInterpreter);
     end
 end
 
@@ -939,7 +947,8 @@ if ~strcmp(options.AxesLabels, 'none')
             'EdgeColor', options.AxesLabelsEdge,...
             'BackgroundColor', 'w',...
             'FontName', options.LabelFont,...
-            'FontSize', options.LabelFontSize);
+            'FontSize', options.LabelFontSize,...
+            'Interpreter', options.AxesInterpreter);
     end
 end
 end
