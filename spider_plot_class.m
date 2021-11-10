@@ -140,7 +140,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      ['data' (default) | cell array of character vectors]
     %
     %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
-    %                      ['tex' (default) | 'latex' | 'none']
+    %                      ['tex' (default) | 'latex' | 'none'  | cell array of character vectors]
     %
     % Output Arguments:
     %   (Optional)

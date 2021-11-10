@@ -118,7 +118,7 @@ The three functions included have the same functionality but with 3 different im
                          ['data' (default) | cell array of character vectors]
 
 - **AxesInterpreter**  - Used to change the text interpreter of axes labels and axes tick labels.
-                         ['tex' (default) | 'latex' | 'none']
+                         ['tex' (default) | 'latex' | 'none' | cell array of character vectors]
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.

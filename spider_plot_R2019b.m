@@ -123,7 +123,7 @@ function spider_plot_R2019b(P, options)
 %                      ['data' (default) | cell array of character vectors]
 %
 %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
-%                      ['tex' (default) | 'latex' | 'none']
+%                      ['tex' (default) | 'latex' | 'none' | cell array of character vectors]
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
