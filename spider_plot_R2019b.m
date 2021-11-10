@@ -361,7 +361,7 @@ arguments
     options.AxesVertAlign char {mustBeMember(options.AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
     options.PlotVisible {mustBeMember(options.PlotVisible, {'off', 'on'})} = 'on'
     options.AxesTickLabels {mustBeText} = 'data'
-    options.AxesInterpreter char {mustBeMember(options.AxesInterpreter, {'tex', 'latex', 'none'})} = 'tex'
+    options.AxesInterpreter {mustBeText} = 'tex'
 end
 
 %%% Data Properties %%%
@@ -580,17 +580,22 @@ else
 end
 
 %%% Validate Axes Interpreter
+% Check if axes interpreter is valid
+if any(~ismember(options.AxesInterpreter, {'tex', 'latex', 'none'}))
+    error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
+end
+
 % Check if axes interpreter is a char
 if ischar(options.AxesInterpreter)
     % Convert to cell array of char
     options.AxesInterpreter = cellstr(options.AxesInterpreter);
     
-    % Repeat cell to number of data groups
+    % Repeat cell to number of axes labels
     options.AxesInterpreter = repmat(options.AxesInterpreter, length(options.AxesLabels), 1);
 elseif iscellstr(options.AxesInterpreter)
     % Check is length is one
     if length(options.AxesInterpreter) == 1
-        % Repeat cell to number of data groups
+        % Repeat cell to number of axes labels
         options.AxesInterpreter = repmat(options.AxesInterpreter, length(options.AxesLabels), 1);
     elseif length(options.AxesInterpreter) ~= length(options.AxesLabels)
         error('Error: Please specify the same number of axes interpreters as axes labels.');

@@ -427,7 +427,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         TiledLegendHandle % Tiled legend handle
         PlotVisible {mustBeMember(PlotVisible, {'off', 'on'})} = 'on'
         AxesTickLabels {mustBeText} = 'data'
-        AxesInterpreter char {mustBeMember(AxesInterpreter, {'tex', 'latex', 'none'})} = 'tex'
+        AxesInterpreter {mustBeText} = 'tex'
     end
 
     
@@ -1070,6 +1070,35 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get property
             axes_tick_text = obj.AxesTickLabels;
         end
+
+        function axes_interpreter = get.AxesInterpreter(obj)
+            % Check if axes interpreter is valid
+            if any(~ismember(obj.AxesInterpreter, {'tex', 'latex', 'none'}))
+                error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
+            end
+
+            % Check if axes interpreter is a char
+            if ischar(obj.AxesInterpreter)
+                % Convert to cell array of char
+                obj.AxesInterpreter = cellstr(obj.AxesInterpreter);
+                
+                % Repeat cell to number of axes labels
+                obj.AxesInterpreter = repmat(obj.AxesInterpreter, length(obj.AxesLabels), 1);
+            elseif iscellstr(obj.AxesInterpreter)
+                % Check is length is one
+                if length(obj.AxesInterpreter) == 1
+                    % Repeat cell to number of axes labels
+                    obj.AxesInterpreter = repmat(obj.AxesInterpreter, length(obj.AxesLabels), 1);
+                elseif length(obj.AxesInterpreter) ~= length(obj.AxesLabels)
+                    error('Error: Please specify the same number of axes interpreters as number of axes labels.');
+                end
+            else
+                error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
+            end
+            
+            % Get property
+            axes_interpreter = obj.AxesInterpreter;
+        end
     end
     
     methods (Access = public)
@@ -1580,7 +1609,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.AxesTextLabels(ii).FontName = obj.LabelFont;
                     obj.AxesTextLabels(ii).FontSize = obj.LabelFontSize;
                     obj.AxesTextLabels(ii).EdgeColor = obj.AxesLabelsEdge;
-                    obj.AxesTextLabels(ii).Interpreter = obj.AxesInterpreter;
+                    obj.AxesTextLabels(ii).Interpreter = obj.AxesInterpreter{ii};
                 end
             end
             
@@ -1611,7 +1640,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
                         % Apply to axes tick labels only when not data
                         if iscellstr(obj.AxesTickLabels)
-                            obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter;
+                            obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter{1};
                         end
                     end
                 end
