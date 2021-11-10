@@ -430,6 +430,23 @@ spider_plot(P,...
   <img src="screenshot/example9.png">
 </p>
 
+### Example 10: Spider plot with interpreter setting customized for each axes label.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesLabels', {'\beta=1', '$\int_1^{20} x^2 dx$', '$\mathcal{O}$', 'Normal', 'Normal'},...
+    'AxesInterpreter', {'tex', 'latex', 'latex', 'none', 'none'});
+```
+<p align="center">
+  <img src="screenshot/example10.PNG">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
 - 2021-11-09: Add option to change the text interpreter of axes labels and axes tick labels.
