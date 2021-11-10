@@ -368,14 +368,14 @@ end
 % Point properties
 [num_data_groups, num_data_points] = size(P);
 
-%%% Validate Colors %%%
+%%% Validate Colors
 % Check if there is enough colors
 if size(options.Color, 1) < num_data_groups
     warning('Warning: Default colors have been applied to match the number of data group. Please enter in "Color" option if specific colors are desired.');
     options.Color = lines(num_data_groups);
 end
 
-%%% Validate Properties %%%
+%%% Validate Properties
 % Check if axes offset is valid
 if options.AxesOffset > options.AxesInterval
     error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
@@ -567,7 +567,7 @@ if strcmp(options.AxesDisplay, 'data')
     end
 end
 
-%%% Validate Axes Tick Labels %%%
+%%% Validate Axes Tick Labels
 % Check if axes tick labels is valid
 if iscell(options.AxesTickLabels)
     if length(options.AxesTickLabels) ~= options.AxesInterval+1
@@ -577,6 +577,26 @@ else
     if ~strcmp(options.AxesTickLabels, 'data')
         error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
     end
+end
+
+%%% Validate Axes Interpreter
+% Check if axes interpreter is a char
+if ischar(options.AxesInterpreter)
+    % Convert to cell array of char
+    options.AxesInterpreter = cellstr(options.AxesInterpreter);
+    
+    % Repeat cell to number of data groups
+    options.AxesInterpreter = repmat(options.AxesInterpreter, length(options.AxesLabels), 1);
+elseif iscellstr(options.AxesInterpreter)
+    % Check is length is one
+    if length(options.AxesInterpreter) == 1
+        % Repeat cell to number of data groups
+        options.AxesInterpreter = repmat(options.AxesInterpreter, length(options.AxesLabels), 1);
+    elseif length(options.AxesInterpreter) ~= length(options.AxesLabels)
+        error('Error: Please specify the same number of axes interpreters as axes labels.');
+    end
+else
+    error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
 end
 
 %%% Axes Scaling Properties %%%
@@ -830,8 +850,8 @@ for ii = 1:theta_end_index
             'VerticalAlignment', vert_align);
 
         % Apply to axes tick labels only when not data
-        if iscellstr(axes_tick_labels)
-            t.Interpreter = options.AxesInterpreter;
+        if iscellstr(options.AxesTickLabels)
+            t.Interpreter = options.AxesInterpreter{1};
         end
     end
 end
@@ -952,7 +972,7 @@ if ~strcmp(options.AxesLabels, 'none')
             'BackgroundColor', 'w',...
             'FontName', options.LabelFont,...
             'FontSize', options.LabelFontSize,...
-            'Interpreter', options.AxesInterpreter);
+            'Interpreter', options.AxesInterpreter{ii});
     end
 end
 end
