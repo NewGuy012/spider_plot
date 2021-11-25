@@ -88,6 +88,9 @@ The three functions included have the same functionality but with 3 different im
                          ['normal' (default) | 'reverse' | cell array of character vectors]
                          
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
+                         [0.2 (default) | positive value]
+
+- **AxesDataOffset**   - Used to adjust the position offset of the data labels when AxesDisplay is set to 'data'.
                          [0.1 (default) | positive value]
                          
 - **AxesScaling**      - Used to change the scaling of the axes.
@@ -105,10 +108,10 @@ The three functions included have the same functionality but with 3 different im
 - **AxesZoom**         - Used to change zoom of axes.
                          [0.7 (default) | scalar in range (0, 1)]
 
-- **AxesHorzAlign**    - Used to change the horizontal alignment of axes labels.
+- **AxesHorzAlign**    - Used to change the horizontal alignment of axes tick labels.
                          ['center' (default) | 'left' | 'right' | 'quadrant']
 
-- **AxesVertAlign**    - Used to change the vertical aligment of axes labels.
+- **AxesVertAlign**    - Used to change the vertical aligment of axes tick labels.
                          ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
 
 - **PlotVisible**      - Used to change the visibility of the plotted lines and markers.
@@ -224,7 +227,8 @@ spider_plot(P,...
     'LabelFontSize', 10,...
     'Direction', 'clockwise',...
     'AxesDirection', {'reverse', 'normal', 'normal', 'normal', 'normal'},...
-    'AxesLabelsOffset', 0.1,...
+    'AxesLabelsOffset', 0.2,...
+    'AxesDataOffset', 0.1,...
     'AxesScaling', 'linear',...
     'AxesColor', [0.6, 0.6, 0.6],...
     'AxesLabelsEdge', 'none',...
@@ -403,7 +407,8 @@ P = [D1; D2];
 s = spider_plot_class(P);
 s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
 s.AxesDisplay = 'data';
-s.AxesLabelsOffset = 0.1;
+s.AxesLabelsOffset = 0.2;
+s.AxesDataOffset = 0.1;
 s.AxesFontColor = [0, 0, 1; 1, 0, 0];
 
 % Legend properties
@@ -449,6 +454,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2021-11-24: Fix axes labels misalignment. Add option to set offset for data display values.
+
 - 2021-11-09: Add option to change the text interpreter of axes labels and axes tick labels.
 
 - 2021-11-01: Allow for plot lines and markers to be hidden. Allow for custom text of axes tick labels.
@@ -529,5 +536,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Hanting Zhu
 - Pauline Oeuvray
 - Oliver Nicholls
+- Yu-Chi Chen
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

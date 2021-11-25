@@ -95,6 +95,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     %   AxesLabelsOffset - Used to adjust the position offset of the axes
     %                      labels.
+    %                      [0.2 (default) | positive value]
+    %
+    %   AxesDataOffset   - Used to adjust the position offset of the data labels
+    %                      when AxesDisplay is set to 'data'.
     %                      [0.1 (default) | positive value]
     %
     %   AxesScaling      - Used to change the scaling of the axes.
@@ -118,10 +122,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesZoom         - Used to change zoom of axes.
     %                      [0.7 (default) | scalar in range (0, 1)]
     %
-    %   AxesHorzAlign    - Used to change the horizontal alignment of axes labels.
+    %   AxesHorzAlign    - Used to change the horizontal alignment of axes tick labels.
     %                      ['center' (default) | 'left' | 'right' | 'quadrant']
     %
-    %   AxesVertAlign    - Used to change the vertical aligment of axes labels.
+    %   AxesVertAlign    - Used to change the vertical aligment of axes tick labels.
     %                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
     %
     %   TiledLayoutHandle- Used to customize tiled layout settings. 
@@ -226,7 +230,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LabelFontSize = 10;
     %   s.Direction = 'clockwise';
     %   s.AxesDirection = {'reverse', 'normal', 'normal', 'normal', 'normal'};
-    %   s.AxesLabelsOffset = 0;
+    %   s.AxesLabelsOffset = 0.2;
+    %   s.AxesDataOffset = 0.1;
     %   s.AxesScaling = 'linear';
     %   s.AxesOffset = 1;
     %   s.LegendLabels = {'D1', 'D2', 'D3'};
@@ -325,13 +330,16 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s = spider_plot_class(P);
     %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
     %   s.AxesDisplay = 'data';
-    %   s.AxesLabelsOffset = 0.1;
+    %   s.AxesLabelsOffset = 0.2;
+    %   s.AxesDataOffset = 0.1;
     %   s.AxesFontColor = [0, 0, 1; 1, 0, 0];
     %   s.LegendLabels = {'D1', 'D2'};
     %   s.LegendHandle.Location = 'northeastoutside';
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
+    %               data display values.
     %   2021-11-09: Add option to change the text interpreter of axes labels
     %               and axes tick labels.
     %   2021-11-01: -Allow for plot lines and markers to be hidden.
@@ -382,10 +390,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
-    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray &
-    %   Oliver Nicholls for their feature recommendations and bug finds.
-    %   A huge to Jiro Doke and Sean de Wolski for demonstrating the
-    %   implementation of argument validation and custom chart class
+    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
+    %   Oliver Nicholls & Yu-Chi Chen for their feature recommendations and
+    %   bug finds. A huge to Jiro Doke and Sean de Wolski for demonstrating
+    %   the implementation of argument validation and custom chart class
     %   introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
@@ -415,7 +423,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         LabelFontSize (1, 1) double {mustBePositive} = 10 % Label font size
         Direction char {mustBeMember(Direction, {'counterclockwise', 'clockwise'})} = 'clockwise'
         AxesDirection = 'normal'
-        AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.1 % Offset position of axes labels
+        AxesLabelsOffset (1, 1) double {mustBeNonnegative} = 0.2 % Offset position of axes labels
+        AxesDataOffset (1, 1) double {mustBeNonnegative} = 0.1 % Offset position of axes data labels
         AxesScaling = 'linear' % Scaling of axes
         AxesColor = [0.6, 0.6, 0.6] % Axes color
         AxesLabelsEdge = 'k' % Axes label color
@@ -1458,20 +1467,19 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 if strcmp(obj.AxesDisplay, 'data')
                     % Iterate through number of data points
                     for jj = 1:obj.NumDataPoints
-                        % Angle of point in radians
-                        [horz_align, vert_align, x_pos, y_pos] = obj.quadrant_position(theta(jj));
-                        x_pos = x_pos * 0.1;
-                        y_pos = y_pos * 0.1;
-                        
+                        % Convert polar to cartesian coordinates
+                        [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
+                        [x_pos, y_pos] = pol2cart(current_theta, current_rho+obj.AxesDataOffset);
+
                         % Display axes text
-                        obj.AxesDataLabels(ii, jj) = text(ax, x_points(jj)+x_pos, y_points(jj)+y_pos, '',...
-                        'Units', 'Data',...
-                        'Color', obj.AxesFontColor(ii, :),...
-                        'FontName', obj.AxesFont,...
-                        'FontSize', obj.AxesFontSize,...
-                        'HorizontalAlignment', horz_align,...
-                        'VerticalAlignment', vert_align,...
-                        'Visible', 'off');
+                        obj.AxesDataLabels(ii, jj) = text(ax, x_pos, y_pos, '',...
+                            'Units', 'Data',...
+                            'Color', obj.AxesFontColor(ii, :),...
+                            'FontName', obj.AxesFont,...
+                            'FontSize', obj.AxesFontSize,...
+                            'HorizontalAlignment', 'center',...
+                            'VerticalAlignment', 'middle',...
+                            'Visible', 'off');
                     end
                 end
             end
@@ -1480,16 +1488,16 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints
                 % Convert polar to cartesian coordinates
-                [x_axes, y_axes] = pol2cart(theta, rho(end));
-                
-                % Angle of point in radians
-                [horz_align, vert_align, x_pos, y_pos] = obj.quadrant_position(theta(ii));
+                [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+obj.AxesLabelsOffset);
+
+                % Horizontal text alignment by quadrant
+                [horz_align, ~] = obj.quadrant_position(theta(ii));
                 
                 % Display text label
-                obj.AxesTextLabels(ii) = text(ax, x_axes(ii)+x_pos, y_axes(ii)+y_pos, '',...
+                obj.AxesTextLabels(ii) = text(ax, x_pos, y_pos, '',...
                     'Units', 'Data',...
                     'HorizontalAlignment', horz_align,...
-                    'VerticalAlignment', vert_align,...
+                    'VerticalAlignment', 'middle',...
                     'EdgeColor', obj.AxesLabelsEdge,...
                     'BackgroundColor', 'w',...
                     'FontName', obj.LabelFont,...
@@ -1509,13 +1517,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Check if horizontal alignment is quadrant based
                 if strcmp(obj.AxesHorzAlign, 'quadrant')
                     % Alignment based on quadrant
-                    [horz_align, ~, ~, ~] = obj.quadrant_position(theta(ii));
+                    [horz_align, ~] = obj.quadrant_position(theta(ii));
                 end
                 
                 % Check if vertical alignment is quadrant based
                 if strcmp(obj.AxesVertAlign, 'quadrant')
                     % Alignment based on quadrant
-                    [~, vert_align, ~, ~] = obj.quadrant_position(theta(ii));
+                    [~, vert_align] = obj.quadrant_position(theta(ii));
                 end
                 
                 % Iterate through points on isocurve
@@ -1669,7 +1677,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             end
         end
         
-        function [horz_align, vert_align, x_pos, y_pos] = quadrant_position(obj, theta_point)
+        function [horz_align, vert_align] = quadrant_position(~, theta_point)
             % Find out which quadrant the point is in
             if theta_point == 0
                 quadrant = 0;
@@ -1696,43 +1704,27 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 case 0
                     horz_align = 'left';
                     vert_align = 'middle';
-                    x_pos = obj.AxesLabelsOffset;
-                    y_pos = 0;
                 case 1
                     horz_align = 'left';
                     vert_align = 'bottom';
-                    x_pos = obj.AxesLabelsOffset;
-                    y_pos = obj.AxesLabelsOffset;
                 case 1.5
                     horz_align = 'center';
                     vert_align = 'bottom';
-                    x_pos = 0;
-                    y_pos = obj.AxesLabelsOffset;
                 case 2
                     horz_align = 'right';
                     vert_align = 'bottom';
-                    x_pos = -obj.AxesLabelsOffset;
-                    y_pos = obj.AxesLabelsOffset;
                 case 2.5
                     horz_align = 'right';
                     vert_align = 'middle';
-                    x_pos = -obj.AxesLabelsOffset;
-                    y_pos = 0;
                 case 3
                     horz_align = 'right';
                     vert_align = 'top';
-                    x_pos = -obj.AxesLabelsOffset;
-                    y_pos = -obj.AxesLabelsOffset;
                 case 3.5
                     horz_align = 'center';
                     vert_align = 'top';
-                    x_pos = 0;
-                    y_pos = -obj.AxesLabelsOffset;
                 case 4
                     horz_align = 'left';
                     vert_align = 'top';
-                    x_pos = obj.AxesLabelsOffset;
-                    y_pos = -obj.AxesLabelsOffset;
             end
         end
         
