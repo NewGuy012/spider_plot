@@ -838,7 +838,8 @@ ax = gca;
 % Axis limits
 hold on;
 axis square;
-axis([-1, 1, -1, 1] * 1.3);
+scaling_factor = 1 + (1 - axes_zoom);
+axis([-1, 1, -1, 1] * scaling_factor);
 
 % Axis properties
 ax.XTickLabel = [];
