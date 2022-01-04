@@ -454,6 +454,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-01-03: Fix legend to include line and marker attributes.
+
 - 2021-11-24: Fix axes labels misalignment. Add option to set offset for data display values.
 
 - 2021-11-09: Add option to change the text interpreter of axes labels and axes tick labels.
@@ -537,5 +539,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Pauline Oeuvray
 - Oliver Nicholls
 - Yu-Chi Chen
+- Fabrizio De Caro
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

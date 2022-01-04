@@ -338,6 +338,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2022-01-03: Fix legend to include line and marker attributes.
     %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
     %               data display values.
     %   2021-11-09: Add option to change the text interpreter of axes labels
@@ -391,10 +392,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
     %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
-    %   Oliver Nicholls & Yu-Chi Chen for their feature recommendations and
-    %   bug finds. A huge to Jiro Doke and Sean de Wolski for demonstrating
-    %   the implementation of argument validation and custom chart class
-    %   introduced in R2019b.
+    %   Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for their feature
+    %   recommendations and bug finds. A huge to Jiro Doke and
+    %   Sean de Wolski for demonstrating the implementation of argument
+    %   validation and custom chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -443,23 +444,24 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %%% Private, NonCopyable, Transient Properties %%%
     properties(Access = private, NonCopyable, Transient)
         % Data line object
-        DataLines = gobjects(0)
-        ScatterPoints = gobjects(0)
+        DataLines = gobjects(0);
+        ScatterPoints = gobjects(0);
+        NanPoints = gobjects(0);
         
         % Background web object
-        ThetaAxesLines = gobjects(0)
-        RhoAxesLines = gobjects(0)
+        ThetaAxesLines = gobjects(0);
+        RhoAxesLines = gobjects(0);
         
         % Fill shade object
-        FillPatches = gobjects(0)
+        FillPatches = gobjects(0);
         
         % Web axes tick values
         AxesValues = [];
         
         % Axes label object
-        AxesTextLabels = gobjects(0)
-        AxesTickText = gobjects(0)
-        AxesDataLabels = gobjects(0)
+        AxesTextLabels = gobjects(0);
+        AxesTickText = gobjects(0);
+        AxesDataLabels = gobjects(0);
         
         % Initialize toggle state
         InitializeToggle = true;
@@ -1230,18 +1232,20 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         
         function reset_objects(obj)
             % Delete old objects
-            delete(obj.DataLines)
-            delete(obj.ScatterPoints)
-            delete(obj.ThetaAxesLines)
-            delete(obj.RhoAxesLines)
-            delete(obj.FillPatches)
-            delete(obj.AxesTextLabels)
+            delete(obj.DataLines);
+            delete(obj.ScatterPoints);
+            delete(obj.NanPoints);
+            delete(obj.ThetaAxesLines);
+            delete(obj.RhoAxesLines);
+            delete(obj.FillPatches);
+            delete(obj.AxesTextLabels);
             delete(obj.AxesTickText);
-            delete(obj.AxesDataLabels)
+            delete(obj.AxesDataLabels);
             
             % Reset object with empty objects
             obj.DataLines = gobjects(0);
             obj.ScatterPoints = gobjects(0);
+            obj.NanPoints = gobjects(0);
             obj.ThetaAxesLines = gobjects(0);
             obj.RhoAxesLines = gobjects(0);
             obj.FillPatches = gobjects(0);
@@ -1437,9 +1441,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Parent', ax);
                 obj.ScatterPoints(ii) = scatter(nan, nan,...
                     'Parent', ax);
+                obj.NanPoints(ii) = plot(nan, nan,...
+                    'Parent', ax);
                 
                 % Turn off legend annotation
+                obj.DataLines(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
                 obj.ScatterPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
+                obj.FillPatches(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
             end
                 
             % Iterate through number of data groups
@@ -1593,13 +1601,24 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.DataLines(ii).Visible = obj.PlotVisible;
                 
                 % Set scatter settings
-                obj.ScatterPoints(ii).Marker =  obj.Marker{ii};
+                obj.ScatterPoints(ii).Marker = obj.Marker{ii};
                 obj.ScatterPoints(ii).SizeData = obj.MarkerSize(ii);
                 obj.ScatterPoints(ii).MarkerFaceColor = obj.Color(ii, :);
                 obj.ScatterPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
                 obj.ScatterPoints(ii).MarkerFaceAlpha = obj.MarkerTransparency(ii);
                 obj.ScatterPoints(ii).MarkerEdgeAlpha = obj.MarkerTransparency(ii);
                 obj.ScatterPoints(ii).Visible = obj.PlotVisible;
+
+                % Set legend settings
+                obj.NanPoints(ii).Marker = obj.Marker{ii};
+                obj.NanPoints(ii).MarkerSize = obj.MarkerSize(ii)/6;
+                obj.NanPoints(ii).MarkerFaceColor = obj.Color(ii, :);
+                obj.NanPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
+                obj.NanPoints(ii).LineStyle = obj.LineStyle{ii};
+                obj.NanPoints(ii).Color = obj.Color(ii, :);
+                obj.NanPoints(ii).LineWidth = obj.LineWidth(ii);
+                obj.NanPoints(ii).DisplayName = obj.LegendLabels{ii};
+                obj.NanPoints(ii).Visible = obj.PlotVisible;
             end
             
             % Check axes labels argument

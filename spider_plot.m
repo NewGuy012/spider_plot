@@ -276,6 +276,7 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-01-03: Fix legend to include line and marker attributes.
 %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
 %               data display values.
 %   2021-11-09: Add option to change the text interpreter of axes labels
@@ -319,8 +320,8 @@ function spider_plot(P, varargin)
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
-%   Pauline Oeuvray, Oliver Nicholls & Yu-Chi Chen for their feature
-%   recommendations and bug finds.
+%   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for
+%   their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -1072,6 +1073,9 @@ for ii = 1:num_data_groups
         'Visible', plot_visible);
     h.Color(4) = line_transparency(ii);
     
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
     h = scatter(x_circular, y_circular,...
         'Marker', marker_type{ii},...
         'SizeData', marker_size(ii),...
@@ -1083,6 +1087,17 @@ for ii = 1:num_data_groups
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+    % Plot empty line with combined attributes for legend
+    plot(nan, nan,...
+        'Marker', marker_type{ii},...
+        'MarkerSize', marker_size(ii)/6,...
+        'MarkerFaceColor', colors(ii, :),...
+        'MarkerEdgeColor', colors(ii, :),...
+        'LineStyle', line_style{ii},...
+        'Color', colors(ii, :),...
+        'LineWidth', line_width(ii),...
+        'Visible', plot_visible);
     
     % Iterate through number of data points
     if strcmp(axes_display, 'data')

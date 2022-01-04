@@ -284,6 +284,7 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-01-03: Fix legend to include line and marker attributes.
 %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
 %               data display values.
 %   2021-11-09: Add option to change the text interpreter of axes labels
@@ -333,8 +334,8 @@ function spider_plot_R2019b(P, options)
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
-%   Oliver Nicholls & Yu-Chi Chen for their feature recommendations and
-%   bug finds.
+%   Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for their feature
+%   recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -892,6 +893,9 @@ for ii = 1:num_data_groups
         'Visible', options.PlotVisible);
     h.Color(4) = options.LineTransparency(ii);
     
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
     h = scatter(x_circular, y_circular,...
         'Marker', options.Marker{ii},...
         'SizeData', options.MarkerSize(ii),...
@@ -903,6 +907,17 @@ for ii = 1:num_data_groups
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+    % Plot empty line with combined attributes for legend
+    plot(nan, nan,...
+        'Marker', options.Marker{ii},...
+        'MarkerSize', options.MarkerSize(ii)/6,...
+        'MarkerFaceColor', options.Color(ii, :),...
+        'MarkerEdgeColor', options.Color(ii, :),...
+        'LineStyle', options.LineStyle{ii},...
+        'Color', options.Color(ii, :),...
+        'LineWidth', options.LineWidth(ii),...
+        'Visible', options.PlotVisible);
         
     % Iterate through number of data points
     if strcmp(options.AxesDisplay, 'data')
