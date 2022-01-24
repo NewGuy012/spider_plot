@@ -10,9 +10,10 @@ The three functions included have the same functionality but with 3 different im
 
 ## Syntax:
 **spider_plot(P)**
-  
 
 **spider_plot(P, Name, Value, ...)**
+
+**h = spider_plot(_)
 
 ## Input Arguments:
 *(Required)*
@@ -20,6 +21,11 @@ The three functions included have the same functionality but with 3 different im
 - **P** - The data points used to plot the spider chart. The rows are the groups of data and the columns are the data points.
           The axes labels and axes limits are automatically generated if not specified.
           [vector | matrix]
+
+## Output Arguments:
+*(Optional)*
+- **h**                - Figure handle of spider plot.
+                         [figure object]
 
 ## Name-Value Pair Arguments:
 *(Optional)*
@@ -122,6 +128,15 @@ The three functions included have the same functionality but with 3 different im
 
 - **AxesInterpreter**  - Used to change the text interpreter of axes labels and axes tick labels.
                          ['tex' (default) | 'latex' | 'none' | cell array of character vectors]
+
+- **BackgroundColor**  - Used to change the color of the background.
+                         ['white' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+
+- **MinorGrid**        - Used to toggle the minor grid.
+                        ['off' (default) | 'on']
+
+- **MinorGridInterval**- Used to change number of minor grid lines in between the major grid lines.
+                        [2 (default) | integer value greater than zero]
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -238,7 +253,10 @@ spider_plot(P,...
     'AxesVertAlign', 'quadrant',...
     'PlotVisible', 'on',...
     'AxesTickLabels', 'data',...
-    'AxesInterpreter', 'tex');
+    'AxesInterpreter', 'tex',...
+    'BackgroundColor' , 'w',...
+    'MinorGrid', 'off',...
+    'MinorGridInterval', 2);
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -454,6 +472,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-01-23: Add ability to change figure/axes background color. Allow for toggling minor grid lines.
+
 - 2022-01-03: Fix legend to include line and marker attributes.
 
 - 2021-11-24: Fix axes labels misalignment. Add option to set offset for data display values.
@@ -540,5 +560,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Oliver Nicholls
 - Yu-Chi Chen
 - Fabrizio De Caro
+- Waqas Ahmad
+- Mario Di Siena
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

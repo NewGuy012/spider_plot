@@ -146,6 +146,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
     %                      ['tex' (default) | 'latex' | 'none'  | cell array of character vectors]
     %
+    %   BackgroundColor  - Used to change the color of the background.
+    %                      [white (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+    %
+    %   MinorGrid        - Used to toggle the minor grid.
+    %                      ['off' (default) | 'on']
+    %
+    %   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
+    %                      [2 (default) | integer value greater than zero]
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -239,6 +248,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.PlotVisible = 'on';
     %   s.AxesTickLabels = 'data';
     %   s.AxesInterpreter =  'tex';
+    %   s.BackgroundColor = 'w';
+    %   s.MinorGrid = 'off';
+    %   s.MinorGridInterval = 2;
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -338,6 +350,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2022-01-23: -Add ability to change figure/axes background color.
+    %               -Allow for toggling minor grid lines.
     %   2022-01-03: Fix legend to include line and marker attributes.
     %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
     %               data display values.
@@ -392,10 +406,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
     %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
-    %   Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for their feature
-    %   recommendations and bug finds. A huge to Jiro Doke and
-    %   Sean de Wolski for demonstrating the implementation of argument
-    %   validation and custom chart class introduced in R2019b.
+    %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad &
+    %   Mario Di Siena for their feature recommendations and bug finds. A huge
+    %   thanks to Jiro Doke and Sean de Wolski for demonstrating the
+    %   implementation of argument validation and custom chart class
+    %    introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -438,6 +453,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         PlotVisible {mustBeMember(PlotVisible, {'off', 'on'})} = 'on'
         AxesTickLabels {mustBeText} = 'data'
         AxesInterpreter {mustBeText} = 'tex'
+        BackgroundColor = [1, 1, 1]
+        MinorGrid {mustBeMember(MinorGrid, {'off', 'on'})} = 'off'
+        MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
     end
 
     
@@ -451,6 +469,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         % Background web object
         ThetaAxesLines = gobjects(0);
         RhoAxesLines = gobjects(0);
+        RhoMinorLines = gobjects(0);
         
         % Fill shade object
         FillPatches = gobjects(0);
@@ -525,6 +544,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Set legend handle
             obj.LegendHandle = getLegend(obj);
+            obj.LegendHandle.Color = obj.BackgroundColor;
             
             % Toggle re-initialize to true if LegendLabels was changed
             obj.InitializeToggle = true;
@@ -767,6 +787,30 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesInterpreter = value;
             
             % Toggle re-initialize to true if AxesInterpreter was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.BackgroundColor(obj, value)
+            % Set property
+            obj.BackgroundColor = value;
+            
+            % Toggle re-initialize to true if BackgroundColor was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.MinorGrid(obj, value)
+            % Set property
+            obj.MinorGrid = value;
+            
+            % Toggle re-initialize to true if MinorGrid was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.MinorGridInterval(obj, value)
+            % Set property
+            obj.MinorGridInterval = value;
+            
+            % Toggle re-initialize to true if MinorGridInterval was changed
             obj.InitializeToggle = true;
         end
         
@@ -1137,7 +1181,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function tiledlayout(obj, varargin)
             % Figure properties
             fig = figure;
-            fig.Color = 'w';
+            fig.Color = obj.BackgroundColor;
             
             % Tiled layout
             obj.TiledLayoutHandle = tiledlayout(fig, varargin{:});
@@ -1195,6 +1239,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Create and store legend handle
             obj.TiledLegendHandle = legend(current_axes, line_handles(:), varargin{:});
+            obj.TiledLegendHandle.Color = obj.BackgroundColor;
         end
     end
     
@@ -1203,11 +1248,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function setup(obj)
             % Figure properties
             fig = gcf;
-            fig.Color = 'w';
+            fig.Color = obj.BackgroundColor;
             
             % Axis properties
             scaling_factor = 1 + (1 - obj.AxesZoom);
             ax = getAxes(obj);
+            ax.Color = obj.BackgroundColor;
             hold(ax, 'on');
             axis(ax, 'square');
             axis(ax, 'off');
@@ -1237,6 +1283,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.NanPoints);
             delete(obj.ThetaAxesLines);
             delete(obj.RhoAxesLines);
+            delete(obj.RhoMinorLines);
             delete(obj.FillPatches);
             delete(obj.AxesTextLabels);
             delete(obj.AxesTickText);
@@ -1248,6 +1295,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.NanPoints = gobjects(0);
             obj.ThetaAxesLines = gobjects(0);
             obj.RhoAxesLines = gobjects(0);
+            obj.RhoMinorLines = gobjects(0);
             obj.FillPatches = gobjects(0);
             obj.AxesValues = [];
             obj.AxesTextLabels = gobjects(0);
@@ -1256,13 +1304,22 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function initialize(obj)
+            % Figure properties
+            fig = gcf;
+            fig.Color = obj.BackgroundColor;
+
             % Axis properties
             scaling_factor = 1 + (1 - obj.AxesZoom);
             ax = getAxes(obj);
+            ax.Color = obj.BackgroundColor;
             hold(ax, 'on');
             axis(ax, 'square');
             axis(ax, 'off');
             axis(ax, [-1, 1, -1, 1] * scaling_factor);
+            
+            % Legend properties
+            obj.LegendHandle = getLegend(obj);
+            obj.LegendHandle.Color = obj.BackgroundColor;
             
             % Selected data
             P_selected = obj.P;
@@ -1413,7 +1470,28 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Color', obj.AxesColor,...
                     'HandleVisibility', 'off');
             end
-            
+
+            % Check if minor grid is toggled on
+            if strcmp(obj.MinorGrid, 'on')
+                % Polar coordinates
+                rho_minor_increment = 1/(full_interval*obj.MinorGridInterval);
+                rho_minor = rho(2):rho_minor_increment:1;
+                rho_minor = setdiff(rho_minor, rho(2:end));
+
+                % Iterate through each rho minor
+                for ii = 1:length(rho_minor)
+                    % Convert polar to cartesian coordinates
+                    [x_axes, y_axes] = pol2cart(theta, rho_minor(ii));
+
+                    % Plot
+                    obj.RhoMinorLines(ii) = line(ax, x_axes, y_axes,...
+                        'LineStyle', '--',...
+                        'Color', obj.AxesColor,...
+                        'LineWidth', 0.5,...
+                        'HandleVisibility', 'off');
+                end
+            end
+
             % Set end index depending on axes display argument
             switch obj.AxesDisplay
                 case 'all'
@@ -1507,7 +1585,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'HorizontalAlignment', horz_align,...
                     'VerticalAlignment', 'middle',...
                     'EdgeColor', obj.AxesLabelsEdge,...
-                    'BackgroundColor', 'w',...
+                    'BackgroundColor', obj.BackgroundColor,...
                     'FontName', obj.LabelFont,...
                     'FontSize', obj.LabelFontSize,...
                     'Visible', 'off');

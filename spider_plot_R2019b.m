@@ -1,9 +1,10 @@
-function spider_plot_R2019b(P, options)
+function varargout = spider_plot_R2019b(P, options)
 %spider_plot_R2019b Create a spider or radar plot with individual axes.
 %
 % Syntax:
 %   spider_plot_R2019b(P)
 %   spider_plot_R2019b(P, Name, Value, ...)
+%   h = spider_plot_R2019b(_)
 %
 % Input Arguments:
 %   (Required)
@@ -12,6 +13,11 @@ function spider_plot_R2019b(P, options)
 %                      data points. The axes labels and axes limits are
 %                      automatically generated if not specified.
 %                      [vector | matrix]
+%
+% Output Arguments:
+%   (Optional)
+%   h                - Figure handle of spider plot.
+%                      [figure object]
 %
 % Name-Value Pair Arguments:
 %   (Optional)
@@ -129,6 +135,15 @@ function spider_plot_R2019b(P, options)
 %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
 %                      ['tex' (default) | 'latex' | 'none' | cell array of character vectors]
 %
+%   BackgroundColor  - Used to change the color of the background.
+%                      [white (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   MinorGrid        - Used to toggle the minor grid.
+%                      ['off' (default) | 'on']
+%
+%   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
+%                      [2 (default) | integer value greater than zero]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -204,7 +219,10 @@ function spider_plot_R2019b(P, options)
 %       'AxesVertAlign', 'quadrant',...
 %       'PlotVisible', 'on',...
 %       'AxesTickLabels', 'data',...
-%       'AxesInterpreter', 'tex');
+%       'AxesInterpreter', 'tex',...
+%       'BackgroundColor' , 'w',...
+%       'MinorGrid', 'off',...
+%       'MinorGridInterval', 2););
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -284,6 +302,8 @@ function spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-01-23: -Add ability to change figure/axes background color.
+%               -Allow for toggling minor grid lines.
 %   2022-01-03: Fix legend to include line and marker attributes.
 %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
 %               data display values.
@@ -334,8 +354,8 @@ function spider_plot_R2019b(P, options)
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
-%   Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for their feature
-%   recommendations and bug finds.
+%   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad &
+%   Mario Di Siena for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -373,6 +393,9 @@ arguments
     options.PlotVisible {mustBeMember(options.PlotVisible, {'off', 'on'})} = 'on'
     options.AxesTickLabels {mustBeText} = 'data'
     options.AxesInterpreter {mustBeText} = 'tex'
+    options.BackgroundColor = [1, 1, 1];
+    options.MinorGrid {mustBeMember(options.MinorGrid, {'off', 'on'})} = 'off'
+    options.MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
 end
 
 %%% Data Properties %%%
@@ -646,15 +669,20 @@ end
 %%% Figure Properties %%%
 % Grab current figure
 fig = gcf;
+if nargout > 1
+    error('Error: Too many output arguments assigned.');
+end
+varargout{1} = fig;
 
 % Set figure background
-fig.Color = 'white';
+fig.Color = options.BackgroundColor;
 
 % Reset axes
 cla reset;
 
 % Current axes handle
 ax = gca;
+ax.Color = options.BackgroundColor;
 
 % Axis limits
 scaling_factor = 1 + (1 - options.AxesZoom);
@@ -790,6 +818,28 @@ for ii = 2:length(rho)
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+end
+
+% Check if minor grid is toggled on
+if strcmp(options.MinorGrid, 'on')
+    % Polar coordinates
+    rho_minor_increment = 1/(full_interval*options.MinorGridInterval);
+    rho_minor = rho(2):rho_minor_increment:1;
+    rho_minor = setdiff(rho_minor, rho(2:end));
+
+    % Iterate through each rho minor
+    for ii = 1:length(rho_minor)
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta, rho_minor(ii));
+
+        % Plot axes
+        h = plot(x_axes, y_axes, '--',...
+            'Color', options.AxesColor,...
+            'LineWidth', 0.5);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
 % Set end index depending on axes display argument
@@ -998,7 +1048,7 @@ if ~strcmp(options.AxesLabels, 'none')
             'HorizontalAlignment', horz_align,...
             'VerticalAlignment', 'middle',...
             'EdgeColor', options.AxesLabelsEdge,...
-            'BackgroundColor', 'w',...
+            'BackgroundColor', options.BackgroundColor,...
             'FontName', options.LabelFont,...
             'FontSize', options.LabelFontSize,...
             'Interpreter', options.AxesInterpreter{ii});

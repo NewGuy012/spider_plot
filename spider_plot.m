@@ -1,9 +1,10 @@
-function spider_plot(P, varargin)
+function varargout = spider_plot(P, varargin)
 %spider_plot Create a spider or radar plot with individual axes.
 %
 % Syntax:
 %   spider_plot(P)
 %   spider_plot(P, Name, Value, ...)
+%   h = spider_plot(_)
 %
 % Input Arguments:
 %   (Required)
@@ -12,6 +13,11 @@ function spider_plot(P, varargin)
 %                      data points. The axes labels and axes limits are
 %                      automatically generated if not specified.
 %                      [vector | matrix]
+%
+% Output Arguments:
+%   (Optional)
+%   h                - Figure handle of spider plot.
+%                      [figure object]
 %
 % Name-Value Pair Arguments:
 %   (Optional)
@@ -128,6 +134,15 @@ function spider_plot(P, varargin)
 %
 %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
 %                      ['tex' (default) | 'latex' | 'none' | cell array of character vectors]
+%
+%   BackgroundColor  - Used to change the color of the background.
+%                      ['white' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   MinorGrid        - Used to toggle the minor grid.
+%                      ['off' (default) | 'on']
+%
+%   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
+%                      [2 (default) | integer value greater than zero]
 % 
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -204,7 +219,10 @@ function spider_plot(P, varargin)
 %       'AxesVertAlign', 'quadrant',...
 %       'PlotVisible', 'on',...
 %       'AxesTickLabels', 'data',...
-%       'AxesInterpreter', 'tex');
+%       'AxesInterpreter', 'tex',...
+%       'BackgroundColor' , 'w',...
+%       'MinorGrid', 'off',...
+%       'MinorGridInterval', 2);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -276,6 +294,8 @@ function spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-01-23: -Add ability to change figure/axes background color.
+%               -Allow for toggling minor grid lines.
 %   2022-01-03: Fix legend to include line and marker attributes.
 %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
 %               data display values.
@@ -320,8 +340,9 @@ function spider_plot(P, varargin)
 %   Tobias Kern, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
-%   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen & Fabrizio De Caro for
-%   their feature recommendations and bug finds.
+%   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro,
+%   Waqas Ahmad & Mario Di Siena for their feature recommendations and bug
+%   finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -377,6 +398,9 @@ axes_vert_align = 'middle';
 plot_visible = 'on';
 axes_tick_labels = 'data';
 axes_interpreter = 'tex';
+background_color = 'w';
+minor_grid = 'off';
+minor_grid_interval = 2;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -454,6 +478,12 @@ if numvarargs > 1
                 axes_tick_labels = value_arguments{ii};
             case 'axesinterpreter'
                 axes_interpreter = value_arguments{ii};
+            case 'backgroundcolor'
+                background_color = value_arguments{ii};
+            case 'minorgrid'
+                minor_grid = value_arguments{ii};
+            case 'minorgridinterval'
+                minor_grid_interval = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -606,6 +636,16 @@ end
 % Check if axes interpreter is valid
 if any(~ismember(axes_interpreter, {'tex', 'latex', 'none'}))
     error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
+end
+
+% Check if minor grid is valid
+if ~ismember(minor_grid, {'on', 'off'})
+    error('Error: Invalid minor grid entry. Please enter in "on" or "off" to toggle minor grid.');
+end
+
+% Check if minor grid interval is valid
+if floor(minor_grid_interval)~=minor_grid_interval || minor_grid_interval < 0
+    error('Error: Invalid minor grid interval entry. Please enter in an integer value that is positive.');
 end
 
 % Check if axes interpreter is a char
@@ -794,7 +834,6 @@ if strcmp(axes_display, 'data')
     end
 end
 
-
 %%% Axes Scaling Properties %%%
 % Selected data
 P_selected = P;
@@ -826,15 +865,20 @@ end
 %%% Figure Properties %%%
 % Grab current figure
 fig = gcf;
+if nargout > 1
+    error('Error: Too many output arguments assigned.');
+end
+varargout{1} = fig;
 
 % Set figure background
-fig.Color = 'white';
+fig.Color = background_color;
 
 % Reset axes
 cla reset;
 
 % Current axes handle
 ax = gca;
+ax.Color = background_color;
 
 % Axis limits
 hold on;
@@ -970,6 +1014,28 @@ for ii = 2:length(rho)
     
     % Turn off legend annotation
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+end
+
+% Check if minor grid is toggled on
+if strcmp(minor_grid, 'on')
+    % Polar coordinates
+    rho_minor_increment = 1/(full_interval*minor_grid_interval);
+    rho_minor = rho(2):rho_minor_increment:1;
+    rho_minor = setdiff(rho_minor, rho(2:end));
+
+    % Iterate through each rho minor
+    for ii = 1:length(rho_minor)
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta, rho_minor(ii));
+
+        % Plot axes
+        h = plot(x_axes, y_axes, '--',...
+            'Color', axes_color,...
+            'LineWidth', 0.5);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
 % Set end index depending on axes display argument
@@ -1166,7 +1232,7 @@ if ~strcmp(axes_labels, 'none')
             'HorizontalAlignment', horz_align,...
             'VerticalAlignment', 'middle',...
             'EdgeColor', axes_labels_edge,...
-            'BackgroundColor', 'w',...
+            'BackgroundColor', background_color,...
             'FontName', label_font,...
             'FontSize', label_font_size,...
             'Interpreter', axes_interpreter{ii});
