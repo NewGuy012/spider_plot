@@ -13,7 +13,7 @@ The three functions included have the same functionality but with 3 different im
 
 **spider_plot(P, Name, Value, ...)**
 
-**h = spider_plot(_)
+**h = spider_plot(_)**
 
 ## Input Arguments:
 *(Required)*
