@@ -133,10 +133,26 @@ The three functions included have the same functionality but with 3 different im
                          ['white' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
 
 - **MinorGrid**        - Used to toggle the minor grid.
-                        ['off' (default) | 'on']
+                         ['off' (default) | 'on']
 
 - **MinorGridInterval**- Used to change number of minor grid lines in between the major grid lines.
-                        [2 (default) | integer value greater than zero]
+                         [2 (default) | integer value greater than zero]
+
+- **AxesZero**         - Used to add a reference axes at value zero.
+                         ['off' (default) | 'on']
+
+- **AxesZeroColor**    - Used to change the color of the zero reference axes.
+                         ['black' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+
+- **AxesZeroWidth**    - Used to change the line width of the zero reference axes.
+                         [2 (default) | positive value]
+
+- **AxesRadial**       - Used to toggle radial axes.
+                         ['on' (default) | 'off']
+
+- **AxesAngular**      - Used to toggle angular axes.
+                         ['on' (default) | 'off']
+
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -256,7 +272,12 @@ spider_plot(P,...
     'AxesInterpreter', 'tex',...
     'BackgroundColor' , 'w',...
     'MinorGrid', 'off',...
-    'MinorGridInterval', 2);
+    'MinorGridInterval', 2,...
+    'AxesZero', 'off',...
+    'AxesZeroColor', 'k',...
+    'AxesZeroWidth', 2,...
+    'AxesRadial', 'on',...
+    'AxesAngular', 'on');
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -284,7 +305,8 @@ spider_plot(P,...
     'AxesFontSize', 14,...
     'LabelFontSize', 10,...
     'AxesColor', [0.8, 0.8, 0.8],...
-    'AxesLabelsEdge', 'none');
+    'AxesLabelsEdge', 'none',...
+    'AxesRadial', 'off');
 
 % Title and legend settings
 title(sprintf('Excel-like Radar Chart'),...
@@ -472,6 +494,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-02-14: Add support for reference axes at value zero. Allow for toggling radial and angular axes on or off.
+
 - 2022-01-23: Add ability to change figure/axes background color. Allow for toggling minor grid lines.
 
 - 2022-01-03: Fix legend to include line and marker attributes.

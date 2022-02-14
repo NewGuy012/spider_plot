@@ -143,6 +143,21 @@ function varargout = spider_plot(P, varargin)
 %
 %   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
 %                      [2 (default) | integer value greater than zero]
+%
+%   AxesZero         - Used to add a reference axes at value zero.
+%                      ['off' (default) | 'on']
+%
+%   AxesZeroColor    - Used to change the color of the zero reference axes.
+%                      ['black' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   AxesZeroWidth    - Used to change the line width of the zero reference axes.
+%                      [2 (default) | positive value]
+%
+%   AxesRadial       - Used to toggle radial axes.
+%                      ['on' (default) | 'off']
+%
+%   AxesAngular      - Used to toggle angular axes.
+%                      ['on' (default) | 'off']
 % 
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -222,7 +237,12 @@ function varargout = spider_plot(P, varargin)
 %       'AxesInterpreter', 'tex',...
 %       'BackgroundColor' , 'w',...
 %       'MinorGrid', 'off',...
-%       'MinorGridInterval', 2);
+%       'MinorGridInterval', 2,...
+%       'AxesZero', 'off',...
+%       'AxesZeroColor', 'k',...
+%       'AxesZeroWidth', 2,...
+%       'AxesRadial', 'on',...
+%       'AxesAngular', 'on');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -242,7 +262,8 @@ function varargout = spider_plot(P, varargin)
 %       'AxesFontSize', 14,...
 %       'LabelFontSize', 10,...
 %       'AxesColor', [0.8, 0.8, 0.8],...
-%       'AxesLabelsEdge', 'none');
+%       'AxesLabelsEdge', 'none',...
+%       'AxesRadial', 'off');
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
@@ -294,6 +315,8 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-02-14: -Add support for reference axes at value zero.
+%               -Allow for toggling radial and angular axes on or off.
 %   2022-01-23: -Add ability to change figure/axes background color.
 %               -Allow for toggling minor grid lines.
 %   2022-01-03: Fix legend to include line and marker attributes.
@@ -401,6 +424,11 @@ axes_interpreter = 'tex';
 background_color = 'w';
 minor_grid = 'off';
 minor_grid_interval = 2;
+axes_zero = 'off';
+axes_zero_color = [0.6, 0.6, 0.6];
+axes_zero_width = 2;
+axes_radial = 'on';
+axes_angular = 'on';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -484,6 +512,16 @@ if numvarargs > 1
                 minor_grid = value_arguments{ii};
             case 'minorgridinterval'
                 minor_grid_interval = value_arguments{ii};
+            case 'axeszero'
+                axes_zero = value_arguments{ii};
+            case 'axeszerowidth'
+                axes_zero_width = value_arguments{ii};
+            case 'axeszerocolor'
+                axes_zero_color = value_arguments{ii};
+            case 'axesradial'
+                axes_radial = value_arguments{ii};
+            case 'axesangular'
+                axes_angular = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -641,6 +679,26 @@ end
 % Check if minor grid is valid
 if ~ismember(minor_grid, {'on', 'off'})
     error('Error: Invalid minor grid entry. Please enter in "on" or "off" to toggle minor grid.');
+end
+
+% Check if axes zero is valid
+if ~ismember(axes_zero, {'on', 'off'})
+    error('Error: Invalid axes zero entry. Please enter in "on" or "off" to set axes visiblity.');
+end
+
+% Check if axes radial is valid
+if ~ismember(axes_radial, {'on', 'off'})
+    error('Error: Invalid axes radial entry. Please enter in "on" or "off" to set axes visiblity.');
+end
+
+% Check if axes angular is valid
+if ~ismember(axes_angular, {'on', 'off'})
+    error('Error: Invalid axes angular entry. Please enter in "on" or "off" to set axes visiblity.');
+end
+
+% Check if axes zero line width is numeric
+if ~isnumeric(axes_zero_width)
+    error('Error: Please make sure the axes zero width is a numeric value.');
 end
 
 % Check if minor grid interval is valid
@@ -945,7 +1003,7 @@ for ii = 1:num_data_points
         
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
-            error('Error: Please make the manually specified axes limits are within range of the data points.');
+            error('Error: Please make sure the manually specified axes limits are within range of the data points.');
         end
     end
     
@@ -989,31 +1047,37 @@ end
 % Remainder after using a modulus of 2*pi
 theta = mod(theta, 2*pi);
 
-% Iterate through each theta
-for ii = 1:length(theta)-1
-    % Convert polar to cartesian coordinates
-    [x_axes, y_axes] = pol2cart(theta(ii), rho);
-    
-    % Plot webs
-    h = plot(x_axes, y_axes,...
-        'LineWidth', 1.5,...
-        'Color', axes_color);
-    
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+% Check if axes radial is toggled on
+if strcmp(axes_radial, 'on')
+    % Iterate through each theta
+    for ii = 1:length(theta)-1
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta(ii), rho);
+
+        % Plot webs
+        h = plot(x_axes, y_axes,...
+            'LineWidth', 1.5,...
+            'Color', axes_color);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
-% Iterate through each rho
-for ii = 2:length(rho)
-    % Convert polar to cartesian coordinates
-    [x_axes, y_axes] = pol2cart(theta, rho(ii));
-    
-    % Plot axes
-    h = plot(x_axes, y_axes,...
-        'Color', axes_color);
-    
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+% Check if axes angular is toggled on
+if strcmp(axes_angular, 'on')
+    % Iterate through each rho
+    for ii = 2:length(rho)
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta, rho(ii));
+
+        % Plot axes
+        h = plot(x_axes, y_axes,...
+            'Color', axes_color);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
 % Check if minor grid is toggled on
@@ -1036,6 +1100,31 @@ if strcmp(minor_grid, 'on')
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
+end
+
+% Check if axes zero is toggled on
+if strcmp(axes_zero, 'on') && strcmp(axes_display, 'one')
+     % Scale points to range from [0, 1]
+    zero_scaled = (0 - min_value) / range;
+    
+    % If reverse axes direction is specified
+    if strcmp(axes_direction, 'reverse')
+        zero_scaled = -zero_scaled - 1;
+    end
+
+    % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
+    zero_scaled = zero_scaled * (1 - rho_offset) + rho_offset;
+
+    % Convert polar to cartesian coordinates
+    [x_axes, y_axes] = pol2cart(theta, zero_scaled);
+
+    % Plot webs
+    h = plot(x_axes, y_axes,...
+        'LineWidth', axes_zero_width,...
+        'Color', axes_zero_color);
+
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
 
 % Set end index depending on axes display argument

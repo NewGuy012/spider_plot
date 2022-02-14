@@ -144,6 +144,21 @@ function varargout = spider_plot_R2019b(P, options)
 %   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
 %                      [2 (default) | integer value greater than zero]
 %
+%   AxesZero         - Used to add a reference axes at value zero.
+%                      ['off' (default) | 'on']
+%
+%   AxesZeroColor    - Used to change the color of the zero reference axes.
+%                      ['black' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   AxesZeroWidth    - Used to change the line width of the zero reference axes.
+%                      [2 (default) | positive value]
+%
+%   AxesRadial       - Used to toggle radial axes.
+%                      ['on' (default) | 'off']
+%
+%   AxesAngular      - Used to toggle angular axes.
+%                      ['on' (default) | 'off']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -222,7 +237,12 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesInterpreter', 'tex',...
 %       'BackgroundColor' , 'w',...
 %       'MinorGrid', 'off',...
-%       'MinorGridInterval', 2););
+%       'MinorGridInterval', 2,...
+%       'AxesZero', 'off',...
+%       'AxesZeroColor', 'k',...
+%       'AxesZeroWidth', 2,...
+%       'AxesRadial', 'on',...
+%       'AxesAngular', 'on');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -242,7 +262,8 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesFontSize', 14,...
 %       'LabelFontSize', 10,...
 %       'AxesColor', [0.8, 0.8, 0.8],...
-%       'AxesLabelsEdge', 'none');
+%       'AxesLabelsEdge', 'none',...
+%       'AxesRadial', 'off');
 %   title('Excel-like Radar Chart',...
 %       'FontSize', 14);
 %   legend_str = {'D1', 'D2'};
@@ -302,6 +323,8 @@ function varargout = spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-02-14: -Add support for reference axes at value zero.
+%               -Allow for toggling radial and angular axes on or off.
 %   2022-01-23: -Add ability to change figure/axes background color.
 %               -Allow for toggling minor grid lines.
 %   2022-01-03: Fix legend to include line and marker attributes.
@@ -396,6 +419,11 @@ arguments
     options.BackgroundColor = [1, 1, 1];
     options.MinorGrid {mustBeMember(options.MinorGrid, {'off', 'on'})} = 'off'
     options.MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
+    options.AxesZero {mustBeMember(options.AxesZero, {'off', 'on'})} = 'off'
+    options.AxesZeroColor = [0, 0, 0];
+    options.AxesZeroWidth (1, 1) double {mustBePositive} = 2
+    options.AxesRadial {mustBeMember(options.AxesRadial, {'off', 'on'})} = 'on'
+    options.AxesAngular {mustBeMember(options.AxesAngular, {'off', 'on'})} = 'on'
 end
 
 %%% Data Properties %%%
@@ -749,7 +777,7 @@ for ii = 1:num_data_points
         
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
-            error('Error: Please make the manually specified axes limits are within range of the data points.');
+            error('Error: Please make sure the manually specified axes limits are within range of the data points.');
         end
     end
     
@@ -793,31 +821,37 @@ end
 % Remainder after using a modulus of 2*pi
 theta = mod(theta, 2*pi);
 
-% Iterate through each theta
-for ii = 1:length(theta)-1
-    % Convert polar to cartesian coordinates
-    [x_axes, y_axes] = pol2cart(theta(ii), rho);
-    
-    % Plot webs
-    h = plot(x_axes, y_axes,...
-        'LineWidth', 1.5,...
-        'Color', options.AxesColor);
-    
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+% Check if axes radial is toggled on
+if strcmp(options.AxesRadial, 'on')
+    % Iterate through each theta
+    for ii = 1:length(theta)-1
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta(ii), rho);
+
+        % Plot webs
+        h = plot(x_axes, y_axes,...
+            'LineWidth', 1.5,...
+            'Color', options.AxesColor);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
-% Iterate through each rho
-for ii = 2:length(rho)
-    % Convert polar to cartesian coordinates
-    [x_axes, y_axes] = pol2cart(theta, rho(ii));
-    
-    % Plot axes
-    h = plot(x_axes, y_axes,...
-        'Color', options.AxesColor);
-    
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+% Check if axes angular is toggled on
+if strcmp(options.AxesAngular, 'on')
+    % Iterate through each rho
+    for ii = 2:length(rho)
+        % Convert polar to cartesian coordinates
+        [x_axes, y_axes] = pol2cart(theta, rho(ii));
+
+        % Plot axes
+        h = plot(x_axes, y_axes,...
+            'Color', options.AxesColor);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
 end
 
 % Check if minor grid is toggled on
@@ -840,6 +874,31 @@ if strcmp(options.MinorGrid, 'on')
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
+end
+
+% Check if axes zero is toggled on
+if strcmp(options.AxesZero, 'on') && strcmp(options.AxesDisplay, 'one')
+     % Scale points to range from [0, 1]
+    zero_scaled = (0 - min_value) / range;
+    
+    % If reverse axes direction is specified
+    if strcmp(options.AxesDirection, 'reverse')
+        zero_scaled = -zero_scaled - 1;
+    end
+
+    % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
+    zero_scaled = zero_scaled * (1 - rho_offset) + rho_offset;
+
+    % Convert polar to cartesian coordinates
+    [x_axes, y_axes] = pol2cart(theta, zero_scaled);
+
+    % Plot webs
+    h = plot(x_axes, y_axes,...
+        'LineWidth', options.AxesZeroWidth,...
+        'Color', options.AxesZeroColor);
+
+    % Turn off legend annotation
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
 
 % Set end index depending on axes display argument

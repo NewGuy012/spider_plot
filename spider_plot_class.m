@@ -155,6 +155,21 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
     %                      [2 (default) | integer value greater than zero]
     %
+    %   AxesZero         - Used to add a reference axes at value zero.
+    %                      ['off' (default) | 'on']
+    %
+    %   AxesZeroColor    - Used to change the color of the zero reference axes.
+    %                      ['black' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+    %
+    %   AxesZeroWidth    - Used to change the line width of the zero reference axes.
+    %                      [2 (default) | positive value]
+    %
+    %   AxesRadial       - Used to toggle radial axes.
+    %                      ['on' (default) | 'off']
+    %
+    %   AxesAngular      - Used to toggle angular axes.
+    %                      ['on' (default) | 'off']
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -251,6 +266,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.BackgroundColor = 'w';
     %   s.MinorGrid = 'off';
     %   s.MinorGridInterval = 2;
+    %   s.AxesZero = 'off';
+    %   s.AxesZeroColor = 'k';
+    %   s.AxesZeroWidth = 2;
+    %   s.AxesRadial = 'on';
+    %   s.AxesAngular = 'on';
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -272,6 +292,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.Marker = 'none';
     %   s.AxesFontSize = 14;
     %   s.LabelFontSize = 10;
+    %   s.AxesColor = [0.8, 0.8, 0.8];
+    %   s.AxesLabelsEdge = 'none';
+    %   s.AxesRadial = 'off';
     %   title('Excel-like Radar Chart',...
     %       'FontSize', 14);
     %   s.LegendLabels = {'D1', 'D2'};
@@ -350,6 +373,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2022-02-14: -Add support for reference axes at value zero.
+    %               -Allow for toggling radial and angular axes on or off.
     %   2022-01-23: -Add ability to change figure/axes background color.
     %               -Allow for toggling minor grid lines.
     %   2022-01-03: Fix legend to include line and marker attributes.
@@ -456,6 +481,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         BackgroundColor = [1, 1, 1]
         MinorGrid {mustBeMember(MinorGrid, {'off', 'on'})} = 'off'
         MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
+        AxesZero {mustBeMember(AxesZero, {'off', 'on'})} = 'off'
+        AxesZeroColor = [0, 0, 0];
+        AxesZeroWidth (1, 1) double {mustBePositive} = 2
+        AxesRadial {mustBeMember(AxesRadial, {'off', 'on'})} = 'on'
+        AxesAngular {mustBeMember(AxesAngular, {'off', 'on'})} = 'on'
     end
 
     
@@ -811,6 +841,46 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.MinorGridInterval = value;
             
             % Toggle re-initialize to true if MinorGridInterval was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesZero(obj, value)
+            % Set property
+            obj.AxesZero = value;
+            
+            % Toggle re-initialize to true if AxesZero was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesZeroColor(obj, value)
+            % Set property
+            obj.AxesZeroColor = value;
+            
+            % Toggle re-initialize to true if AxesZeroColor was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesZeroWidth(obj, value)
+            % Set property
+            obj.AxesZeroWidth = value;
+            
+            % Toggle re-initialize to true if AxesZeroWidth was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesRadial(obj, value)
+            % Set property
+            obj.AxesRadial = value;
+            
+            % Toggle re-initialize to true if AxesRadial was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesAngular(obj, value)
+            % Set property
+            obj.AxesAngular = value;
+            
+            % Toggle re-initialize to true if AxesAngular was changed
             obj.InitializeToggle = true;
         end
         
@@ -1404,7 +1474,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     
                     % Check if the axes limits are within range of points
                     if min_value > min(group_points) || max_value < max(group_points)
-                        error('Error: Please make the manually specified axes limits are within range of the data points.');
+                        error('Error: Please make sure the manually specified axes limits are within range of the data points.');
                     end
                 end
                 
@@ -1448,27 +1518,33 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Remainder after using a modulus of 2*pi
             theta = mod(theta, 2*pi);
             
-            % Iterate through each theta
-            for ii = 1:length(theta)-1
-                % Convert polar to cartesian coordinates
-                [x_axes, y_axes] = pol2cart(theta(ii), rho);
-                
-                % Plot
-                obj.ThetaAxesLines(ii) = line(ax, x_axes, y_axes,...
-                    'LineWidth', 1.5, ...
-                    'Color', obj.AxesColor,...
-                    'HandleVisibility', 'off');
+            % Check if axes radial is toggled on
+            if strcmp(obj.AxesRadial, 'on')
+                % Iterate through each theta
+                for ii = 1:length(theta)-1
+                    % Convert polar to cartesian coordinates
+                    [x_axes, y_axes] = pol2cart(theta(ii), rho);
+
+                    % Plot
+                    obj.ThetaAxesLines(ii) = line(ax, x_axes, y_axes,...
+                        'LineWidth', 1.5, ...
+                        'Color', obj.AxesColor,...
+                        'HandleVisibility', 'off');
+                end
             end
-            
-            % Iterate through each rho
-            for ii = 2:length(rho)
-                % Convert polar to cartesian coordinates
-                [x_axes, y_axes] = pol2cart(theta, rho(ii));
-                
-                % Plot
-                obj.RhoAxesLines(ii-1) = line(ax, x_axes, y_axes,...
-                    'Color', obj.AxesColor,...
-                    'HandleVisibility', 'off');
+
+            % Check if axes angular is toggled on
+            if strcmp(obj.AxesAngular, 'on')
+                % Iterate through each rho
+                for ii = 2:length(rho)
+                    % Convert polar to cartesian coordinates
+                    [x_axes, y_axes] = pol2cart(theta, rho(ii));
+
+                    % Plot
+                    obj.RhoAxesLines(ii-1) = line(ax, x_axes, y_axes,...
+                        'Color', obj.AxesColor,...
+                        'HandleVisibility', 'off');
+                end
             end
 
             % Check if minor grid is toggled on
@@ -1490,6 +1566,31 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'LineWidth', 0.5,...
                         'HandleVisibility', 'off');
                 end
+            end
+
+            % Check if axes zero is toggled on
+            if strcmp(obj.AxesZero, 'on') && strcmp(obj.AxesDisplay, 'one')
+                % Scale points to range from [0, 1]
+                zero_scaled = (0 - min_value) / range;
+
+                % If reverse axes direction is specified
+                if strcmp(obj.AxesDirection, 'reverse')
+                    zero_scaled = -zero_scaled - 1;
+                end
+
+                % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
+                zero_scaled = zero_scaled * (1 - rho_offset) + rho_offset;
+
+                % Convert polar to cartesian coordinates
+                [x_axes, y_axes] = pol2cart(theta, zero_scaled);
+
+                % Plot webs
+                h = plot(x_axes, y_axes,...
+                    'LineWidth', obj.AxesZeroWidth,...
+                    'Color', obj.AxesZeroColor);
+
+                % Turn off legend annotation
+                h.Annotation.LegendInformation.IconDisplayStyle = 'off';
             end
 
             % Set end index depending on axes display argument
