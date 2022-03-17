@@ -170,6 +170,20 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   AxesAngular      - Used to toggle angular axes.
     %                      ['on' (default) | 'off']
     %
+    %   AxesShaded       - Used to toggle shaded area around axes.
+    %                      ['on' (default) | 'off']
+    %
+    %   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
+    %                      2 x size(P, 2). The top row is the minimum axes
+    %                      limits and the bottow row is the maximum axes limits.
+    %                      [AxesLimits (default) | matrix]
+    %
+    %   AxesShadedColor  - Used to change the color of the shaded area.
+    %                      ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+    %
+    %   AxesShadedTransparency- Used to the shaded area transparency.
+    %                           [0.2 (default) | scalar in range (0, 1)]  
+    %
     % Output Arguments:
     %   (Optional)
     %   s                - Returns a chart class object. These are unique
@@ -271,6 +285,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.AxesZeroWidth = 2;
     %   s.AxesRadial = 'on';
     %   s.AxesAngular = 'on';
+    %   s.AxesShaded = 'off';
+    %   s.AxesShadedLimits = [];
+    %   s.AxesShadedColor = 'g';
+    %   s.AxesShadedTransparency = 0.2;
     %
     %   % Example 5: Excel-like radar charts.
     %
@@ -371,8 +389,22 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s.LegendLabels = {'D1', 'D2'};
     %   s.LegendHandle.Location = 'northeastoutside';
     %
+    %   % Example 9: Spider plot with shaded area around axes.
+    %   
+    %   D1 = [5 3 9 1 2];
+    %   D2 = [5 8 7 2 9];
+    %   D3 = [8 2 1 4 6];
+    %   P = [D1; D2; D3];
+    %   if exist('s', 'var')
+    %       delete(s);
+    %   end
+    %   s = spider_plot_class(P);
+    %   s.AxesShaded = 'on';
+    %   s.AxesShadedLimits = [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]; % [min axes limits; max axes limits]
+    %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2022-03-17: Allow a shaded band to be plotted around the axes.
     %   2022-02-14: -Add support for reference axes at value zero.
     %               -Allow for toggling radial and angular axes on or off.
     %   2022-01-23: -Add ability to change figure/axes background color.
@@ -431,11 +463,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
     %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
-    %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad &
-    %   Mario Di Siena for their feature recommendations and bug finds. A huge
-    %   thanks to Jiro Doke and Sean de Wolski for demonstrating the
-    %   implementation of argument validation and custom chart class
-    %    introduced in R2019b.
+    %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
+    %   Mario Di Siena & Rebecca for their feature recommendations and bug
+    %   finds. A huge thanks to Jiro Doke and Sean de Wolski for
+    %   demonstrating the implementation of argument validation and custom
+    %   chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -486,9 +518,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesZeroWidth (1, 1) double {mustBePositive} = 2
         AxesRadial {mustBeMember(AxesRadial, {'off', 'on'})} = 'on'
         AxesAngular {mustBeMember(AxesAngular, {'off', 'on'})} = 'on'
+        AxesShaded {mustBeMember(AxesShaded, {'off', 'on'})} = 'off'
+        AxesShadedLimits double = []
+        AxesShadedColor = 'g'
+        AxesShadedTransparency double {mustBeGreaterThanOrEqual(AxesShadedTransparency, 0), mustBeLessThanOrEqual(AxesShadedTransparency, 1)} = 0.2 % Shading alpha
     end
 
-    
     %%% Private, NonCopyable, Transient Properties %%%
     properties(Access = private, NonCopyable, Transient)
         % Data line object
@@ -503,6 +538,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         
         % Fill shade object
         FillPatches = gobjects(0);
+        AxesPatches = gobjects(0);
         
         % Web axes tick values
         AxesValues = [];
@@ -883,6 +919,38 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Toggle re-initialize to true if AxesAngular was changed
             obj.InitializeToggle = true;
         end
+
+        function set.AxesShaded(obj, value)
+            % Set property
+            obj.AxesShaded = value;
+            
+            % Toggle re-initialize to true if AxesShaded was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesShadedLimits(obj, value)
+            % Set property
+            obj.AxesShadedLimits = value;
+            
+            % Toggle re-initialize to true if AxesShadedLimits was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesShadedColor(obj, value)
+            % Set property
+            obj.AxesShadedColor = value;
+            
+            % Toggle re-initialize to true if AxesShadedColor was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesShadedTransparency(obj, value)
+            % Set property
+            obj.AxesShadedTransparency = value;
+            
+            % Toggle re-initialize to true if AxesShadedTransparency was changed
+            obj.InitializeToggle = true;
+        end
         
         %%% Get Methods %%%
         function num_data_points = get.NumDataPoints(obj)
@@ -929,13 +997,39 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function axes_limits = get.AxesLimits(obj)
-            % Validate axes limits
-            validateAxesLimits(obj.AxesLimits, obj.P);
-            
-            % Get property
-            axes_limits = obj.AxesLimits;
+            % Check if value is empty
+            if isempty(obj.AxesLimits)
+                axes_limits = [min(obj.P); max(obj.P)];
+            else
+                % Validate axes limits
+                validateAxesLimits(obj.AxesLimits, obj.P);
+
+                % Get property
+                axes_limits = obj.AxesLimits;
+            end
         end
-        
+
+        function axes_shaded_limits = get.AxesShadedLimits(obj)
+            % Get property
+            if isempty(obj.AxesShadedLimits)
+                axes_shaded_limits = obj.AxesLimits;
+            else
+                % Check if the axes shaded limits same length as the number of points
+                if size(obj.AxesShadedLimits, 1) ~= 2 || size(obj.AxesShadedLimits, 2) ~= obj.NumDataPoints
+                    error('Error: Please make sure the min and max axes shaded limits match the number of data points.');
+                end
+
+                % Check if within min and max axes limits
+                if any(obj.AxesShadedLimits(1, :) < obj.AxesLimits(1, :)) ||...
+                        any(obj.AxesShadedLimits(2, :) > obj.AxesLimits(2, :))
+                    error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
+                end
+
+                % Get property
+                axes_shaded_limits = obj.AxesShadedLimits;
+            end
+        end
+
         function axes_precision = get.AxesPrecision(obj)
             % Check if axes precision is numeric
             if isnumeric(obj.AxesPrecision)
@@ -1355,6 +1449,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.RhoAxesLines);
             delete(obj.RhoMinorLines);
             delete(obj.FillPatches);
+            delete(obj.AxesPatches);
             delete(obj.AxesTextLabels);
             delete(obj.AxesTickText);
             delete(obj.AxesDataLabels);
@@ -1367,6 +1462,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.RhoAxesLines = gobjects(0);
             obj.RhoMinorLines = gobjects(0);
             obj.FillPatches = gobjects(0);
+            obj.AxesPatches = gobjects(0);
             obj.AxesValues = [];
             obj.AxesTextLabels = gobjects(0);
             obj.AxesTickText = gobjects(0);
@@ -1427,6 +1523,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             rho_offset = obj.AxesOffset/full_interval;
             
             %%% Scale Data %%%
+            % Check if axes shaded is on
+            if strcmp(obj.AxesShaded, 'on')
+                P_selected = [P_selected; obj.AxesShadedLimits];
+            end
+
             % Pre-allocation
             P_scaled = zeros(size(P_selected));
             axes_range = zeros(3, obj.NumDataPoints);
@@ -1498,6 +1599,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 
                 % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
                 P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
+            end
+
+            % Check if axes shaded is on
+            if strcmp(obj.AxesShaded, 'on')
+                P_shaded = P_scaled(end-1:end, :);
+                P_scaled = P_scaled(1:end-2, :);
             end
             
             %%% Polar Axes %%%
@@ -1670,7 +1777,41 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     end
                 end
             end
-            
+
+            % Check if axes shaded is on
+            if strcmp(obj.AxesShaded, 'on')
+                % Polar verticies of patch
+                P_shaded = [P_shaded, P_shaded(:, 1)];
+                P_shaded = [P_shaded(1, :), P_shaded(2, :)];
+                patch_rho = reshape(P_shaded, 1, []);
+                patch_theta = [theta, theta];
+
+                % Convert polar to cartesian coordinates
+                [x_points, y_points] = pol2cart(patch_theta, patch_rho);
+
+                % Interweave lower and upper limits
+                x_points = reshape(x_points, [], 2)';
+                y_points = reshape(y_points, [], 2)';
+
+                x_points = x_points(:);
+                y_points = y_points(:);
+
+                % Increment through groups of four vertices at a time
+                for ii = 1:2:length(x_points)-2
+                    % Verticies and face points
+                    v = [x_points(ii:ii+3), y_points(ii:ii+3)];
+                    f = [1 2 4 3];
+
+                    % Patch polygon
+                    obj.AxesPatches(ii) = patch('Parent', ax,...
+                        'Faces', f, 'Vertices', v,...
+                        'FaceColor', obj.AxesShadedColor,...
+                        'EdgeColor', 'none',...
+                        'FaceAlpha', obj.AxesShadedTransparency);
+                    obj.AxesPatches(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
+                end
+            end
+
             %%% Labels %%%
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints

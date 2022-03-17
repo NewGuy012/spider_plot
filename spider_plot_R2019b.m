@@ -159,6 +159,20 @@ function varargout = spider_plot_R2019b(P, options)
 %   AxesAngular      - Used to toggle angular axes.
 %                      ['on' (default) | 'off']
 %
+%   AxesShaded       - Used to toggle shaded area around axes.
+%                      ['on' (default) | 'off']
+%
+%   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
+%                      2 x size(P, 2). The top row is the minimum axes
+%                      limits and the bottow row is the maximum axes limits.
+%                      [AxesLimits (default) | matrix]
+%
+%   AxesShadedColor  - Used to change the color of the shaded area.
+%                      ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   AxesShadedTransparency- Used to the shaded area transparency.
+%                           [0.2 (default) | scalar in range (0, 1)]  
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -242,7 +256,11 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesZeroColor', 'k',...
 %       'AxesZeroWidth', 2,...
 %       'AxesRadial', 'on',...
-%       'AxesAngular', 'on');
+%       'AxesAngular', 'on',...
+%       'AxesShaded', 'off',...
+%       'AxesShadedLimits', [],...
+%       'AxesShadedColor', 'g',...
+%       'AxesShadedTransparency', 0.2);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -321,8 +339,19 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesFontColor', [0, 0, 1; 1, 0, 0]);
 %   legend('D1', 'D2', 'Location', 'southoutside');
 %
+%   % Example 9: Spider plot with shaded area around axes.
+%   
+%   D1 = [5 3 9 1 2];
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
+%   spider_plot(P,...
+%       'AxesShaded', 'on',...
+%       'AxesShadedLimits', [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]); % [min axes limits; max axes limits]
+%
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-17: Allow a shaded band to be plotted around the axes.
 %   2022-02-14: -Add support for reference axes at value zero.
 %               -Allow for toggling radial and angular axes on or off.
 %   2022-01-23: -Add ability to change figure/axes background color.
@@ -377,8 +406,8 @@ function varargout = spider_plot_R2019b(P, options)
 %   Mariusz Sepczuk, Mohamed Abubakr, Nicolai, Jingwei Too,
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
-%   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad &
-%   Mario Di Siena for their feature recommendations and bug finds.
+%   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
+%   Mario Di Siena & Rebecca for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -387,7 +416,7 @@ arguments
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'
-    options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = []
+    options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = [min(P); max(P)]
     options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.2
     options.Color = get(groot,'defaultAxesColorOrder')
@@ -424,6 +453,10 @@ arguments
     options.AxesZeroWidth (1, 1) double {mustBePositive} = 2
     options.AxesRadial {mustBeMember(options.AxesRadial, {'off', 'on'})} = 'on'
     options.AxesAngular {mustBeMember(options.AxesAngular, {'off', 'on'})} = 'on'
+    options.AxesShaded {mustBeMember(options.AxesShaded, {'off', 'on'})} = 'off'
+    options.AxesShadedLimits = [min(P); max(P)]
+    options.AxesShadedColor = 'g'
+    options.AxesShadedTransparency double {mustBeGreaterThanOrEqual(options.AxesShadedTransparency, 0), mustBeLessThanOrEqual(options.AxesShadedTransparency, 1)} = 0.2 % Shading alpha
 end
 
 %%% Data Properties %%%
@@ -441,6 +474,11 @@ end
 % Check if axes offset is valid
 if options.AxesOffset > options.AxesInterval
     error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+end
+
+% Check if axes shaded limits is empty
+if isempty(options.AxesShadedLimits)
+    options.AxesShadedLimits = options.AxesLimits;
 end
 
 %%% Validate Axes Precision
@@ -666,6 +704,18 @@ else
     error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
 end
 
+%%% Validate Axes Shaded Limits
+% Check if the axes shaded limits same length as the number of points
+if size(options.AxesShadedLimits, 1) ~= 2 || size(options.AxesShadedLimits, 2) ~= num_data_points
+    error('Error: Please make sure the min and max axes shaded limits match the number of data points.');
+end
+
+% Check if within min and max axes limits
+if any(options.AxesShadedLimits(1, :) < options.AxesLimits(1, :)) ||...
+        any(options.AxesShadedLimits(2, :) > options.AxesLimits(2, :))
+    error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
+end
+
 %%% Axes Scaling Properties %%%
 % Selected data
 P_selected = P;
@@ -730,6 +780,11 @@ full_interval = options.AxesInterval+1;
 rho_offset = options.AxesOffset/full_interval;
 
 %%% Scale Data %%%
+% Check if axes shaded is on
+if strcmp(options.AxesShaded, 'on')
+    P_selected = [P_selected; options.AxesShadedLimits];
+end
+
 % Pre-allocation
 P_scaled = zeros(size(P_selected));
 axes_range = zeros(3, num_data_points);
@@ -801,6 +856,12 @@ for ii = 1:num_data_points
     
     % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
     P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
+end
+
+% Check if axes shaded is on
+if strcmp(options.AxesShaded, 'on')
+    P_shaded = P_scaled(end-1:end, :);
+    P_scaled = P_scaled(1:end-2, :);
 end
 
 %%% Polar Axes %%%
@@ -1056,6 +1117,39 @@ for ii = 1:num_data_groups
             'FaceAlpha', options.FillTransparency(ii));
         
         % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
+end
+
+% Check if axes shaded is on
+if strcmp(options.AxesShaded, 'on')
+    % Polar verticies of patch
+    P_shaded = [P_shaded, P_shaded(:, 1)];
+    P_shaded = [P_shaded(1, :), P_shaded(2, :)];
+    patch_rho = reshape(P_shaded, 1, []);
+    patch_theta = [theta, theta];
+
+    % Convert polar to cartesian coordinates
+    [x_points, y_points] = pol2cart(patch_theta, patch_rho);
+
+    % Interweave lower and upper limits
+    x_points = reshape(x_points, [], 2)';
+    y_points = reshape(y_points, [], 2)';
+
+    x_points = x_points(:);
+    y_points = y_points(:);
+
+    % Increment through groups of four vertices at a time
+    for ii = 1:2:length(x_points)-2
+        % Verticies and face points
+        v = [x_points(ii:ii+3), y_points(ii:ii+3)];
+        f = [1 2 4 3];
+        
+        % Patch polygon
+        h = patch('Faces', f, 'Vertices', v,...
+            'FaceColor', options.AxesShadedColor,...
+            'EdgeColor', 'none',...
+            'FaceAlpha', options.AxesShadedTransparency);
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end

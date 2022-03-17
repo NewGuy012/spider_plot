@@ -159,6 +159,20 @@ function varargout = spider_plot(P, varargin)
 %   AxesAngular      - Used to toggle angular axes.
 %                      ['on' (default) | 'off']
 % 
+%   AxesShaded       - Used to toggle shaded area around axes.
+%                      ['on' (default) | 'off']
+%
+%   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
+%                      2 x size(P, 2). The top row is the minimum axes
+%                      limits and the bottow row is the maximum axes limits.
+%                      [AxesLimits (default) | matrix]
+%
+%   AxesShadedColor  - Used to change the color of the shaded area.
+%                      ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%
+%   AxesShadedTransparency- Used to the shaded area transparency.
+%                           [0.2 (default) | scalar in range (0, 1)]                   
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -242,7 +256,11 @@ function varargout = spider_plot(P, varargin)
 %       'AxesZeroColor', 'k',...
 %       'AxesZeroWidth', 2,...
 %       'AxesRadial', 'on',...
-%       'AxesAngular', 'on');
+%       'AxesAngular', 'on',...
+%       'AxesShaded', 'off',...
+%       'AxesShadedLimits', [],...
+%       'AxesShadedColor', 'g',...
+%       'AxesShadedTransparency', 0.2);
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -313,8 +331,19 @@ function varargout = spider_plot(P, varargin)
 %       'AxesFontColor', [0, 0, 1; 1, 0, 0]);
 %   legend('D1', 'D2', 'Location', 'southoutside');
 %
+%   % Example 9: Spider plot with shaded area around axes.
+%   
+%   D1 = [5 3 9 1 2];
+%   D2 = [5 8 7 2 9];
+%   D3 = [8 2 1 4 6];
+%   P = [D1; D2; D3];
+%   spider_plot(P,...
+%       'AxesShaded', 'on',...
+%       'AxesShadedLimits', [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]); % [min axes limits; max axes limits]
+%
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-17: Allow a shaded band to be plotted around the axes.
 %   2022-02-14: -Add support for reference axes at value zero.
 %               -Allow for toggling radial and angular axes on or off.
 %   2022-01-23: -Add ability to change figure/axes background color.
@@ -364,8 +393,8 @@ function varargout = spider_plot(P, varargin)
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
 %   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro,
-%   Waqas Ahmad & Mario Di Siena for their feature recommendations and bug
-%   finds.
+%   Waqas Ahmad, Mario Di Siena & Rebecca for their feature recommendations
+%   and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -392,7 +421,7 @@ end
 axes_interval = 3;
 axes_precision = 1;
 axes_display = 'all';
-axes_limits = [];
+axes_limits = [min(P); max(P)];
 fill_option = 'off';
 fill_transparency = 0.2;
 colors = lines(num_data_groups);
@@ -429,6 +458,10 @@ axes_zero_color = [0.6, 0.6, 0.6];
 axes_zero_width = 2;
 axes_radial = 'on';
 axes_angular = 'on';
+axes_shaded = 'off';
+axes_shaded_limits = axes_limits;
+axes_shaded_color = 'g';
+axes_shaded_transparency = 0.2;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -522,6 +555,14 @@ if numvarargs > 1
                 axes_radial = value_arguments{ii};
             case 'axesangular'
                 axes_angular = value_arguments{ii};
+            case 'axesshaded'
+                axes_shaded = value_arguments{ii};
+            case 'axesshadedlimits'
+                axes_shaded_limits = value_arguments{ii};
+            case 'axesshadedcolor'
+                axes_shaded_color = value_arguments{ii};
+            case 'axesshadedtransparency'
+                axes_shaded_transparency = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -543,29 +584,26 @@ else
     end
 end
 
-% Check if axes limits is not empty
-if ~isempty(axes_limits)
-    % Check if the axes limits same length as the number of points
-    if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
-        error('Error: Please make sure the min and max axes limits match the number of data points.');
-    end
-    
-    % Lower and upper limits
-    lower_limits = axes_limits(1, :);
-    upper_limits = axes_limits(2, :);
-    
-    % Difference in upper and lower limits
-    diff_limits = upper_limits - lower_limits;
-    
-    % Check to make sure upper limit is greater than lower limit
-    if any(diff_limits < 0)
-        error('Error: Please make sure max axes limits are greater than the min axes limits.');
-    end
-    
-    % Check the range of axes limits
-    if any(diff_limits == 0)
-        error('Error: Please make sure the min and max axes limits are different.');
-    end
+% Check if the axes limits same length as the number of points
+if size(axes_limits, 1) ~= 2 || size(axes_limits, 2) ~= num_data_points
+    error('Error: Please make sure the min and max axes limits match the number of data points.');
+end
+
+% Lower and upper limits
+lower_limits = axes_limits(1, :);
+upper_limits = axes_limits(2, :);
+
+% Difference in upper and lower limits
+diff_limits = upper_limits - lower_limits;
+
+% Check to make sure upper limit is greater than lower limit
+if any(diff_limits < 0)
+    error('Error: Please make sure max axes limits are greater than the min axes limits.');
+end
+
+% Check the range of axes limits
+if any(diff_limits == 0)
+    error('Error: Please make sure the min and max axes limits are different.');
 end
 
 % Check if axes precision is numeric
@@ -704,6 +742,32 @@ end
 % Check if minor grid interval is valid
 if floor(minor_grid_interval)~=minor_grid_interval || minor_grid_interval < 0
     error('Error: Invalid minor grid interval entry. Please enter in an integer value that is positive.');
+end
+
+% Check if axes shaded is valid
+if any(~ismember(axes_shaded, {'off', 'on'}))
+    error('Error: Please enter either "off" or "on" for axes shaded option.');
+end
+
+% Check if axes shaded transparency is valid
+if axes_shaded_transparency < 0 || axes_shaded_transparency > 1
+    error('Error: Please enter a transparency value between [0, 1].');
+end
+
+% Check if axes shaded limits is empty
+if isempty(axes_shaded_limits)
+    axes_shaded_limits = axes_limits;
+end
+
+% Check if the axes shaded limits same length as the number of points
+if size(axes_shaded_limits, 1) ~= 2 || size(axes_shaded_limits, 2) ~= num_data_points
+    error('Error: Please make sure the min and max axes shaded limits match the number of data points.');
+end
+
+% Check if within min and max axes limits
+if any(axes_shaded_limits(1, :) < axes_limits(1, :)) ||...
+        any(axes_shaded_limits(2, :) > axes_limits(2, :))
+    error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
 end
 
 % Check if axes interpreter is a char
@@ -956,6 +1020,11 @@ full_interval = axes_interval + 1;
 rho_offset = axes_offset/full_interval;
 
 %%% Scale Data %%%
+% Check if axes shaded is on
+if strcmp(axes_shaded, 'on')
+    P_selected = [P_selected; axes_shaded_limits];
+end
+
 % Pre-allocation
 P_scaled = zeros(size(P_selected));
 axes_range = zeros(3, num_data_points);
@@ -993,7 +1062,7 @@ for ii = 1:num_data_points
         % Check for log axes scaling option
         if log_index(ii)
             % Logarithm of base 10, account for numbers less than 1
-            axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii))); %#ok<AGROW>
+            axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii)));
         end
         
         % Manually set the range of each group
@@ -1027,6 +1096,12 @@ for ii = 1:num_data_points
     
     % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
     P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
+end
+
+% Check if axes shaded is on
+if strcmp(axes_shaded, 'on')
+    P_shaded = P_scaled(end-1:end, :);
+    P_scaled = P_scaled(1:end-2, :);
 end
 
 %%% Polar Axes %%%
@@ -1282,6 +1357,39 @@ for ii = 1:num_data_groups
             'FaceAlpha', fill_transparency(ii));
         
         % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    end
+end
+
+% Check if axes shaded is on
+if strcmp(axes_shaded, 'on')
+    % Polar verticies of patch
+    P_shaded = [P_shaded, P_shaded(:, 1)];
+    P_shaded = [P_shaded(1, :), P_shaded(2, :)];
+    patch_rho = reshape(P_shaded, 1, []);
+    patch_theta = [theta, theta];
+
+    % Convert polar to cartesian coordinates
+    [x_points, y_points] = pol2cart(patch_theta, patch_rho);
+
+    % Interweave lower and upper limits
+    x_points = reshape(x_points, [], 2)';
+    y_points = reshape(y_points, [], 2)';
+
+    x_points = x_points(:);
+    y_points = y_points(:);
+
+    % Increment through groups of four vertices at a time
+    for ii = 1:2:length(x_points)-2
+        % Verticies and face points
+        v = [x_points(ii:ii+3), y_points(ii:ii+3)];
+        f = [1 2 4 3];
+        
+        % Patch polygon
+        h = patch('Faces', f, 'Vertices', v,...
+            'FaceColor', axes_shaded_color,...
+            'EdgeColor', 'none',...
+            'FaceAlpha', axes_shaded_transparency);
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end

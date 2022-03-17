@@ -153,6 +153,18 @@ The three functions included have the same functionality but with 3 different im
 - **AxesAngular**      - Used to toggle angular axes.
                          ['on' (default) | 'off']
 
+- **AxesShaded**       - Used to toggle shaded area around axes.
+                         ['on' (default) | 'off']
+
+- **AxesShadedLimits** - Used to set the limits of the shaded area. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
+                         [AxesLimits (default) | matrix]
+
+- **AxesShadedColor**  - Used to change the color of the shaded area.
+                         ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+
+- **AxesShadedTransparency**- Used to the shaded area transparency.
+                              [0.2 (default) | scalar in range (0, 1)] 
+
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -277,7 +289,11 @@ spider_plot(P,...
     'AxesZeroColor', 'k',...
     'AxesZeroWidth', 2,...
     'AxesRadial', 'on',...
-    'AxesAngular', 'on');
+    'AxesAngular', 'on',...
+    'AxesShaded', 'off',...
+    'AxesShadedLimits', [],...
+    'AxesShadedColor', 'g',...
+    'AxesShadedTransparency', 0.2);
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -492,8 +508,27 @@ spider_plot(P,...
   <img src="screenshot/example10.PNG">
 </p>
 
+### Example 11: Spider plot with shaded area around axes.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+      'AxesShaded', 'on',...
+      'AxesShadedLimits', [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]); % [min axes limits; max axes limits]
+```
+<p align="center">
+  <img src="screenshot/example11.png">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-03-17: Allow a shaded band to be plotted around the axes.
+
 - 2022-02-14: Add support for reference axes at value zero. Allow for toggling radial and angular axes on or off.
 
 - 2022-01-23: Add ability to change figure/axes background color. Allow for toggling minor grid lines.
@@ -586,5 +621,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Fabrizio De Caro
 - Waqas Ahmad
 - Mario Di Siena
+- Rebecca
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
