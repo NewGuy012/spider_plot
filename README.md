@@ -154,7 +154,7 @@ The three functions included have the same functionality but with 3 different im
                          ['on' (default) | 'off']
 
 - **AxesShaded**       - Used to toggle shaded area around axes.
-                         ['on' (default) | 'off']
+                         ['off' (default) | 'on']
 
 - **AxesShadedLimits** - Used to set the limits of the shaded area. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
                          [AxesLimits (default) | matrix]

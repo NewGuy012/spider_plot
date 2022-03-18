@@ -171,7 +171,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %                      ['on' (default) | 'off']
     %
     %   AxesShaded       - Used to toggle shaded area around axes.
-    %                      ['on' (default) | 'off']
+    %                      ['off' (default) | 'on']
     %
     %   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
     %                      2 x size(P, 2). The top row is the minimum axes
