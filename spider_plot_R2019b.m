@@ -173,6 +173,9 @@ function varargout = spider_plot_R2019b(P, options)
 %   AxesShadedTransparency- Used to the shaded area transparency.
 %                           [0.2 (default) | scalar in range (0, 1)]  
 %
+%   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
+%                      ['off' (default) | 'on']
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -260,7 +263,8 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesShaded', 'off',...
 %       'AxesShadedLimits', [],...
 %       'AxesShadedColor', 'g',...
-%       'AxesShadedTransparency', 0.2);
+%       'AxesShadedTransparency', 0.2,...
+%       'AxesLabelsRotate', 'on');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -351,6 +355,7 @@ function varargout = spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
 %   2022-03-17: Allow a shaded band to be plotted around the axes.
 %   2022-02-14: -Add support for reference axes at value zero.
 %               -Allow for toggling radial and angular axes on or off.
@@ -407,7 +412,8 @@ function varargout = spider_plot_R2019b(P, options)
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
 %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
-%   Mario Di Siena & Rebecca for their feature recommendations and bug finds.
+%   Mario Di Siena, Rebecca & Nikolaos Koutsouleris for their feature
+%   recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -416,7 +422,7 @@ arguments
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'
-    options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = [min(P); max(P)]
+    options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = [min(P, [], 1); max(P, [], 1)]
     options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.2
     options.Color = get(groot,'defaultAxesColorOrder')
@@ -457,6 +463,7 @@ arguments
     options.AxesShadedLimits = [min(P); max(P)]
     options.AxesShadedColor = 'g'
     options.AxesShadedTransparency double {mustBeGreaterThanOrEqual(options.AxesShadedTransparency, 0), mustBeLessThanOrEqual(options.AxesShadedTransparency, 1)} = 0.2 % Shading alpha
+    options.AxesLabelsRotate {mustBeMember(options.AxesLabelsRotate, {'off', 'on'})} = 'off'
 end
 
 %%% Data Properties %%%
@@ -1185,16 +1192,36 @@ uistack(isocurve_handles, 'bottom');
 uistack(text_handles, 'top');
 
 %%% Labels %%%
+% Check if axes labels rotate is on
+if strcmp(options.AxesLabelsRotate, 'on')
+    % Find number of degrees to rotate text by
+    rotate_deg = rad2deg(text_rotation(theta));
+else
+    % No rotation
+    rotate_deg = zeros(1, length(theta));
+end
+
 % Check labels argument
 if ~strcmp(options.AxesLabels, 'none')
     % Iterate through number of data points
     for ii = 1:length(options.AxesLabels)
-        % Convert polar to cartesian coordinates
-        [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+options.AxesLabelsOffset);
-        
         % Horizontal text alignment by quadrant
         [horz_align, ~] = quadrant_position(theta(ii));
 
+        % Check if axes labels rotate is on
+        if strcmp(options.AxesLabelsRotate, 'on')
+            % Adjust horizontal text alignment
+            horz_align = 'center';
+
+            if options.AxesLabelsOffset <= 0.2
+                % Adjust axes labels offset minimum value
+                options.AxesLabelsOffset = 0.3;
+            end
+        end
+
+        % Convert polar to cartesian coordinates
+        [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+options.AxesLabelsOffset);
+        
         % Display text label
         text(x_pos, y_pos, options.AxesLabels{ii},...
             'Units', 'Data',...
@@ -1204,9 +1231,35 @@ if ~strcmp(options.AxesLabels, 'none')
             'BackgroundColor', options.BackgroundColor,...
             'FontName', options.LabelFont,...
             'FontSize', options.LabelFontSize,...
-            'Interpreter', options.AxesInterpreter{ii});
+            'Interpreter', options.AxesInterpreter{ii},...
+            'Rotation', rotate_deg(ii));
     end
 end
+
+end
+
+function rotate_deg = text_rotation(theta)
+% Find how much to rotate text
+rotate_deg = theta;
+
+% Iterate through each theta
+for kk = 1:length(theta)
+    % Adjust sign and rotation accordingly
+    if theta(kk) == 0
+        rotate_deg(kk) = 0;
+    elseif theta(kk) > 0 && theta(kk) <= pi/2
+        rotate_deg(kk) = theta(kk);
+    elseif theta(kk) > pi/2 && theta(kk) < pi
+        rotate_deg(kk) = -(pi - theta(kk));
+    elseif theta(kk) == pi
+        rotate_deg(kk) = 0;
+    elseif theta(kk) > pi && theta(kk) < 3*pi/2
+        rotate_deg(kk) = -(pi - theta(kk));
+    elseif theta(kk) >= 3*pi/2
+        rotate_deg(kk) = -(2*pi - theta(kk));
+    end
+end
+
 end
 
 function [horz_align, vert_align] = quadrant_position(theta_point)
@@ -1263,7 +1316,7 @@ end
 %%% Custom Validation Functions %%%
 % Validate axes labels
 function validateAxesLabels(axes_labels, P)
-if ~isequal(axes_labels, 'none')
+if ~strcmp(axes_labels, 'none')
     validateattributes(axes_labels, {'cell'}, {'size', [1, size(P, 2)]}, mfilename, 'axes_labels')
 end
 end

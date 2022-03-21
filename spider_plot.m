@@ -171,7 +171,10 @@ function varargout = spider_plot(P, varargin)
 %                      ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
 %
 %   AxesShadedTransparency- Used to the shaded area transparency.
-%                           [0.2 (default) | scalar in range (0, 1)]                   
+%                           [0.2 (default) | scalar in range (0, 1)]      
+%
+%   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
+%                      ['off' (default) | 'on']
 %
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
@@ -260,7 +263,8 @@ function varargout = spider_plot(P, varargin)
 %       'AxesShaded', 'off',...
 %       'AxesShadedLimits', [],...
 %       'AxesShadedColor', 'g',...
-%       'AxesShadedTransparency', 0.2);
+%       'AxesShadedTransparency', 0.2,...
+%       'AxesLabelsRotate', 'off');
 %
 %   % Example 5: Excel-like radar charts.
 %
@@ -343,6 +347,7 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
 %   2022-03-17: Allow a shaded band to be plotted around the axes.
 %   2022-02-14: -Add support for reference axes at value zero.
 %               -Allow for toggling radial and angular axes on or off.
@@ -393,8 +398,8 @@ function varargout = spider_plot(P, varargin)
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
 %   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro,
-%   Waqas Ahmad, Mario Di Siena & Rebecca for their feature recommendations
-%   and bug finds.
+%   Waqas Ahmad, Mario Di Siena, Rebecca & Nikolaos Koutsouleris for their
+%   feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -421,7 +426,7 @@ end
 axes_interval = 3;
 axes_precision = 1;
 axes_display = 'all';
-axes_limits = [min(P); max(P)];
+axes_limits = [min(P, [], 1); max(P, [], 1)];
 fill_option = 'off';
 fill_transparency = 0.2;
 colors = lines(num_data_groups);
@@ -462,6 +467,7 @@ axes_shaded = 'off';
 axes_shaded_limits = axes_limits;
 axes_shaded_color = 'g';
 axes_shaded_transparency = 0.2;
+axes_labels_rotate = 'off';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -563,6 +569,8 @@ if numvarargs > 1
                 axes_shaded_color = value_arguments{ii};
             case 'axesshadedtransparency'
                 axes_shaded_transparency = value_arguments{ii};
+            case 'axeslabelsrotate'
+                axes_labels_rotate = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -603,7 +611,7 @@ end
 
 % Check the range of axes limits
 if any(diff_limits == 0)
-    error('Error: Please make sure the min and max axes limits are different.');
+    error('Error: Please set the axes limits and make sure the min and max axes limits are different.');
 end
 
 % Check if axes precision is numeric
@@ -768,6 +776,11 @@ end
 if any(axes_shaded_limits(1, :) < axes_limits(1, :)) ||...
         any(axes_shaded_limits(2, :) > axes_limits(2, :))
     error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
+end
+
+% Check if axes labels rotate is valid
+if any(~ismember(axes_labels_rotate, {'off', 'on'}))
+    error('Error: Please enter either "off" or "on" for axes labels rotate option.');
 end
 
 % Check if axes interpreter is a char
@@ -1413,16 +1426,36 @@ uistack(isocurve_handles, 'bottom');
 uistack(text_handles, 'top');
 
 %%% Labels %%%
+% Check if axes labels rotate is on
+if strcmp(axes_labels_rotate, 'on')
+    % Find number of degrees to rotate text by
+    rotate_deg = rad2deg(text_rotation(theta));
+else
+    % No rotation
+    rotate_deg = zeros(1, length(theta));
+end
+
 % Check labels argument
 if ~strcmp(axes_labels, 'none')
     % Iterate through number of data points
     for ii = 1:length(axes_labels)
-        % Convert polar to cartesian coordinates
-        [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+axes_labels_offset);
-
         % Horizontal text alignment by quadrant
         [horz_align, ~] = quadrant_position(theta(ii));
 
+        % Check if axes labels rotate is on
+        if strcmp(axes_labels_rotate, 'on')
+            % Adjust horizontal text alignment
+            horz_align = 'center';
+
+            if axes_labels_offset <= 0.2
+                % Adjust axes labels offset minimum value
+                axes_labels_offset = 0.3;
+            end
+        end
+
+        % Convert polar to cartesian coordinates
+        [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+axes_labels_offset);
+        
         % Display text label
         text(x_pos, y_pos, axes_labels{ii},...
             'Units', 'Data',...
@@ -1432,9 +1465,33 @@ if ~strcmp(axes_labels, 'none')
             'BackgroundColor', background_color,...
             'FontName', label_font,...
             'FontSize', label_font_size,...
-            'Interpreter', axes_interpreter{ii});
+            'Interpreter', axes_interpreter{ii},...
+            'Rotation', rotate_deg(ii));
     end
 end
+
+    function rotate_deg = text_rotation(theta)
+        % Find how much to rotate text
+        rotate_deg = theta;
+
+        % Iterate through each theta
+        for kk = 1:length(theta)
+            % Adjust sign and rotation accordingly
+            if theta(kk) == 0
+                rotate_deg(kk) = 0;
+            elseif theta(kk) > 0 && theta(kk) <= pi/2
+                rotate_deg(kk) = theta(kk);
+            elseif theta(kk) > pi/2 && theta(kk) < pi
+                rotate_deg(kk) = -(pi - theta(kk));
+            elseif theta(kk) == pi
+                rotate_deg(kk) = 0;
+            elseif theta(kk) > pi && theta(kk) < 3*pi/2
+                rotate_deg(kk) = -(pi - theta(kk));
+            elseif theta(kk) >= 3*pi/2
+                rotate_deg(kk) = -(2*pi - theta(kk));
+            end
+        end
+    end
 
     function [horz_align, vert_align] = quadrant_position(theta_point)
         % Find out which quadrant the point is in

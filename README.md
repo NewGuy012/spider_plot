@@ -165,6 +165,9 @@ The three functions included have the same functionality but with 3 different im
 - **AxesShadedTransparency**- Used to the shaded area transparency.
                               [0.2 (default) | scalar in range (0, 1)] 
 
+- **AxesLabelsRotate** - Used to rotate the axes labels to be aligned with axes.
+                         ['off' (default) | 'on']
+
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -293,7 +296,8 @@ spider_plot(P,...
     'AxesShaded', 'off',...
     'AxesShadedLimits', [],...
     'AxesShadedColor', 'g',...
-    'AxesShadedTransparency', 0.2);
+    'AxesShadedTransparency', 0.2,...
+    'AxesLabelsRotate', 'off');
 ```
 <p align="center">
   <img src="screenshot/example4.png">
@@ -527,6 +531,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-03-21: Allow axes labels to be rotated to be aligned with axes.
+
 - 2022-03-17: Allow a shaded band to be plotted around the axes.
 
 - 2022-02-14: Add support for reference axes at value zero. Allow for toggling radial and angular axes on or off.
@@ -622,5 +628,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Waqas Ahmad
 - Mario Di Siena
 - Rebecca
+- Nikolaos Koutsouleris
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
