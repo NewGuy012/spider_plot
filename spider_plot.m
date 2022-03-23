@@ -347,6 +347,7 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
 %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
 %   2022-03-17: Allow a shaded band to be plotted around the axes.
 %   2022-02-14: -Add support for reference axes at value zero.
@@ -1430,6 +1431,9 @@ uistack(text_handles, 'top');
 if strcmp(axes_labels_rotate, 'on')
     % Find number of degrees to rotate text by
     rotate_deg = rad2deg(text_rotation(theta));
+
+    % Find the horizontal alignments to align closer to axes
+    horz_aligns = text_alignment(theta);
 else
     % No rotation
     rotate_deg = zeros(1, length(theta));
@@ -1445,12 +1449,7 @@ if ~strcmp(axes_labels, 'none')
         % Check if axes labels rotate is on
         if strcmp(axes_labels_rotate, 'on')
             % Adjust horizontal text alignment
-            horz_align = 'center';
-
-            if axes_labels_offset <= 0.2
-                % Adjust axes labels offset minimum value
-                axes_labels_offset = 0.3;
-            end
+            horz_align = horz_aligns{ii};
         end
 
         % Convert polar to cartesian coordinates
@@ -1469,6 +1468,24 @@ if ~strcmp(axes_labels, 'none')
             'Rotation', rotate_deg(ii));
     end
 end
+
+    function horz_aligns = text_alignment(theta)
+        % Pre-allocate cell
+        horz_aligns = cell(length(theta), 1);
+        horz_aligns(:) = {'center'};
+
+        % Iterate through each theta
+        for kk = 1:length(theta)
+            % Adjust horizontal alignment accordingly
+            if theta(kk) <= pi/2
+                horz_aligns{kk} = 'left';
+            elseif theta(kk) < 3*pi/2
+                horz_aligns{kk} = 'right';
+            elseif theta(kk) <= 2*pi
+                horz_aligns{kk} = 'left';
+            end
+        end
+    end
 
     function rotate_deg = text_rotation(theta)
         % Find how much to rotate text
