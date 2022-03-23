@@ -529,6 +529,29 @@ spider_plot(P,...
   <img src="screenshot/example11.png">
 </p>
 
+### Example 12: Spider plot with rotated axes labels. This is useful when you have many labels that would otherwise overlap.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2 2 9 3 1 9 8 7 2 3 6];
+D2 = [5 8 7 2 9 7 6 4 8 9 2 1 8 2 4];
+D3 = [8 2 1 4 6 1 8 4 2 3 7 5 6 1 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesLimits', [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;...
+    10 10 10 10 10 10 10 10 10 10 10 10 10 10 10],...
+    'AxesInterval', 5,...
+    'AxesDisplay', 'one',...
+    'AxesPrecision', 0,...
+    'AxesLabelsRotate', 'on',...
+    'AxesLabelsOffset', 0.1,...
+    'AxesRadial', 'off');
+```
+<p align="center">
+  <img src="screenshot/example12.png">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
 - 2022-03-23: Adjust rotated axes label alignment to be closer to axes.
