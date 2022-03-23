@@ -531,6 +531,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-03-23: Adjust rotated axes label alignment to be closer to axes.
+
 - 2022-03-21: Allow axes labels to be rotated to be aligned with axes.
 
 - 2022-03-17: Allow a shaded band to be plotted around the axes.
