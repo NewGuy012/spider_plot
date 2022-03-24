@@ -347,6 +347,7 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-03-24: Add support for NaN values. Plot NaN values at origin.
 %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
 %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
 %   2022-03-17: Allow a shaded band to be plotted around the axes.
@@ -1299,6 +1300,13 @@ end
 %%% Plot %%%
 % Fill option index
 fill_option_index = strcmp(fill_option, 'on');
+
+% Check if any NaNs detected
+if any(isnan(P_scaled), 'all')
+    % Set value to zero
+    nan_index = isnan(P_scaled);
+    P_scaled(nan_index) = 0;
+end
 
 % Iterate through number of data groups
 for ii = 1:num_data_groups
