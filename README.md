@@ -554,6 +554,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-07-27: Corrected bug where only 7 entries were allowed in spider_plot_class.
+
 - 2022-03-23: Adjust rotated axes label alignment to be closer to axes.
 
 - 2022-03-21: Allow axes labels to be rotated to be aligned with axes.
@@ -654,5 +656,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Mario Di Siena
 - Rebecca
 - Nikolaos Koutsouleris
+- Sergi Torres
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

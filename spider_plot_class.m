@@ -408,6 +408,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %
     % Author:
     %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+    %   2022-07-27: Corrected bug where only 7 entries were allowed in
+    %               spider_plot_class.
     %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
     %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
     %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
@@ -471,10 +473,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
     %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
     %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
-    %   Mario Di Siena, Rebecca & Nikolaos Koutsouleris for their feature
-    %   recommendations and bug finds. A huge thanks to Jiro Doke and
-    %   Sean de Wolski for demonstrating the implementation of argument
-    %   validation and custom chart class introduced in R2019b.
+    %   Mario Di Siena, Rebecca, Nikolaos Koutsouleris, Sergi Torres for
+    %   their feature recommendations and bug finds. A huge thanks to
+    %   Jiro Doke and Sean de Wolski for demonstrating the implementation
+    %   of argument validation and custom chart class introduced in R2019b.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -996,6 +998,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function color = get.Color(obj)
             % Check if value is empty
             if isempty(obj.Color)
+                % Set color order
+                color = lines(obj.NumDataGroups);
+            elseif size(obj.Color, 1) < obj.NumDataGroups
                 % Set color order
                 color = lines(obj.NumDataGroups);
             else
