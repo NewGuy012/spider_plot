@@ -1008,7 +1008,7 @@ end
 
 %%% Figure Properties %%%
 % Check if axes handle is specified
-if isempty(axes_handle)
+if isempty(properties(axes_handle))
     % Grab current figure
     fig = gcf;
 

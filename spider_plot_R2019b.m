@@ -760,7 +760,7 @@ end
 
 %%% Figure Properties %%%
 % Check if axes handle is specified
-if isempty(options.AxesHandle)
+if isempty(properties(options.AxesHandle))
     % Grab current figure
     fig = gcf;
 
