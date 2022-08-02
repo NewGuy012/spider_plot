@@ -176,6 +176,9 @@ function varargout = spider_plot(P, varargin)
 %   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
 %                      ['off' (default) | 'on']
 %
+%   AxesHandle       - Used to specify the axes to plot in.
+%                      [new axes (default) | Axes object]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -347,6 +350,7 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-08-02: Added in name-value pair to use specified axes handle.
 %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
 %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
 %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
@@ -400,8 +404,8 @@ function varargout = spider_plot(P, varargin)
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
 %   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro,
-%   Waqas Ahmad, Mario Di Siena, Rebecca & Nikolaos Koutsouleris for their
-%   feature recommendations and bug finds.
+%   Waqas Ahmad, Mario Di Siena, Rebecca, Nikolaos Koutsouleris &
+%   Clara Vetter for their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -470,6 +474,7 @@ axes_shaded_limits = axes_limits;
 axes_shaded_color = 'g';
 axes_shaded_transparency = 0.2;
 axes_labels_rotate = 'off';
+axes_handle = gobjects;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -573,6 +578,8 @@ if numvarargs > 1
                 axes_shaded_transparency = value_arguments{ii};
             case 'axeslabelsrotate'
                 axes_labels_rotate = value_arguments{ii};
+            case 'axeshandle'
+                axes_handle = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -1000,21 +1007,32 @@ if any(log_index)
 end
 
 %%% Figure Properties %%%
-% Grab current figure
-fig = gcf;
+% Check if axes handle is specified
+if isempty(axes_handle)
+    % Grab current figure
+    fig = gcf;
+
+    % Reset axes
+    cla reset;
+
+    % Current axes handle
+    ax = gca;
+else
+    % Use specified axes handle
+    ax = axes_handle;
+
+    % Grab figure handle of specified axes handle
+    fig = ax.Parent;
+end
+
+% Check for output arguments
 if nargout > 1
     error('Error: Too many output arguments assigned.');
 end
 varargout{1} = fig;
 
-% Set figure background
+% Set figure and axes background
 fig.Color = background_color;
-
-% Reset axes
-cla reset;
-
-% Current axes handle
-ax = gca;
 ax.Color = background_color;
 
 % Axis limits

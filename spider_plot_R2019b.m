@@ -176,6 +176,9 @@ function varargout = spider_plot_R2019b(P, options)
 %   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
 %                      ['off' (default) | 'on']
 %
+%   AxesHandle       - Used to specify the axes to plot in.
+%                      [new axes (default) | Axes object]
+%
 % Examples:
 %   % Example 1: Minimal number of arguments. All non-specified, optional
 %                arguments are set to their default values. Axes labels
@@ -355,6 +358,7 @@ function varargout = spider_plot_R2019b(P, options)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-08-02: Added in name-value pair to use specified axes handle.
 %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
 %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
 %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
@@ -414,8 +418,8 @@ function varargout = spider_plot_R2019b(P, options)
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
 %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
-%   Mario Di Siena, Rebecca & Nikolaos Koutsouleris for their feature
-%   recommendations and bug finds.
+%   Mario Di Siena, Rebecca, Nikolaos Koutsouleris & Clara Vetter for
+%   their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -466,6 +470,7 @@ arguments
     options.AxesShadedColor = 'g'
     options.AxesShadedTransparency double {mustBeGreaterThanOrEqual(options.AxesShadedTransparency, 0), mustBeLessThanOrEqual(options.AxesShadedTransparency, 1)} = 0.2 % Shading alpha
     options.AxesLabelsRotate {mustBeMember(options.AxesLabelsRotate, {'off', 'on'})} = 'off'
+    options.AxesHandle = gobjects
 end
 
 %%% Data Properties %%%
@@ -754,21 +759,32 @@ if any(log_index)
 end
 
 %%% Figure Properties %%%
-% Grab current figure
-fig = gcf;
+% Check if axes handle is specified
+if isempty(options.AxesHandle)
+    % Grab current figure
+    fig = gcf;
+
+    % Reset axes
+    cla reset;
+
+    % Current axes handle
+    ax = gca;
+else
+    % Use specified axes handle
+    ax = options.AxesHandle;
+
+    % Grab figure handle of specified axes handle
+    fig = ax.Parent;
+end
+
+% Check for output arguments
 if nargout > 1
     error('Error: Too many output arguments assigned.');
 end
 varargout{1} = fig;
 
-% Set figure background
+% Set figure and axes background
 fig.Color = options.BackgroundColor;
-
-% Reset axes
-cla reset;
-
-% Current axes handle
-ax = gca;
 ax.Color = options.BackgroundColor;
 
 % Axis limits

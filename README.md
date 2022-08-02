@@ -168,6 +168,9 @@ The three functions included have the same functionality but with 3 different im
 - **AxesLabelsRotate** - Used to rotate the axes labels to be aligned with axes.
                          ['off' (default) | 'on']
 
+- **AxesHandle**       - Used to specify the axes to plot in.
+                         [new axes (default) | Axes object]
+
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -554,6 +557,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-08-02: Added in name-value pair to use specified axes handle.
+
 - 2022-07-27: Corrected bug where only 7 entries were allowed in spider_plot_class.
 
 - 2022-03-23: Adjust rotated axes label alignment to be closer to axes.
@@ -657,5 +662,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Rebecca
 - Nikolaos Koutsouleris
 - Sergi Torres
+- Clara Vetter
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
