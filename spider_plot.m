@@ -350,6 +350,7 @@ function varargout = spider_plot(P, varargin)
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-09-07: Fix bug for specified axes handle not be respected.
 %   2022-08-02: Added in name-value pair to use specified axes handle.
 %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
 %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
@@ -404,8 +405,8 @@ function varargout = spider_plot(P, varargin)
 %   Mohamed Abubakr, Nicolai, Jingwei Too, Cedric Jamet, Richard Ruff,
 %   Marie-Kristin Schreiber, Juan Carlos Vargas Rubio, Anthony Wang,
 %   Pauline Oeuvray, Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro,
-%   Waqas Ahmad, Mario Di Siena, Rebecca, Nikolaos Koutsouleris &
-%   Clara Vetter for their feature recommendations and bug finds.
+%   Waqas Ahmad, Mario Di Siena, Rebecca, Nikolaos Koutsouleris,
+%   Clara Vetter & schkorf1 for their feature recommendations and bug finds.
 
 %%% Data Properties %%%
 % Point properties
@@ -1020,6 +1021,7 @@ if isempty(properties(axes_handle))
 else
     % Use specified axes handle
     ax = axes_handle;
+    axes(ax);
 
     % Grab figure handle of specified axes handle
     fig = ax.Parent;

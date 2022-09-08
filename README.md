@@ -557,6 +557,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-09-07: Fix bug for specified axes handle not be respected.
+
 - 2022-08-02: Added in name-value pair to use specified axes handle.
 
 - 2022-07-27: Corrected bug where only 7 entries were allowed in spider_plot_class.
@@ -663,5 +665,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Nikolaos Koutsouleris
 - Sergi Torres
 - Clara Vetter
+- schkorf1
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
