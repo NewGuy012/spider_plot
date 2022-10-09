@@ -165,13 +165,13 @@ function varargout = spider_plot_R2019b(P, options)
 %   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
 %                      2 x size(P, 2). The top row is the minimum axes
 %                      limits and the bottow row is the maximum axes limits.
-%                      [AxesLimits (default) | matrix]
+%                      [AxesLimits (default) | cell array]
 %
 %   AxesShadedColor  - Used to change the color of the shaded area.
-%                      ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+%                      ['green' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | cell array]
 %
 %   AxesShadedTransparency- Used to the shaded area transparency.
-%                           [0.2 (default) | scalar in range (0, 1)]  
+%                           [0.2 (default) | vector in range (0, 1)]  
 %
 %   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
 %                      ['off' (default) | 'on']
@@ -346,18 +346,24 @@ function varargout = spider_plot_R2019b(P, options)
 %       'AxesFontColor', [0, 0, 1; 1, 0, 0]);
 %   legend('D1', 'D2', 'Location', 'southoutside');
 %
-%   % Example 9: Spider plot with shaded area around axes.
+%   % Example 9: Spider plot with multiple shaded area around axes.
 %   
 %   D1 = [5 3 9 1 2];
 %   D2 = [5 8 7 2 9];
 %   D3 = [8 2 1 4 6];
 %   P = [D1; D2; D3];
-%   spider_plot(P,...
+%   axes_shaded_limits = {...
+%       [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6],...
+%       [5.5, 4, 3, 2, 4; 6, 7.0, 8, 3.0, 6]};
+%   spider_plot_R2019b(P,...
 %       'AxesShaded', 'on',...
-%       'AxesShadedLimits', [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]); % [min axes limits; max axes limits]
+%       'AxesShadedLimits', axes_shaded_limits,...
+%       'AxesShadedColor', {'b', 'r'},...
+%       'AxesShadedTransparency', 0.1); 
 %
 % Author:
 %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
+%   2022-10-08: Allow for multiple shaded regions.
 %   2022-09-07: Fix bug for specified axes handle not be respected.
 %   2022-08-02: Added in name-value pair to use specified axes handle.
 %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
@@ -419,8 +425,8 @@ function varargout = spider_plot_R2019b(P, options)
 %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber,
 %   Juan Carlos Vargas Rubio, Anthony Wang, Hanting Zhu, Pauline Oeuvray,
 %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
-%   Mario Di Siena, Rebecca, Nikolaos Koutsouleris, Clara Vetter & schkorf1
-%   for their feature recommendations and bug finds.
+%   Mario Di Siena, Rebecca, Nikolaos Koutsouleris, Clara Vetter, schkorf1
+%   & Philipp for their feature recommendations and bug finds.
 
 %%% Argument Validation %%%
 arguments
@@ -467,7 +473,7 @@ arguments
     options.AxesRadial {mustBeMember(options.AxesRadial, {'off', 'on'})} = 'on'
     options.AxesAngular {mustBeMember(options.AxesAngular, {'off', 'on'})} = 'on'
     options.AxesShaded {mustBeMember(options.AxesShaded, {'off', 'on'})} = 'off'
-    options.AxesShadedLimits = [min(P); max(P)]
+    options.AxesShadedLimits cell = {[min(P); max(P)]}
     options.AxesShadedColor = 'g'
     options.AxesShadedTransparency double {mustBeGreaterThanOrEqual(options.AxesShadedTransparency, 0), mustBeLessThanOrEqual(options.AxesShadedTransparency, 1)} = 0.2 % Shading alpha
     options.AxesLabelsRotate {mustBeMember(options.AxesLabelsRotate, {'off', 'on'})} = 'off'
@@ -493,7 +499,7 @@ end
 
 % Check if axes shaded limits is empty
 if isempty(options.AxesShadedLimits)
-    options.AxesShadedLimits = options.AxesLimits;
+    options.AxesShadedLimits = {options.AxesLimits};
 end
 
 %%% Validate Axes Precision
@@ -720,15 +726,49 @@ else
 end
 
 %%% Validate Axes Shaded Limits
-% Check if the axes shaded limits same length as the number of points
-if size(options.AxesShadedLimits, 1) ~= 2 || size(options.AxesShadedLimits, 2) ~= num_data_points
-    error('Error: Please make sure the min and max axes shaded limits match the number of data points.');
+% Iterate through axes shaded limits
+for ii = 1:length(options.AxesShadedLimits)
+    % Initialize
+    axes_shaded_limit = options.AxesShadedLimits{ii};
+
+    % Check if the axes shaded limits same length as the number of points
+    if size(axes_shaded_limit, 1) ~= 2 || size(axes_shaded_limit, 2) ~= num_data_points
+        error('Error: Please make sure the min and max axes shaded limits match the number of data points.');
+    end
+
+    % Check if within min and max axes limits
+    if any(axes_shaded_limit(1, :) < options.AxesLimits(1, :)) ||...
+            any(axes_shaded_limit(2, :) > options.AxesLimits(2, :))
+        error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
+    end
 end
 
-% Check if within min and max axes limits
-if any(options.AxesShadedLimits(1, :) < options.AxesLimits(1, :)) ||...
-        any(options.AxesShadedLimits(2, :) > options.AxesLimits(2, :))
-    error('Error: Please make sure the axes shaded limits are within the min and max axes limits.');
+% Check if axes shaded color is a char
+if ischar(options.AxesShadedColor)
+    % Convert to cell array of char
+    options.AxesShadedColor = cellstr(options.AxesShadedColor);
+
+    % Repeat cell to number of axes shaded limits groups
+    options.AxesShadedColor = repmat(options.AxesShadedColor, length(options.AxesShadedLimits), 1);
+elseif iscellstr(options.AxesShadedColor)
+    % Check is length is one
+    if length(options.AxesShadedColor) == 1
+        % Repeat cell to number of axes shaded limits groups
+        options.AxesShadedColor = repmat(options.AxesShadedColor, length(options.AxesShadedLimits), 1);
+    end
+end
+
+% Check if axes shaded color is valid
+if length(options.AxesShadedColor) ~= length(options.AxesShadedLimits)
+    error('Error: Please specify the same number of axes shaded color as number of axes shaded limits groups.');
+end
+
+% Check is length is one
+if length(options.AxesShadedTransparency) == 1
+    % Repeat array to number of axes shaded limits groups
+    options.AxesShadedTransparency = repmat(options.AxesShadedTransparency, length(options.AxesShadedLimits), 1);
+elseif length(options.AxesShadedTransparency) ~= length(options.AxesShadedLimits)
+    error('Error: Please specify the same number of axes shaded transparency as number axes shaded limits groups.');
 end
 
 %%% Axes Scaling Properties %%%
@@ -807,9 +847,14 @@ full_interval = options.AxesInterval+1;
 rho_offset = options.AxesOffset/full_interval;
 
 %%% Scale Data %%%
+% Number of shaded rows
+num_shaded = length(options.AxesShadedLimits);
+shaded_rows = num_shaded * 2;
+
 % Check if axes shaded is on
 if strcmp(options.AxesShaded, 'on')
-    P_selected = [P_selected; options.AxesShadedLimits];
+    all_shaded_limits = vertcat(options.AxesShadedLimits{:});
+    P_selected = [P_selected; all_shaded_limits];
 end
 
 % Pre-allocation
@@ -887,8 +932,8 @@ end
 
 % Check if axes shaded is on
 if strcmp(options.AxesShaded, 'on')
-    P_shaded = P_scaled(end-1:end, :);
-    P_scaled = P_scaled(1:end-2, :);
+    P_shaded = P_scaled(end-shaded_rows+1:end, :);
+    P_scaled = P_scaled(1:end-shaded_rows, :);
 end
 
 %%% Polar Axes %%%
@@ -1157,34 +1202,42 @@ end
 
 % Check if axes shaded is on
 if strcmp(options.AxesShaded, 'on')
-    % Polar verticies of patch
-    P_shaded = [P_shaded, P_shaded(:, 1)];
-    P_shaded = [P_shaded(1, :), P_shaded(2, :)];
-    patch_rho = reshape(P_shaded, 1, []);
-    patch_theta = [theta, theta];
+    % Iterate through number of shaded groups
+    for ii = 1:num_shaded
+        % Initialize
+        P_shaded_lower = P_shaded(2*ii-1, :);
+        P_shaded_upper = P_shaded(2*ii, :);
+        P_temp = [P_shaded_lower; P_shaded_upper];
 
-    % Convert polar to cartesian coordinates
-    [x_points, y_points] = pol2cart(patch_theta, patch_rho);
+        % Polar verticies of patch
+        P_temp = [P_temp, P_temp(:, 1)];
+        P_temp = [P_temp(1, :), P_temp(2, :)];
+        patch_rho = reshape(P_temp, 1, []);
+        patch_theta = [theta, theta];
 
-    % Interweave lower and upper limits
-    x_points = reshape(x_points, [], 2)';
-    y_points = reshape(y_points, [], 2)';
+        % Convert polar to cartesian coordinates
+        [x_points, y_points] = pol2cart(patch_theta, patch_rho);
 
-    x_points = x_points(:);
-    y_points = y_points(:);
+        % Interweave lower and upper limits
+        x_points = reshape(x_points, [], 2)';
+        y_points = reshape(y_points, [], 2)';
 
-    % Increment through groups of four vertices at a time
-    for ii = 1:2:length(x_points)-2
-        % Verticies and face points
-        v = [x_points(ii:ii+3), y_points(ii:ii+3)];
-        f = [1 2 4 3];
-        
-        % Patch polygon
-        h = patch('Faces', f, 'Vertices', v,...
-            'FaceColor', options.AxesShadedColor,...
-            'EdgeColor', 'none',...
-            'FaceAlpha', options.AxesShadedTransparency);
-        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+        x_points = x_points(:);
+        y_points = y_points(:);
+
+        % Increment through groups of four vertices at a time
+        for jj = 1:2:length(x_points)-2
+            % Verticies and face points
+            v = [x_points(jj:jj+3), y_points(jj:jj+3)];
+            f = [1 2 4 3];
+
+            % Patch polygon
+            h = patch('Faces', f, 'Vertices', v,...
+                'FaceColor', options.AxesShadedColor{ii},...
+                'EdgeColor', 'none',...
+                'FaceAlpha', options.AxesShadedTransparency(ii));
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+        end
     end
 end
 

@@ -157,13 +157,13 @@ The three functions included have the same functionality but with 3 different im
                          ['off' (default) | 'on']
 
 - **AxesShadedLimits** - Used to set the limits of the shaded area. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
-                         [AxesLimits (default) | matrix]
+                         [AxesLimits (default) | cell array]
 
 - **AxesShadedColor**  - Used to change the color of the shaded area.
-                         ['green' | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
+                         ['green' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | cell array]
 
 - **AxesShadedTransparency**- Used to the shaded area transparency.
-                              [0.2 (default) | scalar in range (0, 1)] 
+                              [0.2 (default) | vector in range (0, 1)]
 
 - **AxesLabelsRotate** - Used to rotate the axes labels to be aligned with axes.
                          ['off' (default) | 'on']
@@ -515,18 +515,25 @@ spider_plot(P,...
   <img src="screenshot/example10.PNG">
 </p>
 
-### Example 11: Spider plot with shaded area around axes.
+### Example 11: Spider plot with multiple shaded area around axes.
 ```matlab
-% Initialize data points
+%% Initialize data points
 D1 = [5 3 9 1 2];
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
 
+% Multiple shaded regions
+axes_shaded_limits = {...
+    [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6],... % [min axes limits; max axes limits]
+    [5.5, 4, 3, 2, 4; 6, 7.0, 8, 3.0, 6]};
+
 % Spider plot
 spider_plot(P,...
-      'AxesShaded', 'on',...
-      'AxesShadedLimits', [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6]); % [min axes limits; max axes limits]
+    'AxesShaded', 'on',...
+    'AxesShadedLimits', axes_shaded_limits,...
+    'AxesShadedColor', {'b', 'r'},...
+    'AxesShadedTransparency', 0.1);
 ```
 <p align="center">
   <img src="screenshot/example11.png">
@@ -557,6 +564,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-10-08: Allow for multiple shaded regions.
+
 - 2022-09-07: Fix bug for specified axes handle not be respected.
 
 - 2022-08-02: Added in name-value pair to use specified axes handle.
@@ -666,5 +675,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Sergi Torres
 - Clara Vetter
 - schkorf1
+- Philipp
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
