@@ -574,7 +574,7 @@ P = [D1; D2; D3];
 spider_plot(P, 'AxesHandle', app.UIAxes); % <-- Replace with UIAxes component name
 ```
 <p align="center">
-  <img src="screenshot/example13.png">
+  <img src="screenshot/example13.PNG">
 </p>
 
 ## Author:
