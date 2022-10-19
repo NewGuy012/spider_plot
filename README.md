@@ -562,8 +562,25 @@ spider_plot(P,...
   <img src="screenshot/example12.png">
 </p>
 
+### Example 13: Spider plot in appdesigner.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P, 'AxesHandle', app.UIAxes); % <-- Replace with UIAxes component name
+```
+<p align="center">
+  <img src="screenshot/example13.png">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-10-19: Explicitly specify handles to allow plotting in appdesigner.
+
 - 2022-10-08: Allow for multiple shaded regions.
 
 - 2022-09-07: Fix bug for specified axes handle not be respected.
