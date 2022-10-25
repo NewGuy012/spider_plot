@@ -7,483 +7,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     %   s = spider_plot_class(P, Name, Value, ...)
     %   s = spider_plot_class(parent, ___)
     %
-    % Input Arguments:
-    %   (Required)
-    %   P                - The data points used to plot the spider chart. The
-    %                      rows are the groups of data and the columns are the
-    %                      data points. The axes labels and axes limits are
-    %                      automatically generated if not specified.
-    %                      [vector | matrix]
-    %
-    % Name-Value Pair Arguments:
-    %   (Optional)
-    %   AxesLabels       - Used to specify the label each of the axes.
-    %                      [auto-generated (default) | array of strings | 'none']
-    %
-    %   AxesInterval     - Used to change the number of intervals displayed
-    %                      between the webs.
-    %                      [3 (default) | integer]
-    %
-    %   AxesPrecision    - Used to change the precision level on the value
-    %                      displayed on the axes.
-    %                      [1 (default) | integer | vector]
-    %
-    %   AxesDisplay      - Used to change the number of axes in which the
-    %                      axes text are displayed. 'None' or 'one' can be used
-    %                      to simplify the plot appearance for normalized data.
-    %                      ['all' (default) | 'none' | 'one' | 'data']
-    %
-    %   AxesLimits       - Used to manually set the axes limits. A matrix of
-    %                      2 x size(P, 2). The top row is the minimum axes
-    %                      limits and the bottow row is the maximum axes limits.
-    %                      [auto-scaled (default) | matrix]
-    %
-    %   FillOption       - Used to toggle fill color option.
-    %                      ['off' (default) | 'on' | cell array of character vectors]
-    %
-    %   FillTransparency - Used to set fill color transparency.
-    %                      [0.1 (default) | scalar in range (0, 1) | vector]
-    %
-    %   Color            - Used to specify the line color, specified as an RGB
-    %                      triplet. The intensities must be in the range (0, 1).
-    %                      [MATLAB Color (default) | RGB triplet]
-    %
-    %   LineStyle        - Used to change the line style of the plots.
-    %                      ['-' (default) | '--' | ':' | '-.' | 'none']
-    %
-    %   LineWidth        - Used to change the line width, where 1 point is
-    %                      1/72 of an inch.
-    %                      [0.5 (default) | positive value]
-    %
-    %   LineTransparency - Used to set the line color transparency.
-    %                      [1 (default) | scalar in range (0, 1) | vector]
-    %
-    %   Marker           - Used to change the marker symbol of the plots.
-    %                      ['o' (default) | 'none' | '*' | 's' | 'd' | ...]
-    %
-    %   MarkerSize       - Used to change the marker size, where 1 point is
-    %                      1/72 of an inch.
-    %                      [36 (default) | positive value]
-    %
-    %   MarkerTransparency-Used to set the marker color transparency.
-    %                      [1 (default) | scalar in range (0, 1) | vector]
-    %
-    %   AxesFont         - Used to change the font type of the values
-    %                      displayed on the axes.
-    %                      [Helvetica (default) | supported font name]
-    %
-    %   LabelFont        - Used to change the font type of the labels.
-    %                      [Helvetica (default) | supported font name]
-    %
-    %   AxesFontSize     - Used to change the font size of the values
-    %                      displayed on the axes.
-    %                      [10 (default) | scalar value greater than zero]
-    %
-    %   AxesFontColor    - Used to change the font color of the values
-    %                      displayed on the axes.
-    %                      [black (default) | RGB triplet]
-    %
-    %   LabelFontSize    - Used to change the font size of the labels.
-    %                      [10 (default) | scalar value greater than zero]
-    %
-    %   Direction        - Used to change the direction of rotation of the
-    %                      plotted data and axis labels.
-    %                      ['clockwise' (default) | 'counterclockwise']
-    %
-    %   AxesDirection    - Used to change the direction of axes.
-    %                      ['normal' (default) | 'reverse' | cell array of character vectors]
-    %
-    %   AxesLabelsOffset - Used to adjust the position offset of the axes
-    %                      labels.
-    %                      [0.2 (default) | positive value]
-    %
-    %   AxesDataOffset   - Used to adjust the position offset of the data labels
-    %                      when AxesDisplay is set to 'data'.
-    %                      [0.1 (default) | positive value]
-    %
-    %   AxesScaling      - Used to change the scaling of the axes.
-    %                      ['linear' (default) | 'log' | cell array of character vectors]
-    %
-    %   AxesColor        - Used to change the color of the spider axes.
-    %                      [grey (default) | RGB triplet | hexadecimal color code]
-    %
-    %   AxesLabelsEdge   - Used to change the edge color of the axes labels.
-    %                      [black (default) | RGB triplet | hexadecimal color code | 'none']
-    %
-    %   LegendLabels     - Used to add the labels to the legend.
-    %                      [cell array of character vectors]
-    %
-    %   LegendHandle     - Used to customize legend settings. 
-    %                      [legend handle object]
-    %
-    %   AxesOffset       - Used to change to axes offset from the origin.
-    %                      [1 (default) | any integer less than the axes interval]
-    %
-    %   AxesZoom         - Used to change zoom of axes.
-    %                      [0.7 (default) | scalar in range (0, 1)]
-    %
-    %   AxesHorzAlign    - Used to change the horizontal alignment of axes tick labels.
-    %                      ['center' (default) | 'left' | 'right' | 'quadrant']
-    %
-    %   AxesVertAlign    - Used to change the vertical aligment of axes tick labels.
-    %                      ['middle' (default) | 'top' | 'cap' | 'bottom' | 'baseline' | 'quadrant']
-    %
-    %   TiledLayoutHandle- Used to customize tiled layout settings. 
-    %                      [tiled chart layout handle object]
-    %
-    %   TiledLegendHandle- Used to customize tiled legend settings. 
-    %                      [legend handle object of tiled layout]
-    %
-    %   NextTileIter     - Iterates with consecutive tile plots. 
-    %                      [1 (default)]
-    %
-    %   PlotVisible      - Used to change the visibility of the plotted lines and markers.
-    %                      ['on' (default) | 'off']
-    %
-    %   AxesTickLabels   - Used to change the axes tick labels.
-    %                      ['data' (default) | cell array of character vectors]
-    %
-    %   AxesInterpreter  - Used to change the text interpreter of axes labels and axes tick labels.
-    %                      ['tex' (default) | 'latex' | 'none'  | cell array of character vectors]
-    %
-    %   BackgroundColor  - Used to change the color of the background.
-    %                      [white (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
-    %
-    %   MinorGrid        - Used to toggle the minor grid.
-    %                      ['off' (default) | 'on']
-    %
-    %   MinorGridInterval- Used to change number of minor grid lines in between the major grid lines.
-    %                      [2 (default) | integer value greater than zero]
-    %
-    %   AxesZero         - Used to add a reference axes at value zero.
-    %                      ['off' (default) | 'on']
-    %
-    %   AxesZeroColor    - Used to change the color of the zero reference axes.
-    %                      ['black' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | ...]
-    %
-    %   AxesZeroWidth    - Used to change the line width of the zero reference axes.
-    %                      [2 (default) | positive value]
-    %
-    %   AxesRadial       - Used to toggle radial axes.
-    %                      ['on' (default) | 'off']
-    %
-    %   AxesAngular      - Used to toggle angular axes.
-    %                      ['on' (default) | 'off']
-    %
-    %   AxesShaded       - Used to toggle shaded area around axes.
-    %                      ['off' (default) | 'on']
-    %
-    %   AxesShadedLimits - Used to set the limits of the shaded area. A matrix of
-    %                      2 x size(P, 2). The top row is the minimum axes
-    %                      limits and the bottow row is the maximum axes limits.
-    %                      [AxesLimits (default) | cell array]
-    %
-    %   AxesShadedColor  - Used to change the color of the shaded area.
-    %                      ['green' (default) | RGB triplet | hexadecimal color code | 'r' | 'g' | 'b' | cell array]
-    %
-    %   AxesShadedTransparency- Used to the shaded area transparency.
-    %                           [0.2 (default) | vector in range (0, 1)]
-    %
-    %   AxesLabelsRotate - Used to rotate the axes labels to be aligned with axes.
-    %                      ['off' (default) | 'on']
-    %
-    % Output Arguments:
-    %   (Optional)
-    %   s                - Returns a chart class object. These are unique
-    %                      identifiers, which you can use to query and
-    %                      modify properties of the spider chart.
-    %                      [chart class object]
-    %
-    % Examples:
-    %   % Example 1: Minimal number of arguments. All non-specified, optional
-    %                arguments are set to their default values. Axes labels
-    %                and limits are automatically generated and set.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.LegendLabels = {'D1', 'D2', 'D3'};
-    %   s.LegendHandle.Location = 'southoutside';
-    %
-    %   % Example 2: Manually setting the axes limits and axes precision.
-    %                All non-specified, optional arguments are set to their
-    %                default values.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10]; % [min axes limits; max axes limits]
-    %   s.AxesPrecision = [0, 1, 1, 1, 1];
-    %
-    %   % Example 3: Set fill option on. The fill transparency can be adjusted.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
-    %   s.AxesInterval = 2;
-    %   s.FillOption = {'on', 'on', 'off'};
-    %   s.FillTransparency = [0.2, 0.1, 0.1];
-    %
-    %   % Example 4: Maximum number of arguments.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesLabels = {'S1', 'S2', 'S3', 'S4', 'S5'};
-    %   s.AxesInterval = 4;
-    %   s.AxesPrecision = 0;
-    %   s.AxesDisplay = 'one';
-    %   s.AxesLimits = [1, 2, 1, 1, 1; 10, 8, 9, 5, 10];
-    %   s.FillOption = 'on';
-    %   s.FillTransparency =  0.2;
-    %   s.Color = [1, 0, 0; 0, 1, 0; 0, 0, 1];
-    %   s.LineStyle = '--';
-    %   s.LineWidth = 3;
-    %   s.LineTransparency = 1;
-    %   s.Marker =  'd';
-    %   s.MarkerSize = 10;
-    %   s.MarkerTransparency = 1;
-    %   s.AxesFont = 'Times New Roman';
-    %   s.LabelFont = 'Times New Roman';
-    %   s.AxesFontSize = 12;
-    %   s.AxesFontColor = 'k';
-    %   s.LabelFontSize = 10;
-    %   s.Direction = 'clockwise';
-    %   s.AxesDirection = {'reverse', 'normal', 'normal', 'normal', 'normal'};
-    %   s.AxesLabelsOffset = 0.2;
-    %   s.AxesDataOffset = 0.1;
-    %   s.AxesScaling = 'linear';
-    %   s.AxesOffset = 1;
-    %   s.LegendLabels = {'D1', 'D2', 'D3'};
-    %   s.LegendHandle.Location = 'northeastoutside';
-    %   s.PlotVisible = 'on';
-    %   s.AxesTickLabels = 'data';
-    %   s.AxesInterpreter =  'tex';
-    %   s.BackgroundColor = 'w';
-    %   s.MinorGrid = 'off';
-    %   s.MinorGridInterval = 2;
-    %   s.AxesZero = 'off';
-    %   s.AxesZeroColor = 'k';
-    %   s.AxesZeroWidth = 2;
-    %   s.AxesRadial = 'on';
-    %   s.AxesAngular = 'on';
-    %   s.AxesShaded = 'off';
-    %   s.AxesShadedLimits = [];
-    %   s.AxesShadedColor = 'g';
-    %   s.AxesShadedTransparency = 0.2;
-    %   s.AxesLabelsRotate = 'on';
-    %
-    %   % Example 5: Excel-like radar charts.
-    %
-    %   D1 = [5 0 3 4 4];
-    %   D2 = [2 1 5 5 4];
-    %   P = [D1; D2];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesInterval = 5;
-    %   s.AxesPrecision = 0;
-    %   s.AxesDisplay = 'one';
-    %   s.AxesLimits = [0, 0, 0, 0, 0; 5, 5, 5, 5, 5];
-    %   s.FillOption = 'on';
-    %   s.FillTransparency = 0.1;
-    %   s.Color = [139, 0, 0; 240, 128, 128]/255;
-    %   s.LineWidth = 4;
-    %   s.Marker = 'none';
-    %   s.AxesFontSize = 14;
-    %   s.LabelFontSize = 10;
-    %   s.AxesColor = [0.8, 0.8, 0.8];
-    %   s.AxesLabelsEdge = 'none';
-    %   s.AxesRadial = 'off';
-    %   title('Excel-like Radar Chart',...
-    %       'FontSize', 14);
-    %   s.LegendLabels = {'D1', 'D2'};
-    %
-    %   % Example 6: Logarithimic scale on all axes. Axes limits and axes
-    %                intervals are automatically set to factors of 10.
-    %
-    %   D1 = [5 3 9 1 1];
-    %   D2 = [5 8 7 2 10];
-    %   D3 = [8 2 1 4 100];
-    %   P = [D1; D2; D3];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesInterval = 2;
-    %   s.AxesPrecision = 0;
-    %   s.AxesFontSize = 10;
-    %   s.AxesLabels = {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'};
-    %   s.AxesScaling = {'linear', 'linear', 'linear', 'linear', 'log'};
-    %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 100];
-    %   s.LegendLabels = {'D1', 'D2', 'D3'};
-    %
-    %   % Example 7: Spider plot with tiledlayout.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   close all;
-    %   figure;
-    %   s1 = spider_plot_class(P);
-    %   s1.LegendLabels = {'Data1a', 'Data1b', 'Data1c'};
-    %   s1.AxesZoom = 1;
-    %   s1.AxesHorzAlign = 'quadrant';
-    %   s1.AxesVertAlign = 'quadrant';
-    %   figure;
-    %   s2 = spider_plot_class(P);
-    %   s2.LegendLabels = {'Data2a', 'Data2b', 'Data2c'};
-    %   s2.AxesZoom = 1;
-    %   s2.AxesHorzAlign = 'center';
-    %   s2.AxesVertAlign = 'top';
-    %   figure;
-    %   s3 = spider_plot_class(P);
-    %   s3.LegendLabels = {'Data3a', 'Data3b', 'Data3c'};
-    %   s3.AxesZoom = 1;
-    %   s3.AxesHorzAlign = 'left';
-    %   s3.AxesVertAlign = 'middle';
-    %   s1.tiledlayout(2, 2);
-    %   s1.nexttile(s1);
-    %   s1.nexttile(s2);
-    %   s1.nexttile(s3, 3, [1, 2]);
-    %   s1.TiledLayoutHandle.TileSpacing = 'none';
-    %   s1.TiledLayoutHandle.Padding = 'compact';
-    %   title(s1.TiledLayoutHandle, "Spider Plots");
-    %   s1.tiledlegend('FontSize', 8);
-    %   s1.TiledLegendHandle.Layout.TileSpan = [1, 2];
-    %   s1.TiledLegendHandle.Layout.Tile = 1;
-    %
-    % Example 8: Spider plot with values only on data points.
-    %   
-    %   D1 = [1 3 4 1 2];
-    %   D2 = [5 8 7 5 9];
-    %   P = [D1; D2];
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesLimits = [1, 1, 1, 1, 1; 10, 10, 10, 10, 10];
-    %   s.AxesDisplay = 'data';
-    %   s.AxesLabelsOffset = 0.2;
-    %   s.AxesDataOffset = 0.1;
-    %   s.AxesFontColor = [0, 0, 1; 1, 0, 0];
-    %   s.LegendLabels = {'D1', 'D2'};
-    %   s.LegendHandle.Location = 'northeastoutside';
-    %
-    %   % Example 9: Spider plot with shaded area around axes.
-    %
-    %   D1 = [5 3 9 1 2];
-    %   D2 = [5 8 7 2 9];
-    %   D3 = [8 2 1 4 6];
-    %   P = [D1; D2; D3];
-    %   axes_shaded_limits = {...
-    %       [5.5, 4, 3, 2, 4; 7, 6.5, 6, 3.5, 6],...
-    %       [5.5, 4, 3, 2, 4; 6, 7.0, 8, 3.0, 6]};
-    %   if exist('s', 'var')
-    %       delete(s);
-    %   end
-    %   s = spider_plot_class(P);
-    %   s.AxesShaded = 'on';
-    %   s.AxesShadedLimits = axes_shaded_limits;
-    %   s.AxesShadedColor = {'b', 'r'};
-    %   s.AxesShadedTransparency = 0.1;
-    %
-    % Author:
-    %   Moses Yoo, (juyoung.m.yoo at gmail dot com)
-    %   2022-10-08: Allow for multiple shaded regions.
-    %   2022-07-27: Corrected bug where only 7 entries were allowed in
-    %               spider_plot_class.
-    %   2022-03-24: Add support for NaN values. Plot NaN values at origin.
-    %   2022-03-23: Adjust rotated axes label alignment to be closer to axes.
-    %   2022-03-21: Allow axes labels to be rotated to be aligned with axes.
-    %   2022-03-17: Allow a shaded band to be plotted around the axes.
-    %   2022-02-14: -Add support for reference axes at value zero.
-    %               -Allow for toggling radial and angular axes on or off.
-    %   2022-01-23: -Add ability to change figure/axes background color.
-    %               -Allow for toggling minor grid lines.
-    %   2022-01-03: Fix legend to include line and marker attributes.
-    %   2021-11-24: Fix axes labels misalignment. Add option to set offset for
-    %               data display values.
-    %   2021-11-09: Add option to change the text interpreter of axes labels
-    %               and axes tick labels.
-    %   2021-11-01: -Allow for plot lines and markers to be hidden.
-    %               -Allow for custom text of axes tick labels.
-    %   2021-04-17: Fix data display values when log scale is set.
-    %   2021-04-13: Add option to adjust line and marker transparency.
-    %   2021-04-08: -Add option for data values to be displayed on axes.
-    %               -Add support to adjust axes font colors.
-    %   2021-03-19: -Allow legend to be global in tiledlayout.
-    %               -Allow axes values to be shifted.
-    %               -Allow axes zoom level to be adjusted.
-    %   2021-03-17: Implement tiledlayout and nexttile compatibility.
-    %   2020-12-09: Allow fill option and fill transparency for each data group.
-    %   2020-12-01: Added support for adjust the axes offset from origin.
-    %   2020-11-30: Allow for one data group without specified axes limits.
-    %   2020-11-30: Added support for changing axes and label font type.
-    %   2020-11-06: Fix bug in reverse axes direction feature.
-    %   2020-10-08: Adjust axes precision to be set to one or more axis.
-    %   2020-10-01: Fix legend feature with inherited legend class.
-    %   2020-09-30: -Fix axes limit bug. Updated examples.
-    %               -Added feature to change spider axes and axes labels edge color.
-    %               -Allow logarithmic scale to be set to one or more axis.
-    %               -Added feature to allow different line styles, line width,
-    %                marker type, and marker sizes for the data groups.
-    %               -Allow ability to reverse axes direction.
-    %   2020-02-17: Major revision in converting the function into a custom
-    %               chart class. New feature introduced in R2019b.
-    %   2020-02-12: Fixed condition and added error checking for when only one
-    %               data group is plotted.
-    %   2020-01-27: Corrected bug where only 7 entries were allowed in legend.
-    %   2020-01-06: Added support for tiledlayout feature introduced in R2019b.
-    %   2019-11-27: Add option to change axes to logarithmic scale.
-    %   2019-11-15: Add feature to customize the plot rotational direction and
-    %               the offset position of the axis labels.
-    %   2019-10-28: Major revision in implementing the new function argument
-    %               validation feature introduced in R2019b. Replaced previous
-    %               method of error checking and setting of default values.
-    %   2019-10-23: Minor revision to set starting axes as the vertical line.
-    %               Add customization option for font sizes and axes display.
-    %   2019-10-16: Minor revision to add name-value pairs for customizing
-    %               color, Marker, and line settings.
-    %   2019-10-08: Another major revision to convert to name-value pairs and
-    %               add color fill option.
-    %   2019-09-17: Major revision to improve speed, clarity, and functionality
-    %
-    % Special Thanks:
-    %   Special thanks to Gabriela Andrade, Andrés Garcia, Alex Grenyer,
-    %   Omar Hadri, Zafar Ali, Christophe Hurlin, Roman, Mariusz Sepczuk,
-    %   Mohamed Abubakr, Maruis Mueller, Nicolai, Jingwei Too,
-    %   Cedric Jamet, Richard Ruff, Marie-Kristin Schreiber, Jean-Baptise
-    %   Billaud, Juan Carlos Vargas Rubio, Anthony Wang, Pauline Oeuvray
-    %   Oliver Nicholls, Yu-Chi Chen, Fabrizio De Caro, Waqas Ahmad,
-    %   Mario Di Siena, Rebecca, Nikolaos Koutsouleris, Sergi Torres &
-    %   Philipp for their feature recommendations and bug finds. A huge
-    %   thanks to Jiro Doke and Sean de Wolski for demonstrating the
-    %   implementation of argument validation and custom chart class
-    %   introduced in R2019b.
+    % Documentation:
+    %   Please refer to the MathWorks File Exchange or GitHub page for the
+    %   detailed documentation and examples.
     
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
@@ -1015,11 +541,17 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 color = obj.Color;
             end
         end
-        
+
         function axes_limits = get.AxesLimits(obj)
             % Check if value is empty
             if isempty(obj.AxesLimits)
-                axes_limits = [min(obj.P, [], 1); max(obj.P, [], 1)];
+                % Replace Inf with NaN
+                P_limits = obj.P;
+                inf_index = isinf(P_limits);
+                P_limits(inf_index) = nan;
+
+                % Default arguments
+                axes_limits = [min(P_limits, [], 1); max(P_limits, [], 1)];
             else
                 % Validate axes limits
                 validateAxesLimits(obj.AxesLimits, obj.P);
@@ -1614,7 +1146,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % Group of points
                     group_points = P_selected(:, ii);
                 end
-                
+
+                % Replace Inf with NaN
+                inf_index = isinf(group_points);
+                group_points(inf_index) = nan;
+
                 % Check for log axes scaling option
                 if log_index(ii)
                     % Minimum and maximun log limits
@@ -1818,8 +1354,23 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             % Iterate through number of data groups
             for ii = 1:obj.NumDataGroups
+                % Initialize
+                A_scaled = P_scaled(ii, :);
+                A_theta = theta(1:end-1);
+
+                % Find the index of Inf values
+                inf_index = isinf(A_scaled);
+                noninf_index = find(~inf_index);
+
+                % Check if any Inf values detected
+                if any(inf_index)
+                    % Remove Inf values
+                    A_scaled(inf_index) = [];
+                    A_theta(inf_index) = [];
+                end
+
                 % Convert polar to cartesian coordinates
-                [x_points, y_points] = pol2cart(theta(1:end-1), P_scaled(ii, :));
+                [x_points, y_points] = pol2cart(A_theta, A_scaled);
                 
                 % Make points circular
                 x_circular = [x_points, x_points(1)];
@@ -1840,7 +1391,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Check axes display setting
                 if strcmp(obj.AxesDisplay, 'data')
                     % Iterate through number of data points
-                    for jj = 1:obj.NumDataPoints
+                    for jj = noninf_index
                         % Convert polar to cartesian coordinates
                         [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
                         [x_pos, y_pos] = pol2cart(current_theta, current_rho+obj.AxesDataOffset);

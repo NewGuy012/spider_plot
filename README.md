@@ -577,8 +577,30 @@ spider_plot(P, 'AxesHandle', app.UIAxes); % <-- Replace with UIAxes component na
   <img src="screenshot/example13.PNG">
 </p>
 
+### Example 14: Leave out plotting missing values specified by "Inf".
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 inf];
+P = [D1; D2; D3];
+
+% Axes limits
+axes_limits = [1 1 1 1 1; 10 10 10 10 10];
+
+% Spider plot
+spider_plot(P,...
+    'AxesLimits', axes_limits,...
+    'FillOption', 'on');
+```
+<p align="center">
+  <img src="screenshot/example14.PNG">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-10-24: Leave out plotting missing values specified by Inf.
+
 - 2022-10-19: Explicitly specify handles to allow plotting in appdesigner.
 
 - 2022-10-08: Allow for multiple shaded regions.
@@ -693,5 +715,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Clara Vetter
 - schkorf1
 - Philipp
+- John Wills
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
