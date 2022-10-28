@@ -715,6 +715,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Clara Vetter
 - schkorf1
 - Philipp
+- Alexis
 - John Wills
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
