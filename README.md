@@ -599,6 +599,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-11-25: Remove connecting line for missing values specified by Inf.
+
 - 2022-10-24: Leave out plotting missing values specified by Inf.
 
 - 2022-10-19: Explicitly specify handles to allow plotting in appdesigner.

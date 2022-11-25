@@ -998,9 +998,9 @@ for ii = 1:num_data_groups
 
     % Check if any Inf values detected
     if any(inf_index)
-        % Remove Inf values
-        A_scaled(inf_index) = [];
-        A_theta(inf_index) = [];
+        % Do not plot Inf values
+        A_scaled(inf_index) = nan;
+        A_theta(inf_index) = nan;
     end
 
     % Convert polar to cartesian coordinates

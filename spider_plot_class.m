@@ -1365,8 +1365,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Check if any Inf values detected
                 if any(inf_index)
                     % Remove Inf values
-                    A_scaled(inf_index) = [];
-                    A_theta(inf_index) = [];
+                    A_scaled(inf_index) = nan;
+                    A_theta(inf_index) = nan;
                 end
 
                 % Convert polar to cartesian coordinates
