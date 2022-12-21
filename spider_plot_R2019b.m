@@ -16,7 +16,7 @@ arguments
     options.AxesLabels {validateAxesLabels(options.AxesLabels, P)} = cellstr("Label " + (1:size(P, 2)))
     options.AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
-    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'
+    options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data', 'data-percent'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = [];
     options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
     options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.2
@@ -270,7 +270,7 @@ end
 
 %%% Validate Axes Font Color
 % Check if axes display is data
-if strcmp(options.AxesDisplay, 'data')
+if ismember(options.AxesDisplay, {'data', 'data-percent'})
     if size(options.AxesFontColor, 1) ~= num_data_groups
         % Check axes font color dimensions
         if size(options.AxesFontColor, 1) == 1 && size(options.AxesFontColor, 2) == 3
@@ -641,6 +641,8 @@ switch options.AxesDisplay
         theta_end_index = 0;
     case 'data'
         theta_end_index = 0;
+    case 'data-percent'
+        theta_end_index = 0;
 end
 
 % Rho start index and offset interval
@@ -781,15 +783,23 @@ for ii = 1:num_data_groups
         'Visible', options.PlotVisible);
         
     % Iterate through number of data points
-    if strcmp(options.AxesDisplay, 'data')
+    if ismember(options.AxesDisplay, {'data', 'data-percent'})
         for jj = noninf_index
             % Convert polar to cartesian coordinates
             [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
             [x_pos, y_pos] = pol2cart(current_theta, current_rho+options.AxesDataOffset);
-            
-            % Display axes text
+
+            % Data value
             data_value = P(ii, jj);
-            text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(jj)), data_value);
+
+            % Format data value
+            if strcmp(options.AxesDisplay, 'data-percent')
+                text_str = sprintf(sprintf('%%.%if%%%%', options.AxesPrecision(jj)), data_value*100);
+            else
+                text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(jj)), data_value);
+            end
+
+            % Display axes text
             text(ax, x_pos, y_pos, text_str,...
                 'Units', 'Data',...
                 'Color', options.AxesFontColor(ii, :),...

@@ -40,7 +40,7 @@ The three functions included have the same functionality but with 3 different im
                          [1 (default) | integer | vector]
                          
 - **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify the plot appearance for normalized data.
-                         ['all' (default) | 'none' | 'one' | 'data']
+                         ['all' (default) | 'none' | 'one' | 'data' | 'data-percent']
 
 - **AxesLimits**       - Used to manually set the axes limits. A matrix of 2 x size(P, 2). The top row is the minimum axes limits and the bottow row is the maximum axes limits.
                          [auto-scaled (default) | matrix]
@@ -599,6 +599,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-12-21: Add ability to display data points in percentage.
+
 - 2022-11-25: Remove connecting line for missing values specified by Inf.
 
 - 2022-10-24: Leave out plotting missing values specified by Inf.
@@ -719,5 +721,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Philipp
 - Alexis
 - John Wills
+- Nian
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

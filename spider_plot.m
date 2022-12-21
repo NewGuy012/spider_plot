@@ -255,8 +255,8 @@ if axes_interval < 1 || any(axes_precision < 0)
 end
 
 % Check if axes display is valid char entry
-if ~ismember(axes_display, {'all', 'none', 'one', 'data'})
-    error('Error: Invalid axes display entry. Please enter in "all", "none", or "one" to set axes text.');
+if ~ismember(axes_display, {'all', 'none', 'one', 'data', 'data-percent'})
+    error('Error: Invalid axes display entry. Please enter in "all", "none", "one", "data", or "data-percent" to set axes text.');
 end
 
 % Check if fill option is valid
@@ -469,6 +469,7 @@ else
     if ~strcmp(axes_tick_labels, 'data')
         error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
     end
+    
 end
 
 % Check if axes scaling is a cell
@@ -616,7 +617,7 @@ else
 end
 
 % Check if axes display is data
-if strcmp(axes_display, 'data')
+if ismember(axes_display, {'data', 'data-percent'})
     if size(axes_font_color, 1) ~= num_data_groups
         % Check axes font color dimensions
         if size(axes_font_color, 1) == 1 && size(axes_font_color, 2) == 3
@@ -904,6 +905,8 @@ switch axes_display
         theta_end_index = 0;
     case 'data'
         theta_end_index = 0;
+    case 'data-percent'
+        theta_end_index = 0;
 end
 
 % Rho start index and offset interval
@@ -1045,15 +1048,23 @@ for ii = 1:num_data_groups
         'Visible', plot_visible);
 
     % Iterate through number of data points
-    if strcmp(axes_display, 'data')
+    if ismember(axes_display, {'data', 'data-percent'})
         for jj = noninf_index
             % Convert polar to cartesian coordinates
             [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
             [x_pos, y_pos] = pol2cart(current_theta, current_rho+axes_data_offset);
 
-            % Display axes text
+            % Data value
             data_value = P(ii, jj);
-            text_str = sprintf(sprintf('%%.%if', axes_precision(jj)), data_value);
+
+            % Format data value
+            if strcmp(axes_display, 'data-percent')
+                text_str = sprintf(sprintf('%%.%if%%%%', axes_precision(jj)), data_value*100);
+            else
+                text_str = sprintf(sprintf('%%.%if', axes_precision(jj)), data_value);
+            end
+
+            % Display axes text
             text(ax, x_pos, y_pos, text_str,...
                 'Units', 'Data',...
                 'Color', axes_font_color(ii, :),...

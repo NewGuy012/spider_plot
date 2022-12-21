@@ -20,7 +20,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         LegendHandle % Legend handle
         AxesInterval (1, 1) double {mustBeInteger, mustBePositive} = 3 % Number of axes grid lines
         AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
-        AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one', 'data'})} = 'all'  % Number of tick label groups shown on axes
+        AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one', 'data', 'data-percent'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
         FillOption {mustBeMember(FillOption, {'on', 'off'})} = 'off' % Whether to shade data
         FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.2 % Shading alpha
@@ -855,7 +855,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         
         function axes_font_color = get.AxesFontColor(obj)
             % Check if axes display is data
-            if strcmp(obj.AxesDisplay, 'data')
+            if ismember(obj.AxesDisplay, {'data', 'data-percent'})
                 if size(obj.AxesFontColor, 1) ~= obj.NumDataGroups
                     % Check axes font color dimensions
                     if size(obj.AxesFontColor, 1) == 1 && size(obj.AxesFontColor, 2) == 3
@@ -1319,6 +1319,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     theta_end_index = 0;
                 case 'data'
                     theta_end_index = 0;
+                case 'data-percent'
+                    theta_end_index = 0;
             end
             
             % Rho start index and offset interval
@@ -1389,7 +1391,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 obj.FillPatches(ii).YData = y_circular;
                 
                 % Check axes display setting
-                if strcmp(obj.AxesDisplay, 'data')
+                if ismember(obj.AxesDisplay, {'data', 'data-percent'})
                     % Iterate through number of data points
                     for jj = noninf_index
                         % Convert polar to cartesian coordinates
@@ -1620,7 +1622,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             end
             
             % Check axes axes display argument
-            if strcmp(obj.AxesDisplay, 'none') || strcmp(obj.AxesDisplay, 'data')
+            if ismember(obj.AxesDisplay, {'none', 'data', 'data-percent'})
                 % Set axes tick label invisible
                 set(obj.AxesTickText, 'Visible', 'off')
             else
@@ -1653,7 +1655,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             end
             
             % Check axes display
-            if strcmp(obj.AxesDisplay, 'data')
+            if ismember(obj.AxesDisplay, {'data', 'data-percent'})
                 % Set axes data label visible
                 set(obj.AxesDataLabels, 'Visible', 'on')
                 
@@ -1661,8 +1663,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 for ii = 1:size(obj.AxesDataLabels, 1)
                     % Iterate through axes values columns
                     for jj = 1:size(obj.AxesDataLabels, 2)
+                        % Format data value
+                        if strcmp(obj.AxesDisplay, 'data-percent')
+                            text_str = sprintf(sprintf('%%.%if%%%%', obj.AxesPrecision(ii)), obj.P(ii, jj)*100);
+                        else
+                            text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.P(ii, jj));
+                        end
+
                         % Display axes text
-                        text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.P(ii, jj));
                         obj.AxesDataLabels(ii, jj).String = text_str;
                         obj.AxesDataLabels(ii, jj).FontName = obj.AxesFont;
                         obj.AxesDataLabels(ii, jj).FontSize = obj.AxesFontSize;
