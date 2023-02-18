@@ -83,6 +83,7 @@ axes_shaded_color = 'g';
 axes_shaded_transparency = 0.2;
 axes_labels_rotate = 'off';
 axes_handle = gobjects;
+error_bars = 'off';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -188,6 +189,8 @@ if numvarargs > 1
                 axes_labels_rotate = value_arguments{ii};
             case 'axeshandle'
                 axes_handle = value_arguments{ii};
+            case 'errorbars'
+                error_bars = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -988,64 +991,138 @@ if any(isnan(P_scaled), 'all')
     P_scaled(nan_index) = 0;
 end
 
-% Iterate through number of data groups
-for ii = 1:num_data_groups
-    % Initialize
-    A_scaled = P_scaled(ii, :);
+% Check if error bars are desired
+if strcmp(error_bars, 'on')
+    % Calculate mean and standard deviation
+    P_mean = mean(P);
+    P_std = std(P);
+    P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
+    
+    % Scale points to range from [0, 1] and apply offset
+    P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
+    P_mean = P_mean * (1 - rho_offset) + rho_offset;
+
+    % Convert from polar to cartesian
     A_theta = theta(1:end-1);
-
-
-    % Find the index of Inf values
-    inf_index = isinf(A_scaled);
-    noninf_index = find(~inf_index);
-
-    % Check if any Inf values detected
-    if any(inf_index)
-        % Do not plot Inf values
-        A_scaled(inf_index) = nan;
-        A_theta(inf_index) = nan;
-    end
-
-    % Convert polar to cartesian coordinates
+    A_scaled = P_mean;
     [x_points, y_points] = pol2cart(A_theta, A_scaled);
 
-    % Make points circular
-    x_circular = [x_points, x_points(1)];
-    y_circular = [y_points, y_points(1)];
-
-    % Plot data points
-    h = plot(ax, x_circular, y_circular,...
-        'LineStyle', line_style{ii},...
-        'Color', colors(ii, :),...
-        'LineWidth', line_width(ii),...
-        'Visible', plot_visible);
-    h.Color(4) = line_transparency(ii);
-
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
-
-    h = scatter(ax, x_circular, y_circular,...
-        'Marker', marker_type{ii},...
-        'SizeData', marker_size(ii),...
-        'MarkerFaceColor', colors(ii, :),...
-        'MarkerEdgeColor', colors(ii, :),...
-        'MarkerFaceAlpha', marker_transparency(ii),...
-        'MarkerEdgeAlpha', marker_transparency(ii),...
+    % Scatter plot mean values
+    scatter(ax, x_points(1, :), y_points(1, :),...
+        'Marker', marker_type{1},...
+        'SizeData', marker_size(1),...
+        'MarkerFaceColor', colors(1, :),...
+        'MarkerEdgeColor', colors(1, :),...
+        'MarkerFaceAlpha', marker_transparency(1),...
+        'MarkerEdgeAlpha', marker_transparency(1),...
         'Visible', plot_visible);
 
-    % Turn off legend annotation
-    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    % Iterate through each gropu
+    for ii = 1:size(x_points, 2)
+        % Mean +- standard deviation
+        X = x_points(2:3, ii)';
+        Y = y_points(2:3, ii)';
+
+        % Plot error bar
+        h = plot(ax, X, Y,...
+            'LineStyle', line_style{1},...
+            'Color', colors(1, :),...
+            'LineWidth', line_width(1),...
+            'Visible', plot_visible);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+        % Perpendicular line
+        v = [diff(X); diff(Y)];
+        v = 0.05 * v / vecnorm(v);
+
+        % Top and bottom
+        for jj = 1:length(X)
+            % Plot end tip
+            h = plot([X(jj)+v(2), X(jj)-v(2)], [Y(jj)-v(1), Y(jj)+v(1)],...
+                'LineStyle', line_style{1},...
+                'Color', colors(1, :),...
+                'LineWidth', line_width(1),...
+                'Visible', plot_visible);
+
+            % Turn off legend annotation
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+        end
+    end
 
     % Plot empty line with combined attributes for legend
     plot(ax, nan, nan,...
-        'Marker', marker_type{ii},...
-        'MarkerSize', marker_size(ii)/6,...
-        'MarkerFaceColor', colors(ii, :),...
-        'MarkerEdgeColor', colors(ii, :),...
-        'LineStyle', line_style{ii},...
-        'Color', colors(ii, :),...
-        'LineWidth', line_width(ii),...
+        'Marker', marker_type{1},...
+        'MarkerSize', marker_size(1)/6,...
+        'MarkerFaceColor', colors(1, :),...
+        'MarkerEdgeColor', colors(1, :),...
+        'LineStyle', line_style{1},...
+        'Color', colors(1, :),...
+        'LineWidth', line_width(1),...
         'Visible', plot_visible);
+end
+
+% Iterate through number of data groups
+for ii = 1:num_data_groups
+    % Check if error bars are desired
+    if strcmp(error_bars, 'off')
+        % Initialize
+        A_scaled = P_scaled(ii, :);
+        A_theta = theta(1:end-1);
+
+        % Find the index of Inf values
+        inf_index = isinf(A_scaled);
+        noninf_index = find(~inf_index);
+
+        % Check if any Inf values detected
+        if any(inf_index)
+            % Do not plot Inf values
+            A_scaled(inf_index) = nan;
+            A_theta(inf_index) = nan;
+        end
+
+        % Convert polar to cartesian coordinates
+        [x_points, y_points] = pol2cart(A_theta, A_scaled);
+
+        % Make points circular
+        x_circular = [x_points, x_points(1)];
+        y_circular = [y_points, y_points(1)];
+
+        % Plot data points
+        h = plot(ax, x_circular, y_circular,...
+            'LineStyle', line_style{ii},...
+            'Color', colors(ii, :),...
+            'LineWidth', line_width(ii),...
+            'Visible', plot_visible);
+        h.Color(4) = line_transparency(ii);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+        h = scatter(ax, x_circular, y_circular,...
+            'Marker', marker_type{ii},...
+            'SizeData', marker_size(ii),...
+            'MarkerFaceColor', colors(ii, :),...
+            'MarkerEdgeColor', colors(ii, :),...
+            'MarkerFaceAlpha', marker_transparency(ii),...
+            'MarkerEdgeAlpha', marker_transparency(ii),...
+            'Visible', plot_visible);
+
+        % Turn off legend annotation
+        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+        % Plot empty line with combined attributes for legend
+        plot(ax, nan, nan,...
+            'Marker', marker_type{ii},...
+            'MarkerSize', marker_size(ii)/6,...
+            'MarkerFaceColor', colors(ii, :),...
+            'MarkerEdgeColor', colors(ii, :),...
+            'LineStyle', line_style{ii},...
+            'Color', colors(ii, :),...
+            'LineWidth', line_width(ii),...
+            'Visible', plot_visible);
+    end
 
     % Iterate through number of data points
     if ismember(axes_display, {'data', 'data-percent'})
