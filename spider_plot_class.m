@@ -65,6 +65,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesShadedColor = 'g'
         AxesShadedTransparency double {mustBeGreaterThanOrEqual(AxesShadedTransparency, 0), mustBeLessThanOrEqual(AxesShadedTransparency, 1)} = 0.2 % Shading alpha
         AxesLabelsRotate {mustBeMember(AxesLabelsRotate, {'off', 'on'})} = 'off'
+        ErrorBars {mustBeMember(ErrorBars, {'off', 'on'})} = 'off'
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -73,7 +74,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         DataLines = gobjects(0);
         ScatterPoints = gobjects(0);
         NanPoints = gobjects(0);
-        
+        ErrorBarPoints = gobjects(0);
+        ErrorBarLines = gobjects(0);
+
         % Background web object
         ThetaAxesLines = gobjects(0);
         RhoAxesLines = gobjects(0);
@@ -494,6 +497,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Toggle re-initialize to true if AxesShadedTransparency was changed
             obj.InitializeToggle = true;
         end
+
+        function set.ErrorBars(obj, value)
+            % Set property
+            obj.ErrorBars = value;
+            
+            % Toggle re-initialize to true if ErrorBars was changed
+            obj.InitializeToggle = true;
+        end
+        
         
         %%% Get Methods %%%
         function num_data_points = get.NumDataPoints(obj)
@@ -516,12 +528,18 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 axes_labels = obj.AxesLabels;
             end
         end
-        
+
         function legend_labels = get.LegendLabels(obj)
             % Check if value is empty
             if isempty(obj.LegendLabels)
-                % Set legend labels
-                legend_labels = cellstr("Data " + (1:obj.NumDataGroups));
+                % Check error bar status
+                if strcmp(obj.ErrorBars, 'on')
+                    % Set legend labels
+                    legend_labels = {'Data 1'};
+                else
+                    % Set legend labels
+                    legend_labels = cellstr("Data " + (1:obj.NumDataGroups));
+                end
             else
                 % Keep legend labels
                 legend_labels = obj.LegendLabels;
@@ -1049,6 +1067,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.AxesTextLabels);
             delete(obj.AxesTickText);
             delete(obj.AxesDataLabels);
+            delete(obj.ErrorBarPoints);
+            delete(obj.ErrorBarLines);
             
             % Reset object with empty objects
             obj.DataLines = gobjects(0);
@@ -1063,6 +1083,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesTextLabels = gobjects(0);
             obj.AxesTickText = gobjects(0);
             obj.AxesDataLabels = gobjects(0);
+            obj.ErrorBarPoints = gobjects(0);
+            obj.ErrorBarLines = gobjects(0);
         end
         
         function initialize(obj)
@@ -1342,11 +1364,22 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Parent', ax);
                 
                 % Turn off legend annotation
+                obj.FillPatches(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
                 obj.DataLines(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
                 obj.ScatterPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
-                obj.FillPatches(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
+                obj.NanPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
             end
-                
+
+            % Initialize error bar children
+            obj.ErrorBarPoints = scatter(nan, nan,...
+                'Parent', ax);
+            obj.ErrorBarLines = line(nan, nan,...
+                'Parent', ax);
+
+            % Turn off legend annotation
+            obj.ErrorBarPoints.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            obj.ErrorBarLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
             % Check if any NaNs detected
             if any(isnan(P_scaled), 'all')
                 % Set value to zero
@@ -1354,59 +1387,121 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 P_scaled(nan_index) = 0;
             end
 
-            % Iterate through number of data groups
-            for ii = 1:obj.NumDataGroups
-                % Initialize
-                A_scaled = P_scaled(ii, :);
+            % Check if error bars are desired
+            if strcmp(obj.ErrorBars, 'on')
+                % Calculate mean and standard deviation
+                P_mean = mean(obj.P);
+                P_std = std(obj.P);
+
+                % Display to command window
+                fprintf("Error Bar Properties\n");
+                fprintf("--------------------\n")
+                format_str = repmat('%.2f ', 1, length(P_mean));
+                fprintf("    Average values: " + format_str + "\n", P_mean);
+                fprintf("Standard deviation: " + format_str + "\n", P_std);
+
+                % Mean +/- standard deviation
+                P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
+
+                % Scale points to range from [0, 1] and apply offset
+                P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
+                P_mean = P_mean * (1 - rho_offset) + rho_offset;
+
+                % Convert from polar to cartesian
                 A_theta = theta(1:end-1);
-
-                % Find the index of Inf values
-                inf_index = isinf(A_scaled);
-                noninf_index = find(~inf_index);
-
-                % Check if any Inf values detected
-                if any(inf_index)
-                    % Remove Inf values
-                    A_scaled(inf_index) = nan;
-                    A_theta(inf_index) = nan;
-                end
-
-                % Convert polar to cartesian coordinates
+                A_scaled = P_mean;
                 [x_points, y_points] = pol2cart(A_theta, A_scaled);
-                
-                % Make points circular
-                x_circular = [x_points, x_points(1)];
-                y_circular = [y_points, y_points(1)];
-                
-                % Plot data points
-                obj.DataLines(ii).XData = x_circular;
-                obj.DataLines(ii).YData = y_circular;
-                
-                % Plot data points
-                obj.ScatterPoints(ii).XData = x_circular;
-                obj.ScatterPoints(ii).YData = y_circular;
-                
-                % Check if fill option is toggled on
-                obj.FillPatches(ii).XData = x_circular;
-                obj.FillPatches(ii).YData = y_circular;
-                
-                % Check axes display setting
-                if ismember(obj.AxesDisplay, {'data', 'data-percent'})
-                    % Iterate through number of data points
-                    for jj = noninf_index
-                        % Convert polar to cartesian coordinates
-                        [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
-                        [x_pos, y_pos] = pol2cart(current_theta, current_rho+obj.AxesDataOffset);
 
-                        % Display axes text
-                        obj.AxesDataLabels(ii, jj) = text(ax, x_pos, y_pos, '',...
-                            'Units', 'Data',...
-                            'Color', obj.AxesFontColor(ii, :),...
-                            'FontName', obj.AxesFont,...
-                            'FontSize', obj.AxesFontSize,...
-                            'HorizontalAlignment', 'center',...
-                            'VerticalAlignment', 'middle',...
-                            'Visible', 'off');
+                % Plot error bar points
+                obj.ErrorBarPoints.XData = x_points(1, :);
+                obj.ErrorBarPoints.YData = y_points(1, :);
+
+                % Iterate through each group
+                for ii = 1:size(x_points, 2)
+                    % Mean +- standard deviation
+                    X = x_points(2:3, ii)';
+                    Y = y_points(2:3, ii)';
+
+                    % Plot error bar lines
+                    obj.ErrorBarLines.XData = [obj.ErrorBarLines.XData'; X'; nan];
+                    obj.ErrorBarLines.YData = [obj.ErrorBarLines.YData'; Y'; nan];
+
+                    % Turn off legend annotation
+                    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+                    % Perpendicular line
+                    v = [diff(X); diff(Y)];
+                    v = 0.05 * v / vecnorm(v);
+
+                    % Top and bottom
+                    for jj = 1:length(X)
+                        % Plot end tip
+                        x_endtip = [X(jj)+v(2), X(jj)-v(2)];
+                        y_endtip = [Y(jj)-v(1), Y(jj)+v(1)];
+
+                        % Plot error bar lines
+                        obj.ErrorBarLines.XData = [obj.ErrorBarLines.XData'; x_endtip'; nan];
+                        obj.ErrorBarLines.YData = [obj.ErrorBarLines.YData'; y_endtip'; nan];
+                    end
+                end
+            end
+
+            % Check if error bars are desired
+            if strcmp(obj.ErrorBars, 'off')
+                % Iterate through number of data groups
+                for ii = 1:obj.NumDataGroups
+                    % Initialize
+                    A_scaled = P_scaled(ii, :);
+                    A_theta = theta(1:end-1);
+
+                    % Find the index of Inf values
+                    inf_index = isinf(A_scaled);
+                    noninf_index = find(~inf_index);
+
+                    % Check if any Inf values detected
+                    if any(inf_index)
+                        % Remove Inf values
+                        A_scaled(inf_index) = nan;
+                        A_theta(inf_index) = nan;
+                    end
+
+                    % Convert polar to cartesian coordinates
+                    [x_points, y_points] = pol2cart(A_theta, A_scaled);
+
+                    % Make points circular
+                    x_circular = [x_points, x_points(1)];
+                    y_circular = [y_points, y_points(1)];
+
+                    % Plot data points
+                    obj.DataLines(ii).XData = x_circular;
+                    obj.DataLines(ii).YData = y_circular;
+
+                    % Plot data points
+                    obj.ScatterPoints(ii).XData = x_circular;
+                    obj.ScatterPoints(ii).YData = y_circular;
+
+                    % Check if fill option is toggled on
+                    obj.FillPatches(ii).XData = x_circular;
+                    obj.FillPatches(ii).YData = y_circular;
+
+                    % Check axes display setting
+                    if ismember(obj.AxesDisplay, {'data', 'data-percent'})
+                        % Iterate through number of data points
+                        for jj = noninf_index
+                            % Convert polar to cartesian coordinates
+                            [current_theta, current_rho] = cart2pol(x_points(jj), y_points(jj));
+                            [x_pos, y_pos] = pol2cart(current_theta, current_rho+obj.AxesDataOffset);
+
+                            % Display axes text
+                            obj.AxesDataLabels(ii, jj) = text(ax, x_pos, y_pos, '',...
+                                'Units', 'Data',...
+                                'Color', obj.AxesFontColor(ii, :),...
+                                'FontName', obj.AxesFont,...
+                                'FontSize', obj.AxesFontSize,...
+                                'HorizontalAlignment', 'center',...
+                                'VerticalAlignment', 'middle',...
+                                'Visible', 'off');
+                        end
                     end
                 end
             end
@@ -1570,38 +1665,66 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.FillPatches(ii).FaceColor = 'none';
                 end
             end
-            
-            % Iterate through data line objects
-            for ii = 1:numel(obj.DataLines)
-                % Set line settings
-                obj.DataLines(ii).LineStyle = obj.LineStyle{ii};
-                obj.DataLines(ii).Color = obj.Color(ii, :);
-                obj.DataLines(ii).LineWidth = obj.LineWidth(ii);
-                obj.DataLines(ii).DisplayName = obj.LegendLabels{ii};
-                obj.DataLines(ii).Color(4) = obj.LineTransparency(ii);
-                obj.DataLines(ii).Visible = obj.PlotVisible;
-                
-                % Set scatter settings
-                obj.ScatterPoints(ii).Marker = obj.Marker{ii};
-                obj.ScatterPoints(ii).SizeData = obj.MarkerSize(ii);
-                obj.ScatterPoints(ii).MarkerFaceColor = obj.Color(ii, :);
-                obj.ScatterPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
-                obj.ScatterPoints(ii).MarkerFaceAlpha = obj.MarkerTransparency(ii);
-                obj.ScatterPoints(ii).MarkerEdgeAlpha = obj.MarkerTransparency(ii);
-                obj.ScatterPoints(ii).Visible = obj.PlotVisible;
 
-                % Set legend settings
-                obj.NanPoints(ii).Marker = obj.Marker{ii};
-                obj.NanPoints(ii).MarkerSize = obj.MarkerSize(ii)/6;
-                obj.NanPoints(ii).MarkerFaceColor = obj.Color(ii, :);
-                obj.NanPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
-                obj.NanPoints(ii).LineStyle = obj.LineStyle{ii};
-                obj.NanPoints(ii).Color = obj.Color(ii, :);
-                obj.NanPoints(ii).LineWidth = obj.LineWidth(ii);
-                obj.NanPoints(ii).DisplayName = obj.LegendLabels{ii};
-                obj.NanPoints(ii).Visible = obj.PlotVisible;
+            % Check if error bars are desired
+            if strcmp(obj.ErrorBars, 'off')
+                % Reset legend annotation
+                obj.ErrorBarLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+                % Iterate through data line objects
+                for ii = 1:numel(obj.DataLines)
+                    % Set line settings
+                    obj.DataLines(ii).LineStyle = obj.LineStyle{ii};
+                    obj.DataLines(ii).Color = obj.Color(ii, :);
+                    obj.DataLines(ii).LineWidth = obj.LineWidth(ii);
+                    obj.DataLines(ii).DisplayName = obj.LegendLabels{ii};
+                    obj.DataLines(ii).Color(4) = obj.LineTransparency(ii);
+                    obj.DataLines(ii).Visible = obj.PlotVisible;
+
+                    % Set scatter settings
+                    obj.ScatterPoints(ii).Marker = obj.Marker{ii};
+                    obj.ScatterPoints(ii).SizeData = obj.MarkerSize(ii);
+                    obj.ScatterPoints(ii).MarkerFaceColor = obj.Color(ii, :);
+                    obj.ScatterPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
+                    obj.ScatterPoints(ii).MarkerFaceAlpha = obj.MarkerTransparency(ii);
+                    obj.ScatterPoints(ii).MarkerEdgeAlpha = obj.MarkerTransparency(ii);
+                    obj.ScatterPoints(ii).Visible = obj.PlotVisible;
+
+                    % Set legend settings
+                    obj.NanPoints(ii).Marker = obj.Marker{ii};
+                    obj.NanPoints(ii).MarkerSize = obj.MarkerSize(ii)/6;
+                    obj.NanPoints(ii).MarkerFaceColor = obj.Color(ii, :);
+                    obj.NanPoints(ii).MarkerEdgeColor = obj.Color(ii, :);
+                    obj.NanPoints(ii).LineStyle = obj.LineStyle{ii};
+                    obj.NanPoints(ii).Color = obj.Color(ii, :);
+                    obj.NanPoints(ii).LineWidth = obj.LineWidth(ii);
+                    obj.NanPoints(ii).DisplayName = obj.LegendLabels{ii};
+                    obj.NanPoints(ii).Visible = obj.PlotVisible;
+                    obj.NanPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'on';
+                end
+            else
+                % Reset legend annotation
+                obj.NanPoints(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+                % Set scatter settings
+                obj.ErrorBarPoints.Marker = obj.Marker{1};
+                obj.ErrorBarPoints.SizeData = obj.MarkerSize(1);
+                obj.ErrorBarPoints.MarkerFaceColor = obj.Color(1, :);
+                obj.ErrorBarPoints.MarkerEdgeColor = obj.Color(1, :);
+                obj.ErrorBarPoints.MarkerFaceAlpha = obj.MarkerTransparency(1);
+                obj.ErrorBarPoints.MarkerEdgeAlpha = obj.MarkerTransparency(1);
+                obj.ErrorBarPoints.Visible = obj.PlotVisible;
+
+                % Set line settings
+                obj.ErrorBarLines.LineStyle = obj.LineStyle{1};
+                obj.ErrorBarLines.Color = obj.Color(1, :);
+                obj.ErrorBarLines.LineWidth = obj.LineWidth(1);
+                obj.ErrorBarLines.DisplayName = obj.LegendLabels{1};
+                obj.ErrorBarLines.Color(4) = obj.LineTransparency(1);
+                obj.ErrorBarLines.Visible = obj.PlotVisible;
+                obj.ErrorBarLines.Annotation.LegendInformation.IconDisplayStyle = 'on';
             end
-            
+
             % Check axes labels argument
             if strcmp(obj.AxesLabels, 'none')
                 % Set axes text labels to invisible
@@ -1609,7 +1732,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 % Set axes text labels to visible
                 set(obj.AxesTextLabels, 'Visible', 'on')
-                
+
                 % Iterate through number of data points
                 for ii = 1:obj.NumDataPoints
                     % Display text label

@@ -171,6 +171,8 @@ The three functions included have the same functionality but with 3 different im
 - **AxesHandle**       - Used to specify the axes to plot in.
                          [new axes (default) | Axes object]
 
+- **ErrorBars**        - Used to toggle error bars mode with +/- standard deviation end points.
+                         ['off' (default) | 'on']
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -597,8 +599,27 @@ spider_plot(P,...
   <img src="screenshot/example14.PNG">
 </p>
 
+### Example 15: Plot error bars using +/- standard deviation.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 10],... % [min axes limits; max axes limits]
+    'ErrorBars', 'on');
+```
+<p align="center">
+  <img src="screenshot/example15.PNG">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-02-18: Implement feature to display error bars with +/- standard deviation.
+
 - 2022-12-21: Add ability to display data points in percentage.
 
 - 2022-11-25: Remove connecting line for missing values specified by Inf.
@@ -722,5 +743,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Alexis
 - John Wills
 - Nian
+- Rebecca
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

@@ -382,6 +382,11 @@ if any(axes_shaded_transparency < 0) || any(axes_shaded_transparency > 1)
     error('Error: Please enter a transparency value between [0, 1].');
 end
 
+% Check if error bars is valid
+if any(~ismember(error_bars, {'off', 'on'}))
+    error('Error: Please enter either "off" or "on" for error bars option.');
+end
+
 % Check if axes shaded limits is empty
 if isempty(axes_shaded_limits)
     axes_shaded_limits = {axes_limits};
@@ -996,6 +1001,15 @@ if strcmp(error_bars, 'on')
     % Calculate mean and standard deviation
     P_mean = mean(P);
     P_std = std(P);
+
+    % Display to command window
+    fprintf("Error Bar Properties\n");
+    fprintf("--------------------\n")
+    format_str = repmat('%.2f ', 1, length(P_mean));
+    fprintf("    Average values: " + format_str + "\n", P_mean);
+    fprintf("Standard deviation: " + format_str + "\n", P_std);
+    
+    % Mean +/- standard deviation
     P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
     
     % Scale points to range from [0, 1] and apply offset
@@ -1017,7 +1031,7 @@ if strcmp(error_bars, 'on')
         'MarkerEdgeAlpha', marker_transparency(1),...
         'Visible', plot_visible);
 
-    % Iterate through each gropu
+    % Iterate through each group
     for ii = 1:size(x_points, 2)
         % Mean +- standard deviation
         X = x_points(2:3, ii)';
@@ -1040,7 +1054,9 @@ if strcmp(error_bars, 'on')
         % Top and bottom
         for jj = 1:length(X)
             % Plot end tip
-            h = plot([X(jj)+v(2), X(jj)-v(2)], [Y(jj)-v(1), Y(jj)+v(1)],...
+            x_endtip = [X(jj)+v(2), X(jj)-v(2)];
+            y_endtip = [Y(jj)-v(1), Y(jj)+v(1)];
+            h = plot(x_endtip, y_endtip,...
                 'LineStyle', line_style{1},...
                 'Color', colors(1, :),...
                 'LineWidth', line_width(1),...
