@@ -84,6 +84,7 @@ axes_shaded_transparency = 0.2;
 axes_labels_rotate = 'off';
 axes_handle = gobjects;
 error_bars = 'off';
+axes_web_type = 'web';
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -191,6 +192,8 @@ if numvarargs > 1
                 axes_handle = value_arguments{ii};
             case 'errorbars'
                 error_bars = value_arguments{ii};
+            case 'axeswebtype'
+                axes_web_type = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -385,6 +388,11 @@ end
 % Check if error bars is valid
 if any(~ismember(error_bars, {'off', 'on'}))
     error('Error: Please enter either "off" or "on" for error bars option.');
+end
+
+% Check if axes web type is valid
+if any(~ismember(axes_web_type, {'web', 'circular'}))
+    error('Error: Please enter either "web" or "circular" for axes web type option.');
 end
 
 % Check if axes shaded limits is empty
@@ -840,12 +848,19 @@ if strcmp(axes_radial, 'on')
     end
 end
 
+% Check axes web type
+if strcmp(axes_web_type, 'web')
+    theta_web = theta;
+elseif strcmp(axes_web_type, 'circular')
+    theta_web = 0:((2*pi)/(2^7)):2*pi;
+end
+
 % Check if axes angular is toggled on
 if strcmp(axes_angular, 'on')
     % Iterate through each rho
     for ii = 2:length(rho)
         % Convert polar to cartesian coordinates
-        [x_axes, y_axes] = pol2cart(theta, rho(ii));
+        [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
         % Plot axes
         h = plot(ax, x_axes, y_axes,...

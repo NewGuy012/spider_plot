@@ -174,6 +174,9 @@ The three functions included have the same functionality but with 3 different im
 - **ErrorBars**        - Used to toggle error bars mode with +/- standard deviation end points.
                          ['off' (default) | 'on']
 
+- **AxesWebType**      - Used to set the type of web drawn.
+                         ['web' (default) | 'circular']
+
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
                           [cell array of character vectors]
@@ -616,8 +619,27 @@ spider_plot(P,...
   <img src="screenshot/example15.PNG">
 </p>
 
+### Example 16: Spider plot with circular web type.
+```matlab
+% Initialize data points
+D1 = [5 3 9 1 2];
+D2 = [5 8 7 2 9];
+D3 = [8 2 1 4 6];
+P = [D1; D2; D3];
+
+% Spider plot
+spider_plot(P,...
+    'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 10],...
+    'AxesWebType', 'circular');
+```
+<p align="center">
+  <img src="screenshot/example16.PNG">
+</p>
+
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-02-19: Add in option to change axes web type.
+
 - 2022-02-18: Implement feature to display error bars with +/- standard deviation.
 
 - 2022-12-21: Add ability to display data points in percentage.

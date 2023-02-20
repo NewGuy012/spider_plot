@@ -61,6 +61,7 @@ arguments
     options.AxesLabelsRotate {mustBeMember(options.AxesLabelsRotate, {'off', 'on'})} = 'off'
     options.AxesHandle = gobjects
     options.ErrorBars {mustBeMember(options.ErrorBars, {'off', 'on'})} = 'off'
+    options.AxesWebType {mustBeMember(options.AxesWebType, {'web', 'circular'})} = 'off'
 end
 
 %%% Data Properties %%%
@@ -569,12 +570,19 @@ if strcmp(options.AxesRadial, 'on')
     end
 end
 
+% Check axes web type
+if strcmp(options.AxesWebType, 'web')
+    theta_web = theta;
+elseif strcmp(options.AxesWebType, 'circular')
+    theta_web = 0:((2*pi)/(2^7)):2*pi;
+end
+
 % Check if axes angular is toggled on
 if strcmp(options.AxesAngular, 'on')
     % Iterate through each rho
     for ii = 2:length(rho)
         % Convert polar to cartesian coordinates
-        [x_axes, y_axes] = pol2cart(theta, rho(ii));
+        [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
         % Plot axes
         h = plot(ax, x_axes, y_axes,...

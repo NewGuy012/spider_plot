@@ -66,6 +66,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesShadedTransparency double {mustBeGreaterThanOrEqual(AxesShadedTransparency, 0), mustBeLessThanOrEqual(AxesShadedTransparency, 1)} = 0.2 % Shading alpha
         AxesLabelsRotate {mustBeMember(AxesLabelsRotate, {'off', 'on'})} = 'off'
         ErrorBars {mustBeMember(ErrorBars, {'off', 'on'})} = 'off'
+        AxesWebType {mustBeMember(AxesWebType, {'web', 'circular'})} = 'web'
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -1268,12 +1269,19 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 end
             end
 
+            % Check axes web type
+            if strcmp(obj.AxesWebType, 'web')
+                theta_web = theta;
+            elseif strcmp(obj.AxesWebType, 'circular')
+                theta_web = 0:((2*pi)/(2^7)):2*pi;
+            end
+
             % Check if axes angular is toggled on
             if strcmp(obj.AxesAngular, 'on')
                 % Iterate through each rho
                 for ii = 2:length(rho)
                     % Convert polar to cartesian coordinates
-                    [x_axes, y_axes] = pol2cart(theta, rho(ii));
+                    [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
                     % Plot
                     obj.RhoAxesLines(ii-1) = line(x_axes, y_axes,...
