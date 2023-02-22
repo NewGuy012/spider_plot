@@ -85,6 +85,7 @@ axes_labels_rotate = 'off';
 axes_handle = gobjects;
 error_bars = 'off';
 axes_web_type = 'web';
+axes_tick_format = 'default'; 
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -194,6 +195,8 @@ if numvarargs > 1
                 error_bars = value_arguments{ii};
             case 'axeswebtype'
                 axes_web_type = value_arguments{ii};
+            case 'axestickformat'
+                axes_tick_format = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -644,6 +647,23 @@ if ismember(axes_display, {'data', 'data-percent'})
     end
 end
 
+% Check if axes tick format is a char
+if ischar(axes_tick_format)
+    % Convert to cell array of char
+    axes_tick_format = cellstr(axes_tick_format);
+
+    % Repeat cell to number of axes shaded limits groups
+    axes_tick_format = repmat(axes_tick_format, num_data_points, 1);
+elseif iscellstr(axes_tick_format)
+    % Check is length is one
+    if length(axes_tick_format) == 1
+        % Repeat cell to number of axes shaded limits groups
+        axes_tick_format = repmat(axes_tick_format, num_data_points, 1);
+    end
+else
+    error('Error: Please a character array or cell of character array for axes tick format.');
+end
+
 %%% Axes Scaling Properties %%%
 % Selected data
 P_selected = P;
@@ -980,7 +1000,15 @@ for ii = 1:theta_end_index
         
         % Display axes text
         if strcmp(axes_tick_labels, 'data')
-            text_str = sprintf(sprintf('%%.%if', axes_precision(ii)), axes_value);
+            % Check axes tick format option
+            if strcmp(axes_tick_format{ii}, 'default')
+                text_format = sprintf('%%.%if', axes_precision(ii));
+            else
+                text_format = axes_tick_format{ii};
+            end
+
+            % Formatted axes tick text
+            text_str = sprintf(text_format, axes_value);
         else
             text_str = axes_tick_labels{jj-axes_offset};
         end

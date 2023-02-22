@@ -61,7 +61,8 @@ arguments
     options.AxesLabelsRotate {mustBeMember(options.AxesLabelsRotate, {'off', 'on'})} = 'off'
     options.AxesHandle = gobjects
     options.ErrorBars {mustBeMember(options.ErrorBars, {'off', 'on'})} = 'off'
-    options.AxesWebType {mustBeMember(options.AxesWebType, {'web', 'circular'})} = 'off'
+    options.AxesWebType {mustBeMember(options.AxesWebType, {'web', 'circular'})} = 'web'
+    options.AxesTickFormat {mustBeText} = 'default'
 end
 
 %%% Data Properties %%%
@@ -364,6 +365,24 @@ if length(options.AxesShadedTransparency) == 1
     options.AxesShadedTransparency = repmat(options.AxesShadedTransparency, length(options.AxesShadedLimits), 1);
 elseif length(options.AxesShadedTransparency) ~= length(options.AxesShadedLimits)
     error('Error: Please specify the same number of axes shaded transparency as number axes shaded limits groups.');
+end
+
+%%% Validate Axes Tick Format
+% Check if axes tick format is a char
+if ischar(options.AxesTickFormat)
+    % Convert to cell array of char
+    options.AxesTickFormat = cellstr(options.AxesTickFormat);
+
+    % Repeat cell to number of axes shaded limits groups
+    options.AxesTickFormat = repmat(options.AxesTickFormat, num_data_points, 1);
+elseif iscellstr(options.AxesTickFormat)
+    % Check is length is one
+    if length(options.AxesTickFormat) == 1
+        % Repeat cell to number of axes shaded limits groups
+        options.AxesTickFormat = repmat(options.AxesTickFormat, num_data_points, 1);
+    end
+else
+    error('Error: Please a character array or cell of character array for axes tick format.');
 end
 
 %%% Axes Scaling Properties %%%
@@ -702,7 +721,15 @@ for ii = 1:theta_end_index
         
         % Display axes text
         if strcmp(options.AxesTickLabels, 'data')
-            text_str = sprintf(sprintf('%%.%if', options.AxesPrecision(ii)), axes_value);
+            % Check axes tick format option
+            if strcmp(options.AxesTickFormat{ii}, 'default')
+                text_format = sprintf('%%.%if', options.AxesPrecision(ii));
+            else
+                text_format = options.AxesTickFormat{ii};
+            end
+
+            % Formatted axes tick text
+            text_str = sprintf(text_format, axes_value);
         else
             text_str = options.AxesTickLabels{jj-options.AxesOffset};
         end

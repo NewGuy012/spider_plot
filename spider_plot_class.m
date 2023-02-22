@@ -67,6 +67,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesLabelsRotate {mustBeMember(AxesLabelsRotate, {'off', 'on'})} = 'off'
         ErrorBars {mustBeMember(ErrorBars, {'off', 'on'})} = 'off'
         AxesWebType {mustBeMember(AxesWebType, {'web', 'circular'})} = 'web'
+        AxesTickFormat {mustBeText} = 'default'
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -506,6 +507,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Toggle re-initialize to true if ErrorBars was changed
             obj.InitializeToggle = true;
         end
+
+        function set.AxesTickFormat(obj, value)
+            % Set property
+            obj.AxesTickFormat = value;
+            
+            % Toggle re-initialize to true if AxesTickFormat was changed
+            obj.InitializeToggle = true;
+        end
         
         
         %%% Get Methods %%%
@@ -933,14 +942,35 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get property
             axes_interpreter = obj.AxesInterpreter;
         end
+
+        function axes_tick_format = get.AxesTickFormat(obj)
+            if ischar(obj.AxesTickFormat)
+                % Convert to cell array of char
+                obj.AxesTickFormat = cellstr(obj.AxesTickFormat);
+
+                % Repeat cell to number of axes shaded limits groups
+                obj.AxesTickFormat = repmat(obj.AxesTickFormat, obj.NumDataPoints, 1);
+            elseif iscellstr(obj.AxesTickFormat)
+                % Check is length is one
+                if length(obj.AxesTickFormat) == 1
+                    % Repeat cell to number of axes shaded limits groups
+                    obj.AxesTickFormat = repmat(obj.AxesTickFormat, obj.NumDataPoints, 1);
+                end
+            else
+                error('Error: Please a character array or cell of character array for axes tick format.');
+            end
+
+            % Get property
+            axes_tick_format = obj.AxesTickFormat;
+        end
     end
-    
+
     methods (Access = public)
         function title(obj, title_text, varargin)
             % Get axes and title handles
             ax = getAxes(obj);
             tlt = ax.Title;
-            
+
             % Set title string
             tlt.String = title_text;
             
@@ -1766,7 +1796,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     for jj = 1:size(obj.AxesValues, 2)
                         % Display axes text
                         if strcmp(obj.AxesTickLabels, 'data')
-                            text_str = sprintf(sprintf('%%.%if', obj.AxesPrecision(ii)), obj.AxesValues(ii, jj));
+                            % Check axes tick format option
+                            if strcmp(obj.AxesTickFormat{ii}, 'default')
+                                text_format = sprintf('%%.%if', obj.AxesPrecision(ii));
+                            else
+                                text_format = obj.AxesTickFormat{ii};
+                            end
+
+                            % Formatted axes tick text
+                            text_str = sprintf(text_format, obj.AxesValues(ii, jj));
                         else
                             text_str = obj.AxesTickLabels{jj};
                         end

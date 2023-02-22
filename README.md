@@ -177,6 +177,9 @@ The three functions included have the same functionality but with 3 different im
 - **AxesWebType**      - Used to set the type of web drawn.
                          ['web' (default) | 'circular']
 
+- **AxesTickFormat**   - Used to format the axes tick text. Overrides 'AxesPrecision' value.
+                         ['%.2f' (default) | cell array of character vectors]
+
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
                           [cell array of character vectors]
@@ -638,6 +641,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-02-22: Added option to format axes tick text.
+
 - 2022-02-19: Add in option to change axes web type.
 
 - 2022-02-18: Implement feature to display error bars with +/- standard deviation.
@@ -766,5 +771,6 @@ Special thanks to the following people for their feature recommendations and bug
 - John Wills
 - Nian
 - Rebecca
+- Gonzalo Santos Perodia
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
