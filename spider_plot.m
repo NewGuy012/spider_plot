@@ -1122,6 +1122,12 @@ if strcmp(error_bars, 'on')
         'Visible', plot_visible);
 end
 
+% Pre-allocation
+S_info = struct(...
+    'data_group_num', nan(num_data_groups, 1),...
+    'perimeter', nan(num_data_groups, 1),...
+    'area', nan(num_data_groups, 1));
+
 % Iterate through number of data groups
 for ii = 1:num_data_groups
     % Check if error bars are desired
@@ -1143,6 +1149,12 @@ for ii = 1:num_data_groups
 
         % Convert polar to cartesian coordinates
         [x_points, y_points] = pol2cart(A_theta, A_scaled);
+
+        % Calculate the perimeter and area
+        pgon = polyshape(x_points, y_points);
+        S_info(ii).data_group_num = "D" + ii;
+        S_info(ii).perimeter = perimeter(pgon);
+        S_info(ii).area = area(pgon);
 
         % Make points circular
         x_circular = [x_points, x_points(1)];
@@ -1222,6 +1234,9 @@ for ii = 1:num_data_groups
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end
+
+% Save to figure handle
+fig.UserData = S_info;
 
 % Check if axes shaded is on
 if strcmp(axes_shaded, 'on')
