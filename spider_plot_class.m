@@ -68,6 +68,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         ErrorBars {mustBeMember(ErrorBars, {'off', 'on'})} = 'off'
         AxesWebType {mustBeMember(AxesWebType, {'web', 'circular'})} = 'web'
         AxesTickFormat {mustBeText} = 'default'
+        UserData struct
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -1484,6 +1485,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 end
             end
 
+            % Pre-allocation
+            S_info = struct(...
+                'data_group_num', nan(obj.NumDataGroups, 1),...
+                'perimeter', nan(obj.NumDataGroups, 1),...
+                'area', nan(obj.NumDataGroups, 1));
+
             % Check if error bars are desired
             if strcmp(obj.ErrorBars, 'off')
                 % Iterate through number of data groups
@@ -1505,6 +1512,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
                     % Convert polar to cartesian coordinates
                     [x_points, y_points] = pol2cart(A_theta, A_scaled);
+
+                    % Calculate the perimeter and area
+                    pgon = polyshape(x_points, y_points);
+                    S_info(ii).data_group_num = "D" + ii;
+                    S_info(ii).perimeter = perimeter(pgon);
+                    S_info(ii).area = area(pgon);
 
                     % Make points circular
                     x_circular = [x_points, x_points(1)];
@@ -1543,6 +1556,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     end
                 end
             end
+
+            % Save to figure handle
+            obj.UserData = S_info;
 
             % Check if axes shaded is on
             if strcmp(obj.AxesShaded, 'on')
