@@ -719,7 +719,12 @@ end
 varargout{1} = fig;
 
 % Set figure and axes background
-fig.Color = background_color;
+if isprop(fig, "Color")
+    fig.Color = background_color;
+elseif isprop(fig, "BackgroundColor")
+    fig.BackgroundColor = background_color;
+end
+
 ax.Color = background_color;
 
 % Axis limits

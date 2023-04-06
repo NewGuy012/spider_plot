@@ -155,7 +155,6 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Set property
             obj.LegendLabels = value;
-            obj.LegendVisible = 'on';
             
             % Set legend handle
             obj.LegendHandle = getLegend(obj);
@@ -991,8 +990,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function tiledlayout(obj, varargin)
             % Figure properties
             fig = figure;
-            fig.Color = obj.BackgroundColor;
-            
+
+            % Set figure and axes background
+            if isprop(fig, "Color")
+                fig.Color = obj.BackgroundColor;
+            elseif isprop(fig, "BackgroundColor")
+                fig.BackgroundColor = obj.BackgroundColor;
+            end
+
             % Tiled layout
             obj.TiledLayoutHandle = tiledlayout(fig, varargin{:});
             drawnow;
@@ -1058,8 +1063,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function setup(obj)
             % Figure properties
             fig = gcf;
-            fig.Color = obj.BackgroundColor;
-            
+
+            % Set figure and axes background
+            if isprop(fig, "Color")
+                fig.Color = obj.BackgroundColor;
+            elseif isprop(fig, "BackgroundColor")
+                fig.BackgroundColor = obj.BackgroundColor;
+            end
+
             % Axis properties
             scaling_factor = 1 + (1 - obj.AxesZoom);
             ax = getAxes(obj);
@@ -1118,11 +1129,17 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.ErrorBarPoints = gobjects(0);
             obj.ErrorBarLines = gobjects(0);
         end
-        
+
         function initialize(obj)
             % Figure properties
             fig = gcf;
-            fig.Color = obj.BackgroundColor;
+
+            % Set figure and axes background
+            if isprop(fig, "Color")
+                fig.Color = obj.BackgroundColor;
+            elseif isprop(fig, "BackgroundColor")
+                fig.BackgroundColor = obj.BackgroundColor;
+            end
 
             % Axis properties
             scaling_factor = 1 + (1 - obj.AxesZoom);
