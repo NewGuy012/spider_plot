@@ -721,8 +721,6 @@ varargout{1} = fig;
 % Set figure and axes background
 if isprop(fig, "Color")
     fig.Color = background_color;
-elseif isprop(fig, "BackgroundColor")
-    fig.BackgroundColor = background_color;
 end
 
 ax.Color = background_color;
