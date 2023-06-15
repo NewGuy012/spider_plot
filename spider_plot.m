@@ -43,6 +43,7 @@ axes_display = 'all';
 axes_limits = [min(P_limits, [], 1); max(P_limits, [], 1)];
 fill_option = 'off';
 fill_transparency = 0.2;
+fill_cdata = [];
 colors = lines(num_data_groups);
 line_style = '-';
 line_width = 2;
@@ -84,8 +85,11 @@ axes_shaded_transparency = 0.2;
 axes_labels_rotate = 'off';
 axes_handle = gobjects;
 error_bars = 'off';
+error_positive = [];
+error_negative = [];
 axes_web_type = 'web';
-axes_tick_format = 'default'; 
+axes_tick_format = 'default';
+axes_start = pi/2;
 
 % Check if optional arguments were specified
 if numvarargs > 1
@@ -111,6 +115,8 @@ if numvarargs > 1
                 fill_option = value_arguments{ii};
             case 'filltransparency'
                 fill_transparency = value_arguments{ii};
+            case 'fillcdata'
+                fill_cdata = value_arguments{ii};
             case 'color'
                 colors = value_arguments{ii};
             case 'linestyle'
@@ -193,10 +199,16 @@ if numvarargs > 1
                 axes_handle = value_arguments{ii};
             case 'errorbars'
                 error_bars = value_arguments{ii};
+            case 'errorpositive'
+                error_positive = value_arguments{ii};
+            case 'errornegative'
+                error_negative = value_arguments{ii};
             case 'axeswebtype'
                 axes_web_type = value_arguments{ii};
             case 'axestickformat'
                 axes_tick_format = value_arguments{ii};
+            case 'axesstart'
+                axes_start = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
@@ -269,8 +281,19 @@ if ~ismember(axes_display, {'all', 'none', 'one', 'data', 'data-percent'})
 end
 
 % Check if fill option is valid
-if any(~ismember(fill_option, {'off', 'on'}))
-    error('Error: Please enter either "off" or "on" for fill option.');
+if any(~ismember(fill_option, {'off', 'on', 'interp'}))
+    error('Error: Please enter either "off", "on" or "interp" for fill option.');
+end
+
+% Check fill data
+if strcmp(fill_option, 'interp')
+    if isempty(fill_cdata)
+        error('Error: Please enter in a valid fill cdata.');
+    else
+        if length(fill_cdata) ~= num_data_points
+           error('Error: Please make sure that fill cdata matches the number of data points.');
+        end
+    end
 end
 
 % Check if fill transparency is valid
@@ -393,9 +416,27 @@ if any(~ismember(error_bars, {'off', 'on'}))
     error('Error: Please enter either "off" or "on" for error bars option.');
 end
 
+% Check if error positive and error negative are valid
+if strcmp(error_bars, 'on') && ~isempty(error_positive) && ~isempty(error_negative)
+    % Check that the length match the data points
+    if length(error_positive) ~= num_data_points
+        error('Error: Please make sure the number of error positive elements equal the data points');
+    end
+
+    % Check that the length match the data points
+    if length(error_negative) ~= num_data_points
+        error('Error: Please make sure the number of error negative elements equal the data points');
+    end
+end
+
 % Check if axes web type is valid
 if any(~ismember(axes_web_type, {'web', 'circular'}))
     error('Error: Please enter either "web" or "circular" for axes web type option.');
+end
+
+% Check if axes start is valid
+if ~(axes_start >= 0 && axes_start <= 2*pi)
+    error('Error: Please select an axes start value between [0, 2pi].')
 end
 
 % Check if axes shaded limits is empty
@@ -844,11 +885,11 @@ rho = 0:rho_increment:1;
 % Check rotational direction
 switch direction
     case 'counterclockwise'
-        % Shift by pi/2 to set starting axis the vertical line
-        theta = (0:theta_increment:2*pi) + (pi/2);
+        % Shift the starting axis
+        theta = (0:theta_increment:2*pi) + axes_start;
     case 'clockwise'
-        % Shift by pi/2 to set starting axis the vertical line
-        theta = (0:-theta_increment:-2*pi) + (pi/2);
+        % Shift the starting axes
+        theta = (0:-theta_increment:-2*pi) + axes_start;
 end
 
 % Remainder after using a modulus of 2*pi
@@ -1032,9 +1073,6 @@ for ii = 1:theta_end_index
 end
 
 %%% Plot %%%
-% Fill option index
-fill_option_index = strcmp(fill_option, 'on');
-
 % Check if any NaNs detected
 if any(isnan(P_scaled), 'all')
     % Set value to zero
@@ -1045,8 +1083,16 @@ end
 % Check if error bars are desired
 if strcmp(error_bars, 'on')
     % Calculate mean and standard deviation
-    P_mean = mean(P);
-    P_std = std(P);
+    P_mean = mean(P, 1);
+    P_std = std(P, 0, 1);
+
+    % Check if plus or minus error is specified
+    if isempty(error_positive) ||...
+            isempty(error_negative)
+        % Default values
+        error_positive = P_std;
+        error_negative = P_std;
+    end
 
     % Display to command window
     fprintf("Error Bar Properties\n");
@@ -1056,7 +1102,7 @@ if strcmp(error_bars, 'on')
     fprintf("Standard deviation: " + format_str + "\n", P_std);
     
     % Mean +/- standard deviation
-    P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
+    P_mean = [P_mean; P_mean + error_positive; P_mean - error_negative];
     
     % Scale points to range from [0, 1] and apply offset
     P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
@@ -1174,7 +1220,7 @@ for ii = 1:num_data_groups
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 
-        h = scatter(ax, x_circular, y_circular,...
+        h = scatter(ax, x_points, y_points,...
             'Marker', marker_type{ii},...
             'SizeData', marker_size(ii),...
             'MarkerFaceColor', colors(ii, :),...
@@ -1226,15 +1272,25 @@ for ii = 1:num_data_groups
         end
     end
 
-    % Check if fill option is toggled on
-    if fill_option_index(ii)
-        % Fill area within polygon
-        h = patch(ax, x_circular, y_circular, colors(ii, :),...
-            'EdgeColor', 'none',...
-            'FaceAlpha', fill_transparency(ii));
+    switch fill_option{ii}
+        case 'on'
+            % Fill area within polygon
+            h = patch(ax, x_points, y_points, colors(ii, :),...
+                'EdgeColor', 'none',...
+                'FaceAlpha', fill_transparency(ii));
 
-        % Turn off legend annotation
-        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            % Turn off legend annotation
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+        case 'interp'
+            % Fill area within polygon
+            fill_cdata = reshape(fill_cdata, [], 1);
+            h = patch(ax, x_points, y_points, fill_cdata,...
+                'EdgeColor', 'none',...
+                'FaceAlpha', fill_transparency(ii));
+
+            % Turn off legend annotation
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end
 
@@ -1277,6 +1333,7 @@ if strcmp(axes_shaded, 'on')
                 'FaceColor', axes_shaded_color{ii},...
                 'EdgeColor', 'none',...
                 'FaceAlpha', axes_shaded_transparency(ii));
+
             h.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
     end

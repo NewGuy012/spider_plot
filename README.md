@@ -29,7 +29,7 @@ The three functions included have the same functionality but with 3 different im
 
 ## Name-Value Pair Arguments:
 *(Optional)*
-  
+
 - **AxesLabels**       - Used to specify the label each of the axes.
                          [auto-generated (default) | cell of strings | 'none']
 
@@ -38,7 +38,7 @@ The three functions included have the same functionality but with 3 different im
 
 - **AxesPrecision**    - Used to change the precision level on the value displayed on the axes.
                          [1 (default) | integer | vector]
-                         
+
 - **AxesDisplay**      - Used to change the number of axes in which the axes text are displayed. 'None' or 'one' can be used to simplify the plot appearance for normalized data.
                          ['all' (default) | 'none' | 'one' | 'data' | 'data-percent']
 
@@ -50,7 +50,7 @@ The three functions included have the same functionality but with 3 different im
 
 - **FillTransparency** - Used to set fill color transparency.
                          [0.1 (default) | scalar in range (0, 1) | vector]
-                     
+
 - **Color**            - Used to specify the line color, specified as an RGB triplet. The intensities must be in the range (0, 1).
                          [MATLAB colors (default) | RGB triplet]
 
@@ -59,7 +59,7 @@ The three functions included have the same functionality but with 3 different im
 
 - **LineWidth**        - Used to change the line width, where 1 point is  1/72 of an inch.
                          [0.5 (default) | positive value | vector]
-                         
+
 - **LineTransparency** - Used to set the line color transparency.
                          [1 (default) | scalar in range (0, 1) | vector]
 
@@ -68,43 +68,43 @@ The three functions included have the same functionality but with 3 different im
 
 - **MarkerSize**       - Used to change the marker size, where 1 point is 1/72 of an inch.
                          [36 (default) | positive value | vector]
-                         
+
 - **MarkerTransparency** - Used to set the marker color transparency.
                          [1 (default) | scalar in range (0, 1) | vector]
-                         
+
 - **AxesFont**         - Used to change the font type of the values displayed on the axes.
                          [Helvetica (default) | supported font name]
-                         
+
 - **LabelFont**        - Used to change the font type of the labels.
-                         [Helvetica (default) | supported font name]                     
-                     
+                         [Helvetica (default) | supported font name]
+
 - **AxesFontSize**     - Used to change the font size of the values displayed on the axes.
                          [10 (default) | scalar value greater than zero]
-                         
+
 - **AxesFontColor**    - Used to change the font color of the values displayed on the axes.
                          [black (default) | RGB triplet]
-                         
+
 - **LabelFontSize**    - Used to change the font size of the labels.
                          [10 (default) | scalar value greater than zero]
-                         
+
 - **Direction**        - Used to change the direction of rotation of the plotted data and axis labels.
                          ['clockwise' (default) | 'counterclockwise']
-                         
+
 - **AxesDirection**    - Used to change the direction of axes.
                          ['normal' (default) | 'reverse' | cell array of character vectors]
-                         
+
 - **AxesLabelsOffset** - Used to adjust the position offset of the axes labels.
                          [0.2 (default) | positive value]
 
 - **AxesDataOffset**   - Used to adjust the position offset of the data labels when AxesDisplay is set to 'data'.
                          [0.1 (default) | positive value]
-                         
+
 - **AxesScaling**      - Used to change the scaling of the axes.
                          ['linear' (default) | 'log' | cell array of character vectors]
-                         
+
 - **AxesColor**        - Used to change the color of the spider axes.
                          [grey (default) | RGB triplet | hexadecimal color code]
-                         
+
 - **AxesLabelsEdge**   - Used to change the edge color of the axes labels.
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
 
@@ -180,13 +180,25 @@ The three functions included have the same functionality but with 3 different im
 - **AxesTickFormat**   - Used to format the axes tick text. Overrides 'AxesPrecision' value.
                          ['%.2f' (default) | cell array of character vectors]
 
+- **FillCData**        - Used to set the fill colors when fill option is set to 'interp'.
+                         [empty (default) | vector]
+
+- **ErrorPositive**    - Used to set the error bar length in positive direction when 'ErrorBars' is set to 'on'.
+                         [empty (default) | vector]
+
+- **ErrorNegative**    - Used to set the error bar length in negative direction when 'ErrorBars' is set to 'on'.
+                         [empty (default) | vector]
+
+- **AxesStart**        - Used to set the initial starting point of axes. Specify a value between [0, 2pi].
+                         [pi/2 (default) | scalar]
+
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
                           [cell array of character vectors]
-                         
+
 - **LegendHandle**      - Used to customize legend settings.
                           [legend handle object]
-                         
+
 - **TiledLayoutHandle** - Used to customize tiled layout settings.
                           [tiled chart layout handle object]
 
@@ -195,12 +207,12 @@ The three functions included have the same functionality but with 3 different im
 
 - **NextTileIter**      - Iterates with consecutive tile plots.
                           [1 (default)]
-                         
+
 ## Examples:
 ### Example 1: Minimal number of arguments. All optional arguments are set to their default values. Axes labels and limits are automatically set.
 ```matlab
 % Initialize data points
-D1 = [5 3 9 1 2];   
+D1 = [5 3 9 1 2];
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
@@ -219,7 +231,7 @@ legend('D1', 'D2', 'D3', 'Location', 'southoutside');
 ### Example 2: Manually setting the axes limits and axes precision. All other optional arguments are set to their default values.
 ```matlab
 % Initialize data points
-D1 = [5 3 9 1 2];   
+D1 = [5 3 9 1 2];
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
@@ -237,7 +249,7 @@ spider_plot(P,...
 ### Example 3: Set fill option on. The fill transparency can be adjusted.
 ```matlab
 % Initialize data points
-D1 = [5 3 9 1 2];   
+D1 = [5 3 9 1 2];
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
@@ -257,7 +269,7 @@ spider_plot(P,...
   ### Example 4: Maximum number of arguments.
 ```matlab
 % Initialize data points
-D1 = [5 3 9 1 2];   
+D1 = [5 3 9 1 2];
 D2 = [5 8 7 2 9];
 D3 = [8 2 1 4 6];
 P = [D1; D2; D3];
@@ -318,7 +330,7 @@ spider_plot(P,...
   ### Example 5: Excel-like radar charts.
 ```matlab
 % Initialize data points
-D1 = [5 0 3 4 4]; 
+D1 = [5 0 3 4 4];
 D2 = [2 1 5 5 4];
 P = [D1; D2];
 
@@ -366,7 +378,7 @@ spider_plot(P,...
     'AxesLabels', {'Linear Scale', 'Linear Scale', 'Linear Scale', 'Linear Scale', 'Logarithimic Scale'},...
     'AxesScaling', {'linear', 'linear', 'linear', 'linear', 'log'},...
     'AxesLimits', [1, 1, 1, 1, 1; 10, 10, 10, 10, 100]);
-    
+
 % Legend properties
 legend('D1', 'D2', 'D3', 'Location', 'northeast');
 ```
@@ -641,6 +653,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-06-14: Added ability to manually set the error bar lengths. Add in support for gradient fills.
+
 - 2022-02-22: Added option to format axes tick text.
 
 - 2022-02-19: Add in option to change axes web type.
@@ -724,11 +738,11 @@ Moses Yoo, (juyoung.m.yoo at gmail dot com)
 - 2019-10-28: Major revision in implementing the new function argument validation feature introduced in R2019b. Replaced previous method of error checking and setting of default values.
 
 - 2019-10-23: Minor revision to set starting axes as the vertical line. Add customization option for font sizes and axes display.
-  
+
 - 2019-10-16: Minor revision to add name-value pairs for customizing color, marker, and line settings.
-  
+
 - 2019-10-08: Another major revision to convert to name-value pairs and add color fill option.
-  
+
 - 2019-09-17: Major revision to improve speed, clarity, and functionality
 
 ## Special Thanks:
@@ -772,5 +786,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Nian
 - Rebecca
 - Gonzalo Santos Perodia
+- Sam Crameri
+- Sébastien Mailfert
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
