@@ -18,7 +18,7 @@ arguments
     options.AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1
     options.AxesDisplay char {mustBeMember(options.AxesDisplay, {'all', 'none', 'one', 'data', 'data-percent'})} = 'all'
     options.AxesLimits double {validateAxesLimits(options.AxesLimits, P)} = [];
-    options.FillOption {mustBeMember(options.FillOption, {'off', 'on'})} = 'off'
+    options.FillOption {mustBeMember(options.FillOption, {'off', 'on', 'interp'})} = 'off'
     options.FillTransparency double {mustBeGreaterThanOrEqual(options.FillTransparency, 0), mustBeLessThanOrEqual(options.FillTransparency, 1)} = 0.2
     options.Color = get(groot,'defaultAxesColorOrder')
     options.LineStyle = '-'
@@ -63,6 +63,10 @@ arguments
     options.ErrorBars {mustBeMember(options.ErrorBars, {'off', 'on'})} = 'off'
     options.AxesWebType {mustBeMember(options.AxesWebType, {'web', 'circular'})} = 'web'
     options.AxesTickFormat {mustBeText} = 'default'
+    options.FillCData = []
+    options.ErrorPositive = []
+    options.ErrorNegative = []
+    options.AxesStart = pi/2
 end
 
 %%% Data Properties %%%
@@ -91,6 +95,11 @@ end
 % Check if axes offset is valid
 if options.AxesOffset > options.AxesInterval
     error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+end
+
+% Check if axes start is valid
+if ~(options.AxesStart >= 0 && options.AxesStart <= 2*pi)
+    error('Error: Please select an axes start value between [0, 2pi].')
 end
 
 % Check if axes shaded limits is empty
@@ -227,6 +236,17 @@ if iscell(options.FillOption)
 else
     % Repeat array to number of data groups
     options.FillOption = repmat({options.FillOption}, num_data_groups, 1);
+end
+
+% Check fill data
+if all(strcmp(options.FillOption, 'interp'))
+    if isempty(options.FillCData)
+        error('Error: Please enter in a valid fill cdata.');
+    else
+        if length(options.FillCData) ~= num_data_points
+           error('Error: Please make sure that fill cdata matches the number of data points.');
+        end
+    end
 end
 
 %%% Validate Fill Transparency
@@ -383,6 +403,21 @@ elseif iscellstr(options.AxesTickFormat)
     end
 else
     error('Error: Please a character array or cell of character array for axes tick format.');
+end
+
+% Check if error positive and error negative are valid
+if strcmp(options.ErrorBars, 'on') &&...
+        ~isempty(options.ErrorPositive) &&...
+        ~isempty(options.ErrorNegative)
+    % Check that the length match the data points
+    if length(options.ErrorPositive) ~= num_data_points
+        error('Error: Please make sure the number of error positive elements equal the data points');
+    end
+
+    % Check that the length match the data points
+    if length(options.ErrorNegative) ~= num_data_points
+        error('Error: Please make sure the number of error negative elements equal the data points');
+    end
 end
 
 %%% Axes Scaling Properties %%%
@@ -565,11 +600,11 @@ rho = 0:rho_increment:1;
 % Check specified direction of rotation
 switch options.Direction
     case 'counterclockwise'
-        % Shift by pi/2 to set starting axis the vertical line
-        theta = (0:theta_increment:2*pi) + (pi/2);
+        % Shift the starting axis
+        theta = (0:theta_increment:2*pi) + options.AxesStart;
     case 'clockwise'
-        % Shift by pi/2 to set starting axis the vertical line
-        theta = (0:-theta_increment:-2*pi) + (pi/2);
+        % Shift the starting axis
+        theta = (0:-theta_increment:-2*pi) + options.AxesStart;
 end
 
 % Remainder after using a modulus of 2*pi
@@ -753,9 +788,6 @@ for ii = 1:theta_end_index
 end
 
 %%% Plot %%%
-% Fill option index
-fill_option_index = strcmp(options.FillOption, 'on');
-
 % Check if any NaNs detected
 if any(isnan(P_scaled), 'all')
     % Set value to zero
@@ -766,8 +798,16 @@ end
 % Check if error bars are desired
 if strcmp(options.ErrorBars, 'on')
     % Calculate mean and standard deviation
-    P_mean = mean(P);
-    P_std = std(P);
+    P_mean = mean(P, 1);
+    P_std = std(P, 0, 1);
+
+    % Check if plus or minus error is specified
+    if isempty(options.ErrorPositive) ||...
+            isempty(options.ErrorNegative)
+        % Default values
+        options.ErrorPositive = P_std;
+        options.ErrorNegative = P_std;
+    end
 
     % Display to command window
     fprintf("Error Bar Properties\n");
@@ -777,7 +817,7 @@ if strcmp(options.ErrorBars, 'on')
     fprintf("Standard deviation: " + format_str + "\n", P_std);
     
     % Mean +/- standard deviation
-    P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
+    P_mean = [P_mean; P_mean + options.ErrorPositive; P_mean - options.ErrorNegative];
     
     % Scale points to range from [0, 1] and apply offset
     P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
@@ -895,7 +935,7 @@ for ii = 1:num_data_groups
         % Turn off legend annotation
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 
-        h = scatter(ax, x_circular, y_circular,...
+        h = scatter(ax, x_points, y_points,...
             'Marker', options.Marker{ii},...
             'SizeData', options.MarkerSize(ii),...
             'MarkerFaceColor', options.Color(ii, :),...
@@ -946,16 +986,27 @@ for ii = 1:num_data_groups
                 'VerticalAlignment', 'middle');
         end
     end
-    
+
     % Check if fill option is toggled on
-    if fill_option_index(ii)
-        % Fill area within polygon
-        h = patch(ax, x_circular, y_circular, options.Color(ii, :),...
-            'EdgeColor', 'none',...
-            'FaceAlpha', options.FillTransparency(ii));
-        
-        % Turn off legend annotation
-        h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+    switch options.FillOption{ii}
+        case 'on'
+            % Fill area within polygon
+            h = patch(ax, x_circular, y_circular, options.Color(ii, :),...
+                'EdgeColor', 'none',...
+                'FaceAlpha', options.FillTransparency(ii));
+
+            % Turn off legend annotation
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+
+        case 'interp'
+            % Fill area within polygon
+            c_data = reshape(options.FillCData, [], 1);
+            h = patch(ax, x_points, y_points, c_data,...
+                'EdgeColor', 'none',...
+                'FaceAlpha', options.FillTransparency(ii));
+
+            % Turn off legend annotation
+            h.Annotation.LegendInformation.IconDisplayStyle = 'off';
     end
 end
 

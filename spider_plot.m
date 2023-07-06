@@ -285,17 +285,6 @@ if any(~ismember(fill_option, {'off', 'on', 'interp'}))
     error('Error: Please enter either "off", "on" or "interp" for fill option.');
 end
 
-% Check fill data
-if strcmp(fill_option, 'interp')
-    if isempty(fill_cdata)
-        error('Error: Please enter in a valid fill cdata.');
-    else
-        if length(fill_cdata) ~= num_data_points
-           error('Error: Please make sure that fill cdata matches the number of data points.');
-        end
-    end
-end
-
 % Check if fill transparency is valid
 if any(fill_transparency < 0) || any(fill_transparency > 1)
     error('Error: Please enter a transparency value between [0, 1].');
@@ -417,7 +406,9 @@ if any(~ismember(error_bars, {'off', 'on'}))
 end
 
 % Check if error positive and error negative are valid
-if strcmp(error_bars, 'on') && ~isempty(error_positive) && ~isempty(error_negative)
+if strcmp(error_bars, 'on') &&...
+        ~isempty(error_positive) &&...
+        ~isempty(error_negative)
     % Check that the length match the data points
     if length(error_positive) ~= num_data_points
         error('Error: Please make sure the number of error positive elements equal the data points');
@@ -635,6 +626,17 @@ if iscell(fill_option)
 else
     % Repeat array to number of data groups
     fill_option = repmat({fill_option}, num_data_groups, 1);
+end
+
+% Check fill data
+if all(strcmp(fill_option, 'interp'))
+    if isempty(fill_cdata)
+        error('Error: Please enter in a valid fill cdata.');
+    else
+        if length(fill_cdata) ~= num_data_points
+           error('Error: Please make sure that fill cdata matches the number of data points.');
+        end
+    end
 end
 
 % Check if fill transparency is numeric
@@ -1284,8 +1286,8 @@ for ii = 1:num_data_groups
 
         case 'interp'
             % Fill area within polygon
-            fill_cdata = reshape(fill_cdata, [], 1);
-            h = patch(ax, x_points, y_points, fill_cdata,...
+            c_data = reshape(fill_cdata, [], 1);
+            h = patch(ax, x_points, y_points, c_data,...
                 'EdgeColor', 'none',...
                 'FaceAlpha', fill_transparency(ii));
 

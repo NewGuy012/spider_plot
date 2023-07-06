@@ -22,7 +22,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesPrecision (:, :) double {mustBeInteger, mustBeNonnegative} = 1 % Tick precision
         AxesDisplay char {mustBeMember(AxesDisplay, {'all', 'none', 'one', 'data', 'data-percent'})} = 'all'  % Number of tick label groups shown on axes
         AxesLimits double = [] % Axes limits
-        FillOption {mustBeMember(FillOption, {'on', 'off'})} = 'off' % Whether to shade data
+        FillOption {mustBeMember(FillOption, {'on', 'off', 'interp'})} = 'off' % Whether to shade data
         FillTransparency double {mustBeGreaterThanOrEqual(FillTransparency, 0), mustBeLessThanOrEqual(FillTransparency, 1)} = 0.2 % Shading alpha
         Color = get(groot,'defaultAxesColorOrder') % Color order
         LineStyle = '-' % Data line style
@@ -69,6 +69,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesWebType {mustBeMember(AxesWebType, {'web', 'circular'})} = 'web'
         AxesTickFormat {mustBeText} = 'default'
         UserData struct
+        FillCData = []
+        ErrorPositive = []
+        ErrorNegative = []
+        AxesStart = pi/2
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -511,12 +515,43 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesTickFormat(obj, value)
             % Set property
             obj.AxesTickFormat = value;
-            
+
             % Toggle re-initialize to true if AxesTickFormat was changed
             obj.InitializeToggle = true;
         end
-        
-        
+
+        function set.FillCData(obj, value)
+            % Set property
+            obj.FillCData = value;
+
+            % Toggle re-initialize to true if FillCData was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.AxesStart(obj, value)
+            % Set property
+            obj.AxesStart = value;
+
+            % Toggle re-initialize to true if AxesStart was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.ErrorPositive(obj, value)
+            % Set property
+            obj.ErrorPositive = value;
+
+            % Toggle re-initialize to true if ErrorPositive was changed
+            obj.InitializeToggle = true;
+        end
+
+        function set.ErrorNegative(obj, value)
+            % Set property
+            obj.ErrorNegative = value;
+
+            % Toggle re-initialize to true if ErrorNegative was changed
+            obj.InitializeToggle = true;
+        end
+
         %%% Get Methods %%%
         function num_data_points = get.NumDataPoints(obj)
             % Get number of data points
@@ -822,7 +857,18 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Repeat array to number of data groups
                 obj.FillOption = repmat({obj.FillOption}, obj.NumDataGroups, 1);
             end
-            
+
+            % Check fill data
+            if any(strcmp(obj.FillOption, 'interp'))
+                if isempty(obj.FillCData)
+                    error('Error: Please enter in a valid fill cdata.');
+                else
+                    if length(obj.FillCData) ~= obj.NumDataPoints
+                        error('Error: Please make sure that fill cdata matches the number of data points.');
+                    end
+                end
+            end
+
             % Get property
             fill_option = obj.FillOption;
         end
@@ -962,6 +1008,41 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             % Get property
             axes_tick_format = obj.AxesTickFormat;
+        end
+
+        function fill_cdata = get.FillCData(obj)
+            fill_cdata = obj.FillCData;
+        end
+
+        function axes_start = get.AxesStart(obj)
+            % Check if axes start is valid
+            if ~(obj.AxesStart >= 0 && obj.AxesStart <= 2*pi)
+                error('Error: Please select an axes start value between [0, 2pi].')
+            end
+
+            axes_start = obj.AxesStart;
+        end
+
+        function error_positive = get.ErrorPositive(obj)
+            if strcmp(obj.ErrorBars, 'on') && ~isempty(obj.ErrorPositive)
+                % Check that the length match the data points
+                if length(obj.ErrorPositive) ~= obj.NumDataPoints
+                    error('Error: Please make sure the number of error positive elements equal the data points');
+                end
+            end
+
+            error_positive = obj.ErrorPositive;
+        end
+
+        function error_negative = get.ErrorNegative(obj)
+            if strcmp(obj.ErrorBars, 'on') && ~isempty(obj.ErrorNegative)
+                % Check that the length match the data points
+                if length(obj.ErrorNegative) ~= obj.NumDataPoints
+                    error('Error: Please make sure the number of error negative elements equal the data points');
+                end
+            end
+
+            error_negative = obj.ErrorNegative;
         end
     end
 
@@ -1291,11 +1372,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Check specified direction of rotation
             switch obj.Direction
                 case 'counterclockwise'
-                    % Shift by pi/2 to set starting axis the vertical line
-                    theta = (0:theta_increment:2*pi) + (pi/2);
+                    % Shift starting axis
+                    theta = (0:theta_increment:2*pi) + obj.AxesStart;
                 case 'clockwise'
-                    % Shift by pi/2 to set starting axis the vertical line
-                    theta = (0:-theta_increment:-2*pi) + (pi/2);
+                    % Shift starting axis
+                    theta = (0:-theta_increment:-2*pi) + obj.AxesStart;
             end
             
             % Remainder after using a modulus of 2*pi
@@ -1446,8 +1527,16 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Check if error bars are desired
             if strcmp(obj.ErrorBars, 'on')
                 % Calculate mean and standard deviation
-                P_mean = mean(obj.P);
-                P_std = std(obj.P);
+                P_mean = mean(obj.P, 1);
+                P_std = std(obj.P, 0, 1);
+
+                % Check if plus or minus error is specified
+                if isempty(obj.ErrorPositive) ||...
+                        isempty(obj.ErrorNegative)
+                    % Default values
+                    obj.ErrorPositive = P_std;
+                    obj.ErrorNegative = P_std;
+                end
 
                 % Display to command window
                 fprintf("Error Bar Properties\n");
@@ -1457,7 +1546,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 fprintf("Standard deviation: " + format_str + "\n", P_std);
 
                 % Mean +/- standard deviation
-                P_mean = [P_mean; P_mean + P_std; P_mean - P_std];
+                P_mean = [P_mean; P_mean + obj.ErrorPositive; P_mean - obj.ErrorNegative];
 
                 % Scale points to range from [0, 1] and apply offset
                 P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
@@ -1545,8 +1634,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.DataLines(ii).YData = y_circular;
 
                     % Plot data points
-                    obj.ScatterPoints(ii).XData = x_circular;
-                    obj.ScatterPoints(ii).YData = y_circular;
+                    obj.ScatterPoints(ii).XData = x_points;
+                    obj.ScatterPoints(ii).YData = y_points;
 
                     % Check if fill option is toggled on
                     obj.FillPatches(ii).XData = x_circular;
@@ -1721,19 +1810,27 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
         
         function update_plot(obj)
-            % Fill option index
-            fill_option_index = strcmp(obj.FillOption, 'on');
-
             % Iterate through patch objects
             for ii = 1:numel(obj.FillPatches)
                 % Check fill option argument
-                if fill_option_index(ii)
-                    % Fill in patch with specified color and transparency
-                    obj.FillPatches(ii).FaceColor = obj.Color(ii, :);
-                    obj.FillPatches(ii).FaceAlpha = obj.FillTransparency(ii);
-                else
-                    % Set no patch color
-                    obj.FillPatches(ii).FaceColor = 'none';
+                switch obj.FillOption{ii}
+                    case 'on'
+                        % Fill in patch with specified color and transparency
+                        obj.FillPatches(ii).FaceColor = obj.Color(ii, :);
+                        obj.FillPatches(ii).FaceAlpha = obj.FillTransparency(ii);
+
+                    case 'interp'
+                        % Fill area within polygon
+                        fill_cdata = reshape(obj.FillCData, [], 1);
+                        fill_cdata = [fill_cdata; fill_cdata(1)];
+                        obj.FillPatches(ii).FaceColor = 'interp';
+                        obj.FillPatches(ii).FaceVertexCData = fill_cdata;
+                        obj.FillPatches(ii).EdgeColor = 'none';
+                        obj.FillPatches(ii).FaceAlpha = obj.FillTransparency(ii);
+
+                    case 'off'
+                        % Set no patch color
+                        obj.FillPatches(ii).FaceColor = 'none';
                 end
             end
 
