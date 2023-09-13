@@ -707,6 +707,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2022-09-13: Added "AxesTickInterpreter" name-value pair option.
+
 - 2022-06-14: Added ability to manually set the error bar lengths. Add in support for gradient fills.
 
 - 2022-02-22: Added option to format axes tick text.
