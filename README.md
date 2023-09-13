@@ -529,7 +529,8 @@ P = [D1; D2; D3];
 % Spider plot
 spider_plot(P,...
     'AxesLabels', {'\beta=1', '$\int_1^{20} x^2 dx$', '$\mathcal{O}$', 'Normal', 'Normal'},...
-    'AxesInterpreter', {'tex', 'latex', 'latex', 'none', 'none'});
+    'AxesInterpreter', {'tex', 'latex', 'latex', 'none', 'none'},...
+    'AxesTickInterpreter', {'tex', 'latex', 'latex', 'none', 'none'});
 ```
 <p align="center">
   <img src="screenshot/example10.PNG">
@@ -841,5 +842,6 @@ Special thanks to the following people for their feature recommendations and bug
 - Gonzalo Santos Perodia
 - Sam Crameri
 - Sébastien Mailfert
+- Gustavo Mellior
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)

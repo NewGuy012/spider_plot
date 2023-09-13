@@ -46,6 +46,7 @@ arguments
     options.PlotVisible {mustBeMember(options.PlotVisible, {'off', 'on'})} = 'on'
     options.AxesTickLabels {mustBeText} = 'data'
     options.AxesInterpreter {mustBeText} = 'tex'
+    options.AxesTickInterpreter {mustBeText} = 'tex'
     options.BackgroundColor = [1, 1, 1];
     options.MinorGrid {mustBeMember(options.MinorGrid, {'off', 'on'})} = 'off'
     options.MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
@@ -322,6 +323,11 @@ if any(~ismember(options.AxesInterpreter, {'tex', 'latex', 'none'}))
     error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
 end
 
+% Check if axes tick interpreter is valid
+if any(~ismember(options.AxesTickInterpreter, {'tex', 'latex', 'none'}))
+    error('Error: Please enter either "tex", "latex", or "none" for axes tick interpreter option.');
+end
+
 % Check if axes interpreter is a char
 if ischar(options.AxesInterpreter)
     % Convert to cell array of char
@@ -339,6 +345,25 @@ elseif iscellstr(options.AxesInterpreter)
     end
 else
     error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
+end
+
+% Check if axes tick interpreter is a char
+if ischar(options.AxesTickInterpreter)
+    % Convert to cell array of char
+    options.AxesTickInterpreter = cellstr(options.AxesTickInterpreter);
+    
+    % Repeat cell to number of axes labels
+    options.AxesTickInterpreter = repmat(options.AxesTickInterpreter, length(options.AxesLabels), 1);
+elseif iscellstr(options.AxesTickInterpreter)
+    % Check is length is one
+    if length(options.AxesTickInterpreter) == 1
+        % Repeat cell to number of axes labels
+        options.AxesTickInterpreter = repmat(options.AxesTickInterpreter, length(options.AxesLabels), 1);
+    elseif length(options.AxesTickInterpreter) ~= length(options.AxesLabels)
+        error('Error: Please specify the same number of axes tick interpreters as axes labels.');
+    end
+else
+    error('Error: Please make sure the axes tick interpreter is a char or a cell array of char.');
 end
 
 %%% Validate Axes Shaded Limits
@@ -778,12 +803,8 @@ for ii = 1:theta_end_index
             'FontName', options.AxesFont,...
             'FontSize', options.AxesFontSize,...
             'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align);
-
-        % Apply to axes tick labels only when not data
-        if iscellstr(options.AxesTickLabels)
-            t.Interpreter = options.AxesInterpreter{1};
-        end
+            'VerticalAlignment', vert_align,...
+            'Interpreter', options.AxesTickInterpreter{ii});
     end
 end
 

@@ -70,6 +70,7 @@ axes_vert_align = 'middle';
 plot_visible = 'on';
 axes_tick_labels = 'data';
 axes_interpreter = 'tex';
+axes_tick_interpreter = 'tex';
 background_color = 'w';
 minor_grid = 'off';
 minor_grid_interval = 2;
@@ -167,6 +168,8 @@ if numvarargs > 1
                 plot_visible = value_arguments{ii};
             case 'axesticklabels'
                 axes_tick_labels = value_arguments{ii};
+            case 'axestickinterpreter'
+                axes_tick_interpreter = value_arguments{ii};
             case 'axesinterpreter'
                 axes_interpreter = value_arguments{ii};
             case 'backgroundcolor'
@@ -360,6 +363,11 @@ if any(~ismember(axes_interpreter, {'tex', 'latex', 'none'}))
     error('Error: Please enter either "tex", "latex", or "none" for axes interpreter option.');
 end
 
+% Check if axes tick interpreter is valid
+if any(~ismember(axes_tick_interpreter, {'tex', 'latex', 'none'}))
+    error('Error: Please enter either "tex", "latex", or "none" for axes tick interpreter option.');
+end
+
 % Check if minor grid is valid
 if ~ismember(minor_grid, {'on', 'off'})
     error('Error: Invalid minor grid entry. Please enter in "on" or "off" to toggle minor grid.');
@@ -509,6 +517,25 @@ elseif iscellstr(axes_interpreter)
     end
 else
     error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
+end
+
+% Check if axes tick interpreter is a char
+if ischar(axes_tick_interpreter)
+    % Convert to cell array of char
+    axes_tick_interpreter = cellstr(axes_tick_interpreter);
+    
+    % Repeat cell to number of data groups
+    axes_tick_interpreter = repmat(axes_tick_interpreter, length(axes_labels), 1);
+elseif iscellstr(axes_tick_interpreter)
+    % Check is length is one
+    if length(axes_tick_interpreter) == 1
+        % Repeat cell to number of data groups
+        axes_tick_interpreter = repmat(axes_tick_interpreter, length(axes_labels), 1);
+    elseif length(axes_tick_interpreter) ~= length(axes_labels)
+        error('Error: Please specify the same number of axes tick interpreters as axes labels.');
+    end
+else
+    error('Error: Please make sure the axes tick interpreter is a char or a cell array of char.');
 end
 
 % Check if axes tick labels is valid
@@ -1065,12 +1092,8 @@ for ii = 1:theta_end_index
             'FontName', axes_font,...
             'FontSize', axes_font_size,...
             'HorizontalAlignment', horz_align,...
-            'VerticalAlignment', vert_align);
-
-        % Apply to axes tick labels only when not data
-        if iscellstr(axes_tick_labels)
-            t.Interpreter = axes_interpreter{1};
-        end
+            'VerticalAlignment', vert_align,...
+            'Interpreter', axes_tick_interpreter{ii});
     end
 end
 

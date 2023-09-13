@@ -52,6 +52,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         PlotVisible {mustBeMember(PlotVisible, {'off', 'on'})} = 'on'
         AxesTickLabels {mustBeText} = 'data'
         AxesInterpreter {mustBeText} = 'tex'
+        AxesTickInterpreter {mustBeText} = 'tex'
         BackgroundColor = [1, 1, 1]
         MinorGrid {mustBeMember(MinorGrid, {'off', 'on'})} = 'off'
         MinorGridInterval (1, 1) double {mustBePositive, mustBeInteger} = 2
@@ -405,6 +406,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.AxesInterpreter = value;
             
             % Toggle re-initialize to true if AxesInterpreter was changed
+            obj.InitializeToggle = true;
+        end
+        
+        function set.AxesTickInterpreter(obj, value)
+            % Set property
+            obj.AxesTickInterpreter = value;
+            
+            % Toggle re-initialize to true if AxesTickInterpreter was changed
             obj.InitializeToggle = true;
         end
 
@@ -987,6 +996,35 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             
             % Get property
             axes_interpreter = obj.AxesInterpreter;
+        end
+        
+        function axes_tick_interpreter = get.AxesTickInterpreter(obj)
+            % Check if axes interpreter is valid
+            if any(~ismember(obj.AxesTickInterpreter, {'tex', 'latex', 'none'}))
+                error('Error: Please enter either "tex", "latex", or "none" for axes tick interpreter option.');
+            end
+
+            % Check if axes interpreter is a char
+            if ischar(obj.AxesTickInterpreter)
+                % Convert to cell array of char
+                obj.AxesTickInterpreter = cellstr(obj.AxesTickInterpreter);
+                
+                % Repeat cell to number of axes labels
+                obj.AxesTickInterpreter = repmat(obj.AxesTickInterpreter, length(obj.AxesLabels), 1);
+            elseif iscellstr(obj.AxesTickInterpreter)
+                % Check is length is one
+                if length(obj.AxesTickInterpreter) == 1
+                    % Repeat cell to number of axes labels
+                    obj.AxesTickInterpreter = repmat(obj.AxesTickInterpreter, length(obj.AxesLabels), 1);
+                elseif length(obj.AxesTickInterpreter) ~= length(obj.AxesLabels)
+                    error('Error: Please specify the same number of axes tick interpreters as number of axes labels.');
+                end
+            else
+                error('Error: Please make sure the axes tick interpreter is a char or a cell array of char.');
+            end
+            
+            % Get property
+            axes_tick_interpreter = obj.AxesTickInterpreter;
         end
 
         function axes_tick_format = get.AxesTickFormat(obj)
@@ -1944,11 +1982,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         obj.AxesTickText(ii, jj).FontName = obj.AxesFont;
                         obj.AxesTickText(ii, jj).FontSize = obj.AxesFontSize;
                         obj.AxesTickText(ii, jj).Color = obj.AxesFontColor;
-
-                        % Apply to axes tick labels only when not data
-                        if iscellstr(obj.AxesTickLabels)
-                            obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter{1};
-                        end
+                        obj.AxesTickText(ii, jj).Interpreter = obj.AxesInterpreter{ii};
                     end
                 end
             end
