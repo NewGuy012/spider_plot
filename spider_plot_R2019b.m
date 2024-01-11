@@ -530,7 +530,22 @@ shaded_rows = num_shaded * 2;
 
 % Check if axes shaded is on
 if strcmp(options.AxesShaded, 'on')
+    % Concatenate
     all_shaded_limits = vertcat(options.AxesShadedLimits{:});
+
+     % If any log scaling is specified
+    if any(log_index)
+        % Initialize copy
+        A_log = all_shaded_limits(:, log_index);
+
+        % Logarithm of base 10, account for numbers less than 1
+        A_log = sign(A_log) .* log10(abs(A_log));
+
+        % Update
+        all_shaded_limits(:, log_index) = A_log;
+    end
+
+    % Append
     P_selected = [P_selected; all_shaded_limits];
 end
 

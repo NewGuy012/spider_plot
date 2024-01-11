@@ -707,6 +707,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2024-01-10: Fixed bug when combining shading with lower and upper boundaries with logarithmic scaling.
+
 - 2022-09-13: Added "AxesTickInterpreter" name-value pair option.
 
 - 2022-06-14: Added ability to manually set the error bar lengths. Add in support for gradient fills.
