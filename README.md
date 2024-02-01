@@ -848,6 +848,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Sam Crameri
 - Sébastien Mailfert
 - Gustavo Mellior
+- Alawode Basit
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=NewGuy012/spider_plot)
