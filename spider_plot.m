@@ -78,7 +78,7 @@ axes_zero = 'off';
 axes_zero_color = [0.6, 0.6, 0.6];
 axes_zero_width = 2;
 axes_radial = 'on';
-axes_angular = 'on';
+axes_web = 'on';
 axes_shaded = 'off';
 axes_shaded_limits = {axes_limits};
 axes_shaded_color = 'g';
@@ -91,13 +91,17 @@ error_negative = [];
 axes_web_type = 'web';
 axes_tick_format = 'default';
 axes_start = pi/2;
+axes_radial_line_width = 1.5;
+axes_radial_line_style = '-';
+axes_web_line_width = 1;
+axes_web_line_style = '-';
 
 % Check if optional arguments were specified
 if numvarargs > 1
     % Initialze name-value arguments
     name_arguments = varargin(1:2:end);
     value_arguments = varargin(2:2:end);
-    
+
     % Iterate through name-value arguments
     for ii = 1:length(name_arguments)
         % Set value arguments depending on name
@@ -186,8 +190,8 @@ if numvarargs > 1
                 axes_zero_color = value_arguments{ii};
             case 'axesradial'
                 axes_radial = value_arguments{ii};
-            case 'axesangular'
-                axes_angular = value_arguments{ii};
+            case 'axesweb'
+                axes_web = value_arguments{ii};
             case 'axesshaded'
                 axes_shaded = value_arguments{ii};
             case 'axesshadedlimits'
@@ -212,11 +216,19 @@ if numvarargs > 1
                 axes_tick_format = value_arguments{ii};
             case 'axesstart'
                 axes_start = value_arguments{ii};
+            case 'axesradiallinewidth'
+                axes_radial_line_width = value_arguments{ii};
+            case 'axesradiallinestyle'
+                axes_radial_line_style = value_arguments{ii};
+            case 'axesweblinewidth'
+                axes_web_line_width = value_arguments{ii};
+            case 'axesweblinestyle'
+                axes_web_line_style = value_arguments{ii};
             otherwise
                 error('Error: Please enter in a valid name-value pair.');
         end
     end
-    
+
 end
 
 %%% Error Check %%%
@@ -383,9 +395,9 @@ if ~ismember(axes_radial, {'on', 'off'})
     error('Error: Invalid axes radial entry. Please enter in "on" or "off" to set axes visiblity.');
 end
 
-% Check if axes angular is valid
-if ~ismember(axes_angular, {'on', 'off'})
-    error('Error: Invalid axes angular entry. Please enter in "on" or "off" to set axes visiblity.');
+% Check if axes web is valid
+if ~ismember(axes_web, {'on', 'off'})
+    error('Error: Invalid axes web entry. Please enter in "on" or "off" to set axes visiblity.');
 end
 
 % Check if axes zero line width is numeric
@@ -504,7 +516,7 @@ end
 if ischar(axes_interpreter)
     % Convert to cell array of char
     axes_interpreter = cellstr(axes_interpreter);
-    
+
     % Repeat cell to number of data groups
     axes_interpreter = repmat(axes_interpreter, length(axes_labels), 1);
 elseif iscellstr(axes_interpreter)
@@ -523,7 +535,7 @@ end
 if ischar(axes_tick_interpreter)
     % Convert to cell array of char
     axes_tick_interpreter = cellstr(axes_tick_interpreter);
-    
+
     % Repeat cell to number of data groups
     axes_tick_interpreter = repmat(axes_tick_interpreter, length(axes_labels), 1);
 elseif iscellstr(axes_tick_interpreter)
@@ -547,7 +559,7 @@ else
     if ~strcmp(axes_tick_labels, 'data')
         error('Error: Invalid axes tick labels entry. Please enter in "data" or a cell array of desired tick labels.');
     end
-    
+
 end
 
 % Check if axes scaling is a cell
@@ -568,7 +580,7 @@ end
 if ischar(line_style)
     % Convert to cell array of char
     line_style = cellstr(line_style);
-    
+
     % Repeat cell to number of data groups
     line_style = repmat(line_style, num_data_groups, 1);
 elseif iscellstr(line_style)
@@ -600,7 +612,7 @@ end
 if ischar(marker_type)
     % Convert to cell array of char
     marker_type = cellstr(marker_type);
-    
+
     % Repeat cell to number of data groups
     marker_type = repmat(marker_type, num_data_groups, 1);
 elseif iscellstr(marker_type)
@@ -661,7 +673,7 @@ if all(strcmp(fill_option, 'interp'))
         error('Error: Please enter in a valid fill cdata.');
     else
         if length(fill_cdata) ~= num_data_points
-           error('Error: Please make sure that fill cdata matches the number of data points.');
+            error('Error: Please make sure that fill cdata matches the number of data points.');
         end
     end
 end
@@ -737,7 +749,7 @@ end
 %%% Axes Scaling Properties %%%
 % Selected data
 P_selected = P;
-            
+
 % Check axes scaling option
 log_index = strcmp(axes_scaling, 'log');
 
@@ -745,19 +757,19 @@ log_index = strcmp(axes_scaling, 'log');
 if any(log_index)
     % Initialize copy
     P_log = P_selected(:, log_index);
-    
+
     % Logarithm of base 10, account for numbers less than 1
     P_log = sign(P_log) .* log10(abs(P_log));
-    
+
     % Minimum and maximun log limits
     min_limit = min(min(fix(P_log)));
     max_limit = max(max(ceil(P_log)));
     recommended_axes_interval = max_limit - min_limit;
-    
+
     % Warning message
     warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
         10^min_limit, 10^max_limit, recommended_axes_interval);
-    
+
     % Replace original
     P_selected(:, log_index) = P_log;
 end
@@ -859,7 +871,7 @@ for ii = 1:num_data_points
     % Replace Inf with NaN
     inf_index = isinf(group_points);
     group_points(inf_index) = nan;
-    
+
     % Check for log axes scaling option
     if log_index(ii)
         % Minimum and maximun log limits
@@ -870,10 +882,10 @@ for ii = 1:num_data_points
         min_value = min(group_points);
         max_value = max(group_points);
     end
-    
+
     % Range of min and max values
     range = max_value - min_value;
-    
+
     % Check if axes_limits is not empty
     if ~isempty(axes_limits)
         % Check for log axes scaling option
@@ -881,26 +893,26 @@ for ii = 1:num_data_points
             % Logarithm of base 10, account for numbers less than 1
             axes_limits(:, ii) = sign(axes_limits(:, ii)) .* log10(abs(axes_limits(:, ii)));
         end
-        
+
         % Manually set the range of each group
         min_value = axes_limits(1, ii);
         max_value = axes_limits(2, ii);
         range = max_value - min_value;
-        
+
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
             error('Error: Please make sure the manually specified axes limits are within range of the data points.');
         end
     end
-    
+
     % Check if range is valid
     if range == 0
         error('Error: Range of data values is not valid. Please specify the axes limits.');
     end
-    
+
     % Scale points to range from [0, 1]
     P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
-    
+
     % If reverse axes direction is specified
     if axes_direction_index(ii)
         % Store to array
@@ -910,7 +922,7 @@ for ii = 1:num_data_points
         % Store to array
         axes_range(:, ii) = [min_value; max_value; range];
     end
-    
+
     % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
     P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
 end
@@ -948,7 +960,8 @@ if strcmp(axes_radial, 'on')
 
         % Plot webs
         h = plot(ax, x_axes, y_axes,...
-            'LineWidth', 1.5,...
+            'LineStyle', axes_radial_line_style,...
+            'LineWidth', axes_radial_line_width,...
             'Color', axes_color);
 
         % Turn off legend annotation
@@ -963,8 +976,8 @@ elseif strcmp(axes_web_type, 'circular')
     theta_web = 0:((2*pi)/(2^7)):2*pi;
 end
 
-% Check if axes angular is toggled on
-if strcmp(axes_angular, 'on')
+% Check if axes web is toggled on
+if strcmp(axes_web, 'on')
     % Iterate through each rho
     for ii = 2:length(rho)
         % Convert polar to cartesian coordinates
@@ -972,6 +985,8 @@ if strcmp(axes_angular, 'on')
 
         % Plot axes
         h = plot(ax, x_axes, y_axes,...
+            'LineStyle', axes_web_line_style,...
+            'LineWidth', axes_web_line_width,...
             'Color', axes_color);
 
         % Turn off legend annotation
@@ -1003,9 +1018,9 @@ end
 
 % Check if axes zero is toggled on
 if strcmp(axes_zero, 'on') && strcmp(axes_display, 'one')
-     % Scale points to range from [0, 1]
+    % Scale points to range from [0, 1]
     zero_scaled = (0 - min_value) / range;
-    
+
     % If reverse axes direction is specified
     if strcmp(axes_direction, 'reverse')
         zero_scaled = -zero_scaled - 1;
@@ -1052,25 +1067,25 @@ vert_align = axes_vert_align;
 for ii = 1:theta_end_index
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
-    
+
     % Check if horizontal alignment is quadrant based
     if strcmp(axes_horz_align, 'quadrant')
         % Alignment based on quadrant
         [horz_align, ~] = quadrant_position(theta(ii));
     end
-    
+
     % Check if vertical alignment is quadrant based
     if strcmp(axes_vert_align, 'quadrant')
         % Alignment based on quadrant
         [~, vert_align] = quadrant_position(theta(ii));
     end
-    
+
     % Iterate through points on isocurve
     for jj = rho_start_index:length(rho)
         % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
-        
+
         % If reverse axes direction is specified
         if axes_direction_index(ii)
             % Axes increment value
@@ -1079,13 +1094,13 @@ for ii = 1:theta_end_index
             % Axes increment value
             axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
         end
-        
+
         % Check for log axes scaling option
         if log_index(ii)
             % Exponent to the tenth power
             axes_value = 10^axes_value;
         end
-        
+
         % Display axes text
         if strcmp(axes_tick_labels, 'data')
             % Check axes tick format option
@@ -1140,10 +1155,10 @@ if strcmp(error_bars, 'on')
     format_str = repmat('%.2f ', 1, length(P_mean));
     fprintf("    Average values: " + format_str + "\n", P_mean);
     fprintf("Standard deviation: " + format_str + "\n", P_std);
-    
+
     % Mean +/- standard deviation
     P_mean = [P_mean; P_mean + error_positive; P_mean - error_negative];
-    
+
     % Scale points to range from [0, 1] and apply offset
     P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
     P_mean = P_mean * (1 - rho_offset) + rho_offset;
@@ -1425,7 +1440,7 @@ if ~strcmp(axes_labels, 'none')
 
         % Convert polar to cartesian coordinates
         [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+axes_labels_offset);
-        
+
         % Display text label
         text(ax, x_pos, y_pos, axes_labels{ii},...
             'Units', 'Data',...
@@ -1502,7 +1517,7 @@ end
         elseif theta_point > 3*pi/2 && theta_point < 2*pi
             quadrant = 4;
         end
-        
+
         % Adjust label alignment depending on quadrant
         switch quadrant
             case 0

@@ -54,7 +54,7 @@ arguments
     options.AxesZeroColor = [0, 0, 0];
     options.AxesZeroWidth (1, 1) double {mustBePositive} = 2
     options.AxesRadial {mustBeMember(options.AxesRadial, {'off', 'on'})} = 'on'
-    options.AxesAngular {mustBeMember(options.AxesAngular, {'off', 'on'})} = 'on'
+    options.AxesWeb {mustBeMember(options.AxesWeb, {'off', 'on'})} = 'on'
     options.AxesShaded {mustBeMember(options.AxesShaded, {'off', 'on'})} = 'off'
     options.AxesShadedLimits cell = {}
     options.AxesShadedColor = 'g'
@@ -68,6 +68,10 @@ arguments
     options.ErrorPositive = []
     options.ErrorNegative = []
     options.AxesStart = pi/2
+    options.AxesRadialLineStyle = '-';
+    options.AxesRadialLineWidth = 1.5;
+    options.AxesWebLineStyle = '-';
+    options.AxesWebLineWidth = 1;
 end
 
 %%% Data Properties %%%
@@ -127,7 +131,7 @@ end
 if ischar(options.LineStyle)
     % Convert to cell array of char
     options.LineStyle = cellstr(options.LineStyle);
-    
+
     % Repeat cell to number of data groups
     options.LineStyle = repmat(options.LineStyle, num_data_groups, 1);
 elseif iscellstr(options.LineStyle) %#ok<*ISCLSTR>
@@ -161,7 +165,7 @@ end
 if ischar(options.Marker)
     % Convert to cell array of char
     options.Marker = cellstr(options.Marker);
-    
+
     % Repeat cell to number of data groups
     options.Marker = repmat(options.Marker, num_data_groups, 1);
 elseif iscellstr(options.Marker)
@@ -245,7 +249,7 @@ if all(strcmp(options.FillOption, 'interp'))
         error('Error: Please enter in a valid fill cdata.');
     else
         if length(options.FillCData) ~= num_data_points
-           error('Error: Please make sure that fill cdata matches the number of data points.');
+            error('Error: Please make sure that fill cdata matches the number of data points.');
         end
     end
 end
@@ -332,7 +336,7 @@ end
 if ischar(options.AxesInterpreter)
     % Convert to cell array of char
     options.AxesInterpreter = cellstr(options.AxesInterpreter);
-    
+
     % Repeat cell to number of axes labels
     options.AxesInterpreter = repmat(options.AxesInterpreter, length(options.AxesLabels), 1);
 elseif iscellstr(options.AxesInterpreter)
@@ -351,7 +355,7 @@ end
 if ischar(options.AxesTickInterpreter)
     % Convert to cell array of char
     options.AxesTickInterpreter = cellstr(options.AxesTickInterpreter);
-    
+
     % Repeat cell to number of axes labels
     options.AxesTickInterpreter = repmat(options.AxesTickInterpreter, length(options.AxesLabels), 1);
 elseif iscellstr(options.AxesTickInterpreter)
@@ -456,19 +460,19 @@ log_index = strcmp(options.AxesScaling, 'log');
 if any(log_index)
     % Initialize copy
     P_log = P_selected(:, log_index);
-    
+
     % Logarithm of base 10, account for numbers less than 1
     P_log = sign(P_log) .* log10(abs(P_log));
-    
+
     % Minimum and maximun log limits
     min_limit = min(min(fix(P_log)));
     max_limit = max(max(ceil(P_log)));
     recommended_axes_interval = max_limit - min_limit;
-    
+
     % Warning message
     warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
         10^min_limit, 10^max_limit, recommended_axes_interval);
-    
+
     % Replace original
     P_selected(:, log_index) = P_log;
 end
@@ -533,7 +537,7 @@ if strcmp(options.AxesShaded, 'on')
     % Concatenate
     all_shaded_limits = vertcat(options.AxesShadedLimits{:});
 
-     % If any log scaling is specified
+    % If any log scaling is specified
     if any(log_index)
         % Initialize copy
         A_log = all_shaded_limits(:, log_index);
@@ -570,7 +574,7 @@ for ii = 1:num_data_points
     % Replace Inf with NaN
     inf_index = isinf(group_points);
     group_points(inf_index) = nan;
-    
+
     % Check for log axes scaling option
     if log_index(ii)
         % Minimum and maximun log limits
@@ -581,10 +585,10 @@ for ii = 1:num_data_points
         min_value = min(group_points);
         max_value = max(group_points);
     end
-    
+
     % Range of min and max values
     range = max_value - min_value;
-    
+
     % Check if options.AxesLimits is not empty
     if ~isempty(options.AxesLimits)
         % Check for log axes scaling option
@@ -592,26 +596,26 @@ for ii = 1:num_data_points
             % Logarithm of base 10, account for numbers less than 1
             options.AxesLimits(:, ii) = sign(options.AxesLimits(:, ii)) .* log10(abs(options.AxesLimits(:, ii)));
         end
-            
+
         % Manually set the range of each group
         min_value = options.AxesLimits(1, ii);
         max_value = options.AxesLimits(2, ii);
         range = max_value - min_value;
-        
+
         % Check if the axes limits are within range of points
         if min_value > min(group_points) || max_value < max(group_points)
             error('Error: Please make sure the manually specified axes limits are within range of the data points.');
         end
     end
-    
+
     % Check if range is valid
     if range == 0
         error('Error: Range of data values is not valid. Please specify the axes limits.');
     end
-    
+
     % Scale points to range from [0, 1]
     P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
-    
+
     % If reverse axes direction is specified
     if axes_direction_index(ii)
         % Store to array
@@ -621,7 +625,7 @@ for ii = 1:num_data_points
         % Store to array
         axes_range(:, ii) = [min_value; max_value; range];
     end
-    
+
     % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
     P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
 end
@@ -659,7 +663,8 @@ if strcmp(options.AxesRadial, 'on')
 
         % Plot webs
         h = plot(ax, x_axes, y_axes,...
-            'LineWidth', 1.5,...
+            'LineStyle', options.AxesRadialLineStyle,...
+            'LineWidth', options.AxesRadialLineWidth,...
             'Color', options.AxesColor);
 
         % Turn off legend annotation
@@ -674,8 +679,8 @@ elseif strcmp(options.AxesWebType, 'circular')
     theta_web = 0:((2*pi)/(2^7)):2*pi;
 end
 
-% Check if axes angular is toggled on
-if strcmp(options.AxesAngular, 'on')
+% Check if axes web is toggled on
+if strcmp(options.AxesWeb, 'on')
     % Iterate through each rho
     for ii = 2:length(rho)
         % Convert polar to cartesian coordinates
@@ -683,6 +688,8 @@ if strcmp(options.AxesAngular, 'on')
 
         % Plot axes
         h = plot(ax, x_axes, y_axes,...
+            'LineStyle', options.AxesWebLineStyle,...
+            'LineWidth', options.AxesWebLineWidth,...
             'Color', options.AxesColor);
 
         % Turn off legend annotation
@@ -714,9 +721,9 @@ end
 
 % Check if axes zero is toggled on
 if strcmp(options.AxesZero, 'on') && strcmp(options.AxesDisplay, 'one')
-     % Scale points to range from [0, 1]
+    % Scale points to range from [0, 1]
     zero_scaled = (0 - min_value) / range;
-    
+
     % If reverse axes direction is specified
     if strcmp(options.AxesDirection, 'reverse')
         zero_scaled = -zero_scaled - 1;
@@ -763,25 +770,25 @@ vert_align = options.AxesVertAlign;
 for ii = 1:theta_end_index
     % Convert polar to cartesian coordinates
     [x_axes, y_axes] = pol2cart(theta(ii), rho);
-    
+
     % Check if horizontal alignment is quadrant based
     if strcmp(options.AxesHorzAlign, 'quadrant')
         % Alignment based on quadrant
         [horz_align, ~] = quadrant_position(theta(ii));
     end
-    
+
     % Check if vertical alignment is quadrant based
     if strcmp(options.AxesVertAlign, 'quadrant')
         % Alignment based on quadrant
         [~, vert_align] = quadrant_position(theta(ii));
     end
-                
+
     % Iterate through points on isocurve
     for jj = rho_start_index:length(rho)
         % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
-        
+
         % If reverse axes direction is specified
         if axes_direction_index(ii)
             % Axes increment value
@@ -790,13 +797,13 @@ for ii = 1:theta_end_index
             % Axes increment value
             axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
         end
-        
+
         % Check for log axes scaling option
         if log_index(ii)
             % Exponent to the tenth power
             axes_value = 10^axes_value;
         end
-        
+
         % Display axes text
         if strcmp(options.AxesTickLabels, 'data')
             % Check axes tick format option
@@ -851,10 +858,10 @@ if strcmp(options.ErrorBars, 'on')
     format_str = repmat('%.2f ', 1, length(P_mean));
     fprintf("    Average values: " + format_str + "\n", P_mean);
     fprintf("Standard deviation: " + format_str + "\n", P_std);
-    
+
     % Mean +/- standard deviation
     P_mean = [P_mean; P_mean + options.ErrorPositive; P_mean - options.ErrorNegative];
-    
+
     % Scale points to range from [0, 1] and apply offset
     P_mean = (P_mean - axes_range(1, :)) ./ axes_range(3, :);
     P_mean = P_mean * (1 - rho_offset) + rho_offset;
@@ -1148,7 +1155,7 @@ if ~strcmp(options.AxesLabels, 'none')
 
         % Convert polar to cartesian coordinates
         [x_pos, y_pos] = pol2cart(theta(ii), rho(end)+options.AxesLabelsOffset);
-        
+
         % Display text label
         text(ax, x_pos, y_pos, options.AxesLabels{ii},...
             'Units', 'Data',...
@@ -1271,19 +1278,19 @@ end
 function validateAxesLimits(axes_limits, P)
 if ~isempty(axes_limits)
     validateattributes(axes_limits, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'axes_limits')
-    
+
     % Lower and upper limits
     lower_limits = axes_limits(1, :);
     upper_limits = axes_limits(2, :);
-    
+
     % Difference in upper and lower limits
     diff_limits = upper_limits - lower_limits;
-    
+
     % Check to make sure upper limit is greater than lower limit
     if any(diff_limits < 0)
         error('Error: Please make sure max axes limits are greater than the min axes limits.');
     end
-    
+
     % Check the range of axes limits
     if any(diff_limits == 0)
         error('Error: Please make sure the min and max axes limits are different.');

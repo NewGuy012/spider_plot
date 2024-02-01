@@ -10,7 +10,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
     % Documentation:
     %   Please refer to the MathWorks File Exchange or GitHub page for the
     %   detailed documentation and examples.
-    
+
     %%% Public, SetObservable Properties %%%
     properties(Access = public, SetObservable)
         % Property validation and defaults
@@ -60,7 +60,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesZeroColor = [0, 0, 0];
         AxesZeroWidth (1, 1) double {mustBePositive} = 2
         AxesRadial {mustBeMember(AxesRadial, {'off', 'on'})} = 'on'
-        AxesAngular {mustBeMember(AxesAngular, {'off', 'on'})} = 'on'
+        AxesWeb {mustBeMember(AxesWeb, {'off', 'on'})} = 'on'
         AxesShaded {mustBeMember(AxesShaded, {'off', 'on'})} = 'off'
         AxesShadedLimits cell = {}
         AxesShadedColor = 'g'
@@ -74,6 +74,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         ErrorPositive = []
         ErrorNegative = []
         AxesStart = pi/2
+        AxesRadialLineStyle = '-';
+        AxesRadialLineWidth = 1.5;
+        AxesWebLineStyle = '-';
+        AxesWebLineWidth = 1;
     end
 
     %%% Private, NonCopyable, Transient Properties %%%
@@ -89,38 +93,38 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         ThetaAxesLines = gobjects(0);
         RhoAxesLines = gobjects(0);
         RhoMinorLines = gobjects(0);
-        
+
         % Fill shade object
         FillPatches = gobjects(0);
         AxesPatches = gobjects(0);
-        
+
         % Web axes tick values
         AxesValues = [];
-        
+
         % Axes label object
         AxesTextLabels = gobjects(0);
         AxesTickText = gobjects(0);
         AxesDataLabels = gobjects(0);
-        
+
         % Initialize toggle state
         InitializeToggle = true;
-        
+
         % NextTile iterator
-        NextTileIter (1, 1) double {mustBeInteger, mustBePositive} = 1 
+        NextTileIter (1, 1) double {mustBeInteger, mustBePositive} = 1
     end
-    
+
     %%% Protected, Dependent, Hidden Properties %%%
     properties(Access = protected, Dependent, Hidden)
         NumDataGroups
         NumDataPoints
     end
-    
+
     methods
         %%% Constructor Methods %%%
         function obj = spider_plot_class(parentOrP, varargin)
             % Validate number of input arguments
             narginchk(1, inf);
-            
+
             % Check if first argument is a graphic object or data
             if isa(parentOrP, 'matlab.graphics.Graphics')
                 % spider_plot_class(parent, P, Name, Value, ...)
@@ -129,146 +133,146 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % spider_plot_class(P, Name, Value, ...)
                 args = [{'P', parentOrP}, varargin];
             end
-            
+
             % Call superclass constructor method
             obj@matlab.graphics.chartcontainer.ChartContainer(args{:});
         end
-        
+
         %%% Set Methods %%%
         function set.P(obj, value)
             % Set property
             obj.P = value;
-            
+
             % Toggle re-initialize to true if P was changed
             obj.InitializeToggle = true; %#ok<*MCSUP>
         end
-        
+
         function set.AxesLabels(obj, value)
             % Validate axes labels
             validateAxesLabels(value, obj.P);
-            
+
             % Set property
             obj.AxesLabels = value;
-            
+
             % Toggle re-initialize to true if AxesLabels was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LegendLabels(obj, value)
             % Validate legend labels
             validateLegendLabels(value, obj.P);
-            
+
             % Set property
             obj.LegendLabels = value;
-            
+
             % Set legend handle
             obj.LegendHandle = getLegend(obj);
             obj.LegendHandle.Color = obj.BackgroundColor;
-            
+
             % Toggle re-initialize to true if LegendLabels was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesInterval(obj, value)
             % Set property
             obj.AxesInterval = value;
-            
+
             % Toggle re-initialize to true if AxesInterval was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesPrecision(obj, value)
             % Set property
             obj.AxesPrecision = value;
-            
+
             % Toggle re-initialize to true if AxesPrecision was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesDisplay(obj, value)
             % Set property
             obj.AxesDisplay = value;
-            
+
             % Toggle re-initialize to true if AxesDisplay was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesLimits(obj, value)
             % Set property
             obj.AxesLimits = value;
-            
+
             % Toggle re-initialize to true if AxesLimits was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.FillOption(obj, value)
             % Set property
             obj.FillOption = value;
-            
+
             % Toggle re-initialize to true if FillOption was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.FillTransparency(obj, value)
             % Set property
             obj.FillTransparency = value;
-            
+
             % Toggle re-initialize to true if FillTransparency was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.Color(obj, value)
             % Set property
             obj.Color = value;
-            
+
             % Toggle re-initialize to true if Color was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LineStyle(obj, value)
             % Set property
             obj.LineStyle = value;
-            
+
             % Toggle re-initialize to true if LineStyle was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LineWidth(obj, value)
             % Set property
             obj.LineWidth = value;
-            
+
             % Toggle re-initialize to true if LineWidth was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LineTransparency(obj, value)
             % Set property
             obj.LineTransparency = value;
-            
+
             % Toggle re-initialize to true if LineTransparency was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.Marker(obj, value)
             % Set property
             obj.Marker = value;
-            
+
             % Toggle re-initialize to true if Marker was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.MarkerSize(obj, value)
             % Set property
             obj.MarkerSize = value;
-            
+
             % Toggle re-initialize to true if MarkerSize was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.MarkerTransparency(obj, value)
             % Set property
             obj.MarkerTransparency = value;
-            
+
             % Toggle re-initialize to true if MarkerTransparency was changed
             obj.InitializeToggle = true;
         end
@@ -276,87 +280,87 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesFont(obj, value)
             % Set property
             obj.AxesFont = value;
-            
+
             % Toggle re-initialize to true if AxesFont was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LabelFont(obj, value)
             % Set property
             obj.LabelFont = value;
-            
+
             % Toggle re-initialize to true if LabelFont was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesFontSize(obj, value)
             % Set property
             obj.AxesFontSize = value;
-            
+
             % Toggle re-initialize to true if AxesFontSize was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesFontColor(obj, value)
             % Set property
             obj.AxesFontColor = value;
-            
+
             % Toggle re-initialize to true if AxesFontColor was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.LabelFontSize(obj, value)
             % Set property
             obj.LabelFontSize = value;
-            
+
             % Toggle re-initialize to true if LabelFontSize was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.Direction(obj, value)
             % Set property
             obj.Direction = value;
-            
+
             % Toggle re-initialize to true if Direction was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesDirection(obj, value)
             % Set property
             obj.AxesDirection = value;
-            
+
             % Toggle re-initialize to true if Direction was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesLabelsOffset(obj, value)
             % Set property
             obj.AxesLabelsOffset = value;
-            
+
             % Toggle re-initialize to true if AxesLabelsOffset was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesScaling(obj, value)
             % Set property
             obj.AxesScaling = value;
-            
+
             % Toggle re-initialize to true if AxesScaling was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesColor(obj, value)
             % Set property
             obj.AxesColor = value;
-            
+
             % Toggle re-initialize to true if AxesColor was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesLabelsEdge(obj, value)
             % Set property
             obj.AxesLabelsEdge = value;
-            
+
             % Toggle re-initialize to true if AxesLabelsEdge was changed
             obj.InitializeToggle = true;
         end
@@ -364,31 +368,31 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesOffset(obj, value)
             % Set property
             obj.AxesOffset = value;
-            
+
             % Toggle re-initialize to true if AxesOffset was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesZoom(obj, value)
             % Set property
             obj.AxesZoom = value;
-            
+
             % Toggle re-initialize to true if AxesZoom was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesHorzAlign(obj, value)
             % Set property
             obj.AxesHorzAlign = value;
-            
+
             % Toggle re-initialize to true if AxesHorzAlign was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesVertAlign(obj, value)
             % Set property
             obj.AxesVertAlign = value;
-            
+
             % Toggle re-initialize to true if AxesVertAlign was changed
             obj.InitializeToggle = true;
         end
@@ -396,7 +400,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesTickLabels(obj, value)
             % Set property
             obj.AxesTickLabels = value;
-            
+
             % Toggle re-initialize to true if AxesTickLabels was changed
             obj.InitializeToggle = true;
         end
@@ -404,15 +408,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesInterpreter(obj, value)
             % Set property
             obj.AxesInterpreter = value;
-            
+
             % Toggle re-initialize to true if AxesInterpreter was changed
             obj.InitializeToggle = true;
         end
-        
+
         function set.AxesTickInterpreter(obj, value)
             % Set property
             obj.AxesTickInterpreter = value;
-            
+
             % Toggle re-initialize to true if AxesTickInterpreter was changed
             obj.InitializeToggle = true;
         end
@@ -420,7 +424,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.BackgroundColor(obj, value)
             % Set property
             obj.BackgroundColor = value;
-            
+
             % Toggle re-initialize to true if BackgroundColor was changed
             obj.InitializeToggle = true;
         end
@@ -428,7 +432,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.MinorGrid(obj, value)
             % Set property
             obj.MinorGrid = value;
-            
+
             % Toggle re-initialize to true if MinorGrid was changed
             obj.InitializeToggle = true;
         end
@@ -436,7 +440,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.MinorGridInterval(obj, value)
             % Set property
             obj.MinorGridInterval = value;
-            
+
             % Toggle re-initialize to true if MinorGridInterval was changed
             obj.InitializeToggle = true;
         end
@@ -444,7 +448,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesZero(obj, value)
             % Set property
             obj.AxesZero = value;
-            
+
             % Toggle re-initialize to true if AxesZero was changed
             obj.InitializeToggle = true;
         end
@@ -452,7 +456,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesZeroColor(obj, value)
             % Set property
             obj.AxesZeroColor = value;
-            
+
             % Toggle re-initialize to true if AxesZeroColor was changed
             obj.InitializeToggle = true;
         end
@@ -460,7 +464,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesZeroWidth(obj, value)
             % Set property
             obj.AxesZeroWidth = value;
-            
+
             % Toggle re-initialize to true if AxesZeroWidth was changed
             obj.InitializeToggle = true;
         end
@@ -468,23 +472,23 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesRadial(obj, value)
             % Set property
             obj.AxesRadial = value;
-            
+
             % Toggle re-initialize to true if AxesRadial was changed
             obj.InitializeToggle = true;
         end
 
-        function set.AxesAngular(obj, value)
+        function set.AxesWeb(obj, value)
             % Set property
-            obj.AxesAngular = value;
-            
-            % Toggle re-initialize to true if AxesAngular was changed
+            obj.AxesWeb = value;
+
+            % Toggle re-initialize to true if AxesWeb was changed
             obj.InitializeToggle = true;
         end
 
         function set.AxesShaded(obj, value)
             % Set property
             obj.AxesShaded = value;
-            
+
             % Toggle re-initialize to true if AxesShaded was changed
             obj.InitializeToggle = true;
         end
@@ -492,7 +496,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesShadedLimits(obj, value)
             % Set property
             obj.AxesShadedLimits = value;
-            
+
             % Toggle re-initialize to true if AxesShadedLimits was changed
             obj.InitializeToggle = true;
         end
@@ -500,7 +504,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesShadedColor(obj, value)
             % Set property
             obj.AxesShadedColor = value;
-            
+
             % Toggle re-initialize to true if AxesShadedColor was changed
             obj.InitializeToggle = true;
         end
@@ -508,7 +512,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.AxesShadedTransparency(obj, value)
             % Set property
             obj.AxesShadedTransparency = value;
-            
+
             % Toggle re-initialize to true if AxesShadedTransparency was changed
             obj.InitializeToggle = true;
         end
@@ -516,7 +520,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         function set.ErrorBars(obj, value)
             % Set property
             obj.ErrorBars = value;
-            
+
             % Toggle re-initialize to true if ErrorBars was changed
             obj.InitializeToggle = true;
         end
@@ -566,12 +570,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Get number of data points
             num_data_points = size(obj.P, 2);
         end
-        
+
         function num_data_groups = get.NumDataGroups(obj)
             % Get number of data groups
             num_data_groups = size(obj.P, 1);
         end
-        
+
         function axes_labels = get.AxesLabels(obj)
             % Check if value is empty
             if isempty(obj.AxesLabels)
@@ -599,7 +603,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 legend_labels = obj.LegendLabels;
             end
         end
-        
+
         function color = get.Color(obj)
             % Check if value is empty
             if isempty(obj.Color)
@@ -711,17 +715,17 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the axes precision is a numeric value.');
             end
-            
+
             % Get property
             axes_precision = obj.AxesPrecision;
         end
-        
+
         function axes_scaling = get.AxesScaling(obj)
             % Check if axes scaling is valid
             if any(~ismember(obj.AxesScaling, {'linear', 'log'}))
                 error('Error: Invalid axes scaling entry. Please enter in "linear" or "log" to set axes scaling.');
             end
-            
+
             % Check if axes scaling is a cell
             if iscell(obj.AxesScaling)
                 % Check is length is one
@@ -735,17 +739,17 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Repeat array to number of data groups
                 obj.AxesScaling = repmat({obj.AxesScaling}, obj.NumDataPoints, 1);
             end
-            
+
             % Get property
             axes_scaling = obj.AxesScaling;
         end
-        
+
         function line_style = get.LineStyle(obj)
             % Check if line style is a char
             if ischar(obj.LineStyle)
                 % Convert to cell array of char
                 obj.LineStyle = cellstr(obj.LineStyle);
-                
+
                 % Repeat cell to number of data groups
                 obj.LineStyle = repmat(obj.LineStyle, obj.NumDataGroups, 1);
             elseif iscellstr(obj.LineStyle) %#ok<*ISCLSTR>
@@ -759,11 +763,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the line style is a char or a cell array of char.');
             end
-            
+
             % Get property
             line_style = obj.LineStyle;
         end
-        
+
         function line_width = get.LineWidth(obj)
             % Check if line width is numeric
             if isnumeric(obj.LineWidth)
@@ -777,17 +781,17 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the line width is a numeric value.');
             end
-            
+
             % Get property
             line_width = obj.LineWidth;
         end
-        
+
         function marker_style = get.Marker(obj)
             % Check if marker type is a char
             if ischar(obj.Marker)
                 % Convert to cell array of char
                 obj.Marker = cellstr(obj.Marker);
-                
+
                 % Repeat cell to number of data groups
                 obj.Marker = repmat(obj.Marker, obj.NumDataGroups, 1);
             elseif iscellstr(obj.Marker)
@@ -801,11 +805,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the line style is a char or a cell array of char.');
             end
-            
+
             % Get property
             marker_style = obj.Marker;
         end
-        
+
         function marker_size = get.MarkerSize(obj)
             % Check if line width is numeric
             if isnumeric(obj.MarkerSize)
@@ -818,11 +822,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the line width is numeric.');
             end
-            
+
             % Get property
             marker_size = obj.MarkerSize;
         end
-        
+
         function axes_direction = get.AxesDirection(obj)
             % Check if axes direction is a cell
             if iscell(obj.AxesDirection)
@@ -837,7 +841,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Repeat array to number of data points
                 obj.AxesDirection = repmat({obj.AxesDirection}, obj.NumDataPoints, 1);
             end
-            
+
             % Get property
             axes_direction = obj.AxesDirection;
         end
@@ -847,11 +851,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             if obj.AxesOffset > obj.AxesInterval
                 error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
             end
-            
+
             % Get property
             axes_offset = obj.AxesOffset;
         end
-        
+
         function fill_option = get.FillOption(obj)
             % Check if fill option is a cell
             if iscell(obj.FillOption)
@@ -895,11 +899,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the fill transparency is a numeric value.');
             end
-            
+
             % Get property
             fill_transparency = obj.FillTransparency;
         end
-        
+
         function line_transparency = get.LineTransparency(obj)
             % Check if line transparency is numeric
             if isnumeric(obj.LineTransparency)
@@ -913,11 +917,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the line transparency is a numeric value.');
             end
-            
+
             % Get property
             line_transparency = obj.LineTransparency;
         end
-        
+
         function marker_transparency = get.MarkerTransparency(obj)
             % Check if marker transparency is numeric
             if isnumeric(obj.MarkerTransparency)
@@ -931,11 +935,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the marker transparency is a numeric value.');
             end
-            
+
             % Get property
             marker_transparency = obj.MarkerTransparency;
         end
-        
+
         function axes_font_color = get.AxesFontColor(obj)
             % Check if axes display is data
             if ismember(obj.AxesDisplay, {'data', 'data-percent'})
@@ -948,7 +952,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     end
                 end
             end
-            
+
             % Get property
             axes_font_color = obj.AxesFontColor;
         end
@@ -979,7 +983,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             if ischar(obj.AxesInterpreter)
                 % Convert to cell array of char
                 obj.AxesInterpreter = cellstr(obj.AxesInterpreter);
-                
+
                 % Repeat cell to number of axes labels
                 obj.AxesInterpreter = repmat(obj.AxesInterpreter, length(obj.AxesLabels), 1);
             elseif iscellstr(obj.AxesInterpreter)
@@ -993,11 +997,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the axes interpreter is a char or a cell array of char.');
             end
-            
+
             % Get property
             axes_interpreter = obj.AxesInterpreter;
         end
-        
+
         function axes_tick_interpreter = get.AxesTickInterpreter(obj)
             % Check if axes interpreter is valid
             if any(~ismember(obj.AxesTickInterpreter, {'tex', 'latex', 'none'}))
@@ -1008,7 +1012,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             if ischar(obj.AxesTickInterpreter)
                 % Convert to cell array of char
                 obj.AxesTickInterpreter = cellstr(obj.AxesTickInterpreter);
-                
+
                 % Repeat cell to number of axes labels
                 obj.AxesTickInterpreter = repmat(obj.AxesTickInterpreter, length(obj.AxesLabels), 1);
             elseif iscellstr(obj.AxesTickInterpreter)
@@ -1022,7 +1026,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 error('Error: Please make sure the axes tick interpreter is a char or a cell array of char.');
             end
-            
+
             % Get property
             axes_tick_interpreter = obj.AxesTickInterpreter;
         end
@@ -1092,11 +1096,11 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             % Set title string
             tlt.String = title_text;
-            
+
             % Initialze name-value arguments
             name_arguments = varargin(1:2:end);
             value_arguments = varargin(2:2:end);
-            
+
             % Iterate through name-value arguments
             for ii = 1:length(name_arguments)
                 % Set name value pair
@@ -1105,7 +1109,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 tlt.(name) = value;
             end
         end
-        
+
         function tiledlayout(obj, varargin)
             % Figure properties
             fig = figure;
@@ -1121,12 +1125,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             obj.TiledLayoutHandle = tiledlayout(fig, varargin{:});
             drawnow;
         end
-        
+
         function nexttile(obj, object_handle, varargin)
             % Copy over axes
             object_axes = getAxes(object_handle);
             current_axes = copyobj(object_axes, obj.TiledLayoutHandle);
-            
+
             % Check input variable length
             switch length(varargin)
                 case 2
@@ -1147,36 +1151,36 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 otherwise
                     error("Error using nexttile. Invalid arguments.")
             end
-               
+
             % Axes settings
             current_axes.Layout.Tile = tile_location;
             current_axes.Layout.TileSpan = span;
-            
+
             % Iterate next tile number
             obj.NextTileIter = obj.NextTileIter + 1;
         end
-        
+
         function tiledlegend(obj, varargin)
             % Relevant graphic handles
             current_axes = gca;
             axes_handles = findobj(obj.TiledLayoutHandle, 'Type', 'axes');
             line_handles = cell(length(axes_handles), 1);
-            
+
             % Iterate through axes handles
             for ii = 1:length(axes_handles)
                 % Find and store all line handles
                 line_handles{ii} = findobj(axes_handles(ii), 'Type', 'line');
             end
-            
+
             % Concatenate contents of array
             line_handles = vertcat(line_handles{:});
-            
+
             % Create and store legend handle
             obj.TiledLegendHandle = legend(current_axes, line_handles(:), varargin{:});
             obj.TiledLegendHandle.Color = obj.BackgroundColor;
         end
     end
-    
+
     methods (Access = protected)
         %%% Setup Methods %%%
         function setup(obj)
@@ -1199,7 +1203,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             axis(ax, 'off');
             axis(ax, [-1, 1, -1, 1] * scaling_factor);
         end
-        
+
         %%% Update Methods %%%
         function update(obj)
             % Check re-initialize toggle
@@ -1207,15 +1211,15 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Reset graphic objects
                 reset_objects(obj);
                 initialize(obj);
-                
+
                 % Set initialize toggle to false
                 obj.InitializeToggle = false;
             end
-            
+
             % Update plot appearance
             update_plot(obj);
         end
-        
+
         function reset_objects(obj)
             % Delete old objects
             delete(obj.DataLines);
@@ -1231,7 +1235,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             delete(obj.AxesDataLabels);
             delete(obj.ErrorBarPoints);
             delete(obj.ErrorBarLines);
-            
+
             % Reset object with empty objects
             obj.DataLines = gobjects(0);
             obj.ScatterPoints = gobjects(0);
@@ -1268,46 +1272,46 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             axis(ax, 'square');
             axis(ax, 'off');
             axis(ax, [-1, 1, -1, 1] * scaling_factor);
-            
+
             % Legend properties
             obj.LegendHandle = getLegend(obj);
             obj.LegendHandle.Color = obj.BackgroundColor;
-            
+
             % Selected data
             P_selected = obj.P;
-            
+
             % Check axes scaling option
             log_index = strcmp(obj.AxesScaling, 'log');
-            
+
             % If any log scaling is specified
             if any(log_index)
                 % Initialize copy
                 P_log = P_selected(:, log_index);
-                
+
                 % Logarithm of base 10, account for numbers less than 1
                 P_log = sign(P_log) .* log10(abs(P_log));
-                
+
                 % Minimum and maximun log limits
                 min_limit = min(min(fix(P_log)));
                 max_limit = max(max(ceil(P_log)));
                 recommended_axes_interval = max_limit - min_limit;
-                
+
                 % Warning message
                 warning('For the log scale values, recommended axes limit is [%i, %i] with an axes interval of %i.',...
                     10^min_limit, 10^max_limit, recommended_axes_interval);
-                
+
                 % Replace original
                 P_selected(:, log_index) = P_log;
             end
-            
+
             % Axes handles
             ax = getAxes(obj);
-            
+
             % Polar increments
             theta_increment = 2*pi/obj.NumDataPoints;
             full_interval = obj.AxesInterval+1;
             rho_offset = obj.AxesOffset/full_interval;
-            
+
             %%% Scale Data %%%
             % Number of shaded rows
             num_shaded = length(obj.AxesShadedLimits);
@@ -1336,10 +1340,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Pre-allocation
             P_scaled = zeros(size(P_selected));
             axes_range = zeros(3, obj.NumDataPoints);
-            
+
             % Check axes scaling option
             axes_direction_index = strcmp(obj.AxesDirection, 'reverse');
-            
+
             % Iterate through number of data points
             for ii = 1:obj.NumDataPoints
                 % Check for one data group and no axes limits
@@ -1365,10 +1369,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     min_value = min(group_points);
                     max_value = max(group_points);
                 end
-                
+
                 % Range of min and max values
                 range = max_value - min_value;
-                
+
                 % Check if axes_limits is not empty
                 if ~isempty(obj.AxesLimits)
                     % Check for log axes scaling option
@@ -1376,26 +1380,26 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         % Logarithm of base 10, account for numbers less than 1
                         obj.AxesLimits(:, ii) = sign(obj.AxesLimits(:, ii)) .* log10(abs(obj.AxesLimits(:, ii)));
                     end
-                    
+
                     % Manually set the range of each group
                     min_value = obj.AxesLimits(1, ii);
                     max_value = obj.AxesLimits(2, ii);
                     range = max_value - min_value;
-                    
+
                     % Check if the axes limits are within range of points
                     if min_value > min(group_points) || max_value < max(group_points)
                         error('Error: Please make sure the manually specified axes limits are within range of the data points.');
                     end
                 end
-                
+
                 % Check if range is valid
                 if range == 0
                     error('Error: Range of data values is not valid. Please specify the axes limits.');
                 end
-                
+
                 % Scale points to range from [0, 1]
                 P_scaled(:, ii) = ((P_selected(:, ii) - min_value) / range);
-                
+
                 % If reverse axes direction is specified
                 if axes_direction_index(ii)
                     % Store to array
@@ -1405,7 +1409,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % Store to array
                     axes_range(:, ii) = [min_value; max_value; range];
                 end
-                
+
                 % Add offset of [rho_offset] and scaling factor of [1 - rho_offset]
                 P_scaled(:, ii) = P_scaled(:, ii) * (1 - rho_offset) + rho_offset;
             end
@@ -1420,7 +1424,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Polar coordinates
             rho_increment = 1/full_interval;
             rho = 0:rho_increment:1;
-            
+
             % Check specified direction of rotation
             switch obj.Direction
                 case 'counterclockwise'
@@ -1430,10 +1434,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % Shift starting axis
                     theta = (0:-theta_increment:-2*pi) + obj.AxesStart;
             end
-            
+
             % Remainder after using a modulus of 2*pi
             theta = mod(theta, 2*pi);
-            
+
             % Check if axes radial is toggled on
             if strcmp(obj.AxesRadial, 'on')
                 % Iterate through each theta
@@ -1444,7 +1448,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % Plot
                     obj.ThetaAxesLines(ii) = line(x_axes, y_axes,...
                         'Parent', ax,...
-                        'LineWidth', 1.5, ...
+                        'LineStyle', obj.AxesRadialLineStyle,...
+                        'LineWidth', obj.AxesRadialLineWidth,...
                         'Color', obj.AxesColor,...
                         'HandleVisibility', 'off');
                 end
@@ -1457,8 +1462,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 theta_web = 0:((2*pi)/(2^7)):2*pi;
             end
 
-            % Check if axes angular is toggled on
-            if strcmp(obj.AxesAngular, 'on')
+            % Check if axes web is toggled on
+            if strcmp(obj.AxesWeb, 'on')
                 % Iterate through each rho
                 for ii = 2:length(rho)
                     % Convert polar to cartesian coordinates
@@ -1467,6 +1472,8 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % Plot
                     obj.RhoAxesLines(ii-1) = line(x_axes, y_axes,...
                         'Parent', ax,...
+                        'LineStyle', obj.AxesWebLineStyle,...
+                        'LineWidth', obj.AxesWebLineWidth,...
                         'Color', obj.AxesColor,...
                         'HandleVisibility', 'off');
                 end
@@ -1533,7 +1540,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 case 'data-percent'
                     theta_end_index = 0;
             end
-            
+
             % Rho start index and offset interval
             rho_start_index = obj.AxesOffset+1;
             offset_interval = full_interval - obj.AxesOffset;
@@ -1551,7 +1558,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Parent', ax);
                 obj.NanPoints(ii) = plot(nan, nan,...
                     'Parent', ax);
-                
+
                 % Turn off legend annotation
                 obj.FillPatches(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
                 obj.DataLines(ii).Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -1800,34 +1807,34 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     'Rotation', rotate_deg(ii),...
                     'Visible', 'off');
             end
-            
+
             % Alignment for axes labels
             horz_align = obj.AxesHorzAlign;
             vert_align = obj.AxesVertAlign;
-            
+
             % Iterate through each theta
             for ii = 1:theta_end_index
                 % Convert polar to cartesian coordinates
                 [x_axes, y_axes] = pol2cart(theta(ii), rho);
-                
+
                 % Check if horizontal alignment is quadrant based
                 if strcmp(obj.AxesHorzAlign, 'quadrant')
                     % Alignment based on quadrant
                     [horz_align, ~] = obj.quadrant_position(theta(ii));
                 end
-                
+
                 % Check if vertical alignment is quadrant based
                 if strcmp(obj.AxesVertAlign, 'quadrant')
                     % Alignment based on quadrant
                     [~, vert_align] = obj.quadrant_position(theta(ii));
                 end
-                
+
                 % Iterate through points on isocurve
                 for jj = rho_start_index:length(rho)
                     % Axes increment value
                     min_value = axes_range(1, ii);
                     range = axes_range(3, ii);
-                    
+
                     % If reverse axes direction is specified
                     if axes_direction_index(ii)
                         % Axes increment value
@@ -1836,13 +1843,13 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         % Axes increment value
                         axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
                     end
-                    
+
                     % Check for log axes scaling option
                     if log_index(ii)
                         % Exponent to the tenth power
                         axes_value = 10^axes_value;
                     end
-                    
+
                     % Display axes text
                     obj.AxesValues(ii, jj) = axes_value;
                     obj.AxesTickText(ii, jj) = text(ax, x_axes(jj), y_axes(jj), '',...
@@ -1855,12 +1862,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'Visible', 'off');
                 end
             end
-             
+
             % Keep only valid entries
             obj.AxesValues = obj.AxesValues(:, rho_start_index:end);
             obj.AxesTickText = obj.AxesTickText(:, rho_start_index:end);
         end
-        
+
         function update_plot(obj)
             % Iterate through patch objects
             for ii = 1:numel(obj.FillPatches)
@@ -1963,7 +1970,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     obj.AxesTextLabels(ii).Interpreter = obj.AxesInterpreter{ii};
                 end
             end
-            
+
             % Check axes axes display argument
             if ismember(obj.AxesDisplay, {'none', 'data', 'data-percent'})
                 % Set axes tick label invisible
@@ -1971,7 +1978,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             else
                 % Set axes tick label visible
                 set(obj.AxesTickText, 'Visible', 'on')
-                
+
                 % Iterate through axes values rows
                 for ii = 1:size(obj.AxesValues, 1)
                     % Iterate through axes values columns
@@ -2000,12 +2007,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     end
                 end
             end
-            
+
             % Check axes display
             if ismember(obj.AxesDisplay, {'data', 'data-percent'})
                 % Set axes data label visible
                 set(obj.AxesDataLabels, 'Visible', 'on')
-                
+
                 % Iterate through axes values rows
                 for ii = 1:size(obj.AxesDataLabels, 1)
                     % Iterate through axes values columns
@@ -2092,7 +2099,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             elseif theta_point > 3*pi/2 && theta_point < 2*pi
                 quadrant = 4;
             end
-            
+
             % Adjust label alignment depending on quadrant
             switch quadrant
                 case 0
@@ -2121,9 +2128,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     vert_align = 'top';
             end
         end
-        
+
     end
-    
+
 end
 
 %%% Custom Validation Functions %%%
@@ -2145,19 +2152,19 @@ end
 function validateAxesLimits(axes_limits, P)
 if ~isempty(axes_limits)
     validateattributes(axes_limits, {'double'}, {'size', [2, size(P, 2)]}, mfilename, 'axes_limits')
-    
+
     % Lower and upper limits
     lower_limits = axes_limits(1, :);
     upper_limits = axes_limits(2, :);
-    
+
     % Difference in upper and lower limits
     diff_limits = upper_limits - lower_limits;
-    
+
     % Check to make sure upper limit is greater than lower limit
     if any(diff_limits < 0)
         error('Error: Please make sure max axes limits are greater than the min axes limits.');
     end
-    
+
     % Check the range of axes limits
     if any(diff_limits == 0)
         error('Error: Please make sure the min and max axes limits are different.');
