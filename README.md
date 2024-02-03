@@ -151,7 +151,7 @@ The three functions included have the same functionality but with 3 different im
 - **AxesRadial**       - Used to toggle radial axes.
                          ['on' (default) | 'off']
 
-- **AxeWeb**           - Used to toggle web axes.
+- **AxesWeb**          - Used to toggle web axes.
                          ['on' (default) | 'off']
 
 - **AxesShaded**       - Used to toggle shaded area around axes.
@@ -192,6 +192,18 @@ The three functions included have the same functionality but with 3 different im
 
 - **AxesStart**        - Used to set the initial starting point of axes. Specify a value between [0, 2pi].
                          [pi/2 (default) | scalar]
+
+- **AxesRadialLineWidth** - Used to set the line width of the radial axes.
+                         [1.5 | scalar]
+
+- **AxesRadialLineStyle** - Used to set the line style of the radial axes.
+                         ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
+
+- **AxesWebLineWidth** - Used to set the line width of the axes web.
+                         [1 | scalar]
+
+- **AxesWebLineStyle** - Used to set the line style of the axes web.
+                         ['-' (default) | '--' | ':' | '-.' | 'none' | cell array of character vectors]
 
 *(spider_plot_class only properties)*
 - **LegendLabels**      - Used to add the labels to the legend.
@@ -708,6 +720,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2024-02-01: Added in option to change the axes line style and line width.
+
 - 2024-01-10: Fixed bug when combining shading with lower and upper boundaries with logarithmic scaling.
 
 - 2022-09-13: Added "AxesTickInterpreter" name-value pair option.
