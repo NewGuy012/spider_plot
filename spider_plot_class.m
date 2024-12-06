@@ -1727,6 +1727,14 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             % Check if axes shaded is on
             if strcmp(obj.AxesShaded, 'on')
+                % Check if any axes direction was flipped
+                if any(axes_direction_index)
+                    % Flip shaded limits
+                    A_flip = P_shaded(:, axes_direction_index);
+                    A_flip = flipud(A_flip);
+                    P_shaded(:, axes_direction_index) = A_flip;
+                end
+
                 % Iterate through number of shaded groups
                 for ii = 1:num_shaded
                     % Initialize

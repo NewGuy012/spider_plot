@@ -720,6 +720,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2024-12-06: Take into account reverse axes direction for shaded limits.
+
 - 2024-02-01: Added in option to change the axes line style and line width.
 
 - 2024-01-10: Fixed bug when combining shading with lower and upper boundaries with logarithmic scaling.
@@ -863,6 +865,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Sébastien Mailfert
 - Gustavo Mellior
 - Alawode Basit
+- Andrea Quintarelli
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=NewGuy012/spider_plot)
