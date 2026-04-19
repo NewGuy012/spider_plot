@@ -39,7 +39,7 @@ arguments
     options.AxesScaling = 'linear'
     options.AxesColor = [0.6, 0.6, 0.6]
     options.AxesLabelsEdge = 'k'
-    options.AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1
+    options.AxesOffset (1, 1) double {mustBeGreaterThan(options.AxesOffset, 0), mustBeLessThan(options.AxesOffset, 1)} = 0.3
     options.AxesZoom double {mustBeGreaterThanOrEqual(options.AxesZoom, 0), mustBeLessThanOrEqual(options.AxesZoom, 1)} = 0.7 % Axes scale
     options.AxesHorzAlign char {mustBeMember(options.AxesHorzAlign, {'center', 'left', 'right', 'quadrant'})} = 'center' % Horizontal alignment of axes labels
     options.AxesVertAlign char {mustBeMember(options.AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
@@ -97,11 +97,6 @@ if size(options.Color, 1) < num_data_groups
 end
 
 %%% Validate Properties
-% Check if axes offset is valid
-if options.AxesOffset > options.AxesInterval
-    error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
-end
-
 % Check if axes start is valid
 if ~(options.AxesStart >= 0 && options.AxesStart <= 2*pi)
     error('Error: Please select an axes start value between [0, 2pi].')
@@ -524,8 +519,7 @@ ax.YColor = 'none';
 
 % Polar increments
 theta_increment = 2*pi/num_data_points;
-full_interval = options.AxesInterval+1;
-rho_offset = options.AxesOffset/full_interval;
+rho_offset = options.AxesOffset;
 
 %%% Scale Data %%%
 % Number of shaded rows
@@ -638,8 +632,9 @@ end
 
 %%% Polar Axes %%%
 % Polar coordinates
-rho_increment = 1/full_interval;
+rho_increment = 1/options.AxesInterval;
 rho = 0:rho_increment:1;
+rho = rho * (1 - rho_offset) + rho_offset;
 
 % Check specified direction of rotation
 switch options.Direction
@@ -659,7 +654,7 @@ if strcmp(options.AxesRadial, 'on')
     % Iterate through each theta
     for ii = 1:length(theta)-1
         % Convert polar to cartesian coordinates
-        [x_axes, y_axes] = pol2cart(theta(ii), rho);
+        [x_axes, y_axes] = pol2cart(theta(ii), [0, 1]);
 
         % Plot webs
         h = plot(ax, x_axes, y_axes,...
@@ -682,7 +677,7 @@ end
 % Check if axes web is toggled on
 if strcmp(options.AxesWeb, 'on')
     % Iterate through each rho
-    for ii = 2:length(rho)
+    for ii = 1:length(rho)
         % Convert polar to cartesian coordinates
         [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
@@ -700,7 +695,7 @@ end
 % Check if minor grid is toggled on
 if strcmp(options.MinorGrid, 'on')
     % Polar coordinates
-    rho_minor_increment = 1/(full_interval*options.MinorGridInterval);
+    rho_minor_increment = 1/(options.AxesInterval*options.MinorGridInterval);
     rho_minor = rho(2):rho_minor_increment:1;
     rho_minor = setdiff(rho_minor, rho(2:end));
 
@@ -758,10 +753,6 @@ switch options.AxesDisplay
         theta_end_index = 0;
 end
 
-% Rho start index and offset interval
-rho_start_index = options.AxesOffset+1;
-offset_interval = full_interval - options.AxesOffset;
-
 % Alignment for axes labels
 horz_align = options.AxesHorzAlign;
 vert_align = options.AxesVertAlign;
@@ -784,7 +775,7 @@ for ii = 1:theta_end_index
     end
 
     % Iterate through points on isocurve
-    for jj = rho_start_index:length(rho)
+    for jj = 1:length(rho)
         % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
@@ -792,10 +783,10 @@ for ii = 1:theta_end_index
         % If reverse axes direction is specified
         if axes_direction_index(ii)
             % Axes increment value
-            axes_value = min_value - (range/offset_interval) * (jj-rho_start_index);
+            axes_value = min_value - (range/options.AxesInterval) * (jj-1);
         else
             % Axes increment value
-            axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
+            axes_value = min_value + (range/options.AxesInterval) * (jj-1);
         end
 
         % Check for log axes scaling option
@@ -816,7 +807,7 @@ for ii = 1:theta_end_index
             % Formatted axes tick text
             text_str = sprintf(text_format, axes_value);
         else
-            text_str = options.AxesTickLabels{jj-options.AxesOffset};
+            text_str = options.AxesTickLabels{jj};
         end
 
         t = text(ax, x_axes(jj), y_axes(jj), text_str,...

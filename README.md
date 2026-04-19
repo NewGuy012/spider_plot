@@ -110,7 +110,7 @@ The three functions included have the same functionality but with 3 different im
                          [black (default) | RGB triplet | hexadecimal color code | 'none']
 
 - **AxesOffset**       - Used to change to axes offset from the origin.
-                         [1 (default) | any integer less than the axes interval]
+                         [0.3 (default) | scalar in range (0, 1)]
 
 - **AxesZoom**         - Used to change zoom of axes.
                          [0.7 (default) | scalar in range (0, 1)]
@@ -720,6 +720,8 @@ spider_plot(P,...
 
 ## Author:
 Moses Yoo, (juyoung.m.yoo at gmail dot com)
+- 2026-04-19: Fixed bug where AxesOffset and AxesInterval were incorrectly affecting each other.
+
 - 2024-12-06: Take into account reverse axes direction for shaded limits.
 
 - 2024-02-01: Added in option to change the axes line style and line width.
@@ -866,6 +868,7 @@ Special thanks to the following people for their feature recommendations and bug
 - Gustavo Mellior
 - Alawode Basit
 - Andrea Quintarelli
+- Faucet6072
 
 [![View spider_plot on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot)
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=NewGuy012/spider_plot)

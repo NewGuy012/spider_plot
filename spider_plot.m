@@ -63,7 +63,7 @@ axes_data_offset = 0.1;
 axes_scaling = 'linear';
 axes_color = [0.6, 0.6, 0.6];
 axes_labels_edge = 'k';
-axes_offset = 1;
+axes_offset = 0.3;
 axes_zoom = 0.7;
 axes_horz_align = 'center';
 axes_vert_align = 'middle';
@@ -346,8 +346,8 @@ if any(~ismember(axes_scaling, {'linear', 'log'}))
 end
 
 % Check if axes offset is valid
-if floor(axes_offset)~=axes_offset || axes_offset < 0 || axes_offset > axes_interval
-    error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
+if axes_offset <= 0 || axes_offset >= 1
+    error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, 1].');
 end
 
 % Check if axes zoom value is valid
@@ -821,8 +821,7 @@ ax.YColor = 'none';
 
 % Polar increments
 theta_increment = 2*pi/num_data_points;
-full_interval = axes_interval + 1;
-rho_offset = axes_offset/full_interval;
+rho_offset = axes_offset;
 
 %%% Scale Data %%%
 % Number of shaded rows
@@ -935,8 +934,9 @@ end
 
 %%% Polar Axes %%%
 % Polar coordinates
-rho_increment = 1/full_interval;
+rho_increment = 1/axes_interval;
 rho = 0:rho_increment:1;
+rho = rho * (1 - rho_offset) + rho_offset;
 
 % Check rotational direction
 switch direction
@@ -956,7 +956,7 @@ if strcmp(axes_radial, 'on')
     % Iterate through each theta
     for ii = 1:length(theta)-1
         % Convert polar to cartesian coordinates
-        [x_axes, y_axes] = pol2cart(theta(ii), rho);
+        [x_axes, y_axes] = pol2cart(theta(ii), [0, 1]);
 
         % Plot webs
         h = plot(ax, x_axes, y_axes,...
@@ -979,7 +979,7 @@ end
 % Check if axes web is toggled on
 if strcmp(axes_web, 'on')
     % Iterate through each rho
-    for ii = 2:length(rho)
+    for ii = 1:length(rho)
         % Convert polar to cartesian coordinates
         [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
@@ -997,7 +997,7 @@ end
 % Check if minor grid is toggled on
 if strcmp(minor_grid, 'on')
     % Polar coordinates
-    rho_minor_increment = 1/(full_interval*minor_grid_interval);
+    rho_minor_increment = 1/(axes_interval*minor_grid_interval);
     rho_minor = rho(2):rho_minor_increment:1;
     rho_minor = setdiff(rho_minor, rho(2:end));
 
@@ -1055,10 +1055,6 @@ switch axes_display
         theta_end_index = 0;
 end
 
-% Rho start index and offset interval
-rho_start_index = axes_offset+1;
-offset_interval = full_interval - axes_offset;
-
 % Alignment for axes labels
 horz_align = axes_horz_align;
 vert_align = axes_vert_align;
@@ -1081,7 +1077,7 @@ for ii = 1:theta_end_index
     end
 
     % Iterate through points on isocurve
-    for jj = rho_start_index:length(rho)
+    for jj = 1:length(rho)
         % Axes increment range
         min_value = axes_range(1, ii);
         range = axes_range(3, ii);
@@ -1089,10 +1085,10 @@ for ii = 1:theta_end_index
         % If reverse axes direction is specified
         if axes_direction_index(ii)
             % Axes increment value
-            axes_value = min_value - (range/offset_interval) * (jj-rho_start_index);
+            axes_value = min_value - (range/axes_interval) * (jj-1);
         else
             % Axes increment value
-            axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
+            axes_value = min_value + (range/axes_interval) * (jj-1);
         end
 
         % Check for log axes scaling option
@@ -1113,7 +1109,7 @@ for ii = 1:theta_end_index
             % Formatted axes tick text
             text_str = sprintf(text_format, axes_value);
         else
-            text_str = axes_tick_labels{jj-axes_offset};
+            text_str = axes_tick_labels{jj};
         end
 
         t = text(ax, x_axes(jj), y_axes(jj), text_str,...

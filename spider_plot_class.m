@@ -43,7 +43,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         AxesScaling = 'linear' % Scaling of axes
         AxesColor = [0.6, 0.6, 0.6] % Axes color
         AxesLabelsEdge = 'k' % Axes label color
-        AxesOffset (1, 1) double {mustBeNonnegative, mustBeInteger} = 1 % Axes offset
+        AxesOffset (1, 1) double {mustBeGreaterThan(AxesOffset, 0), mustBeLessThan(AxesOffset, 1)} = 0.3 % Axes offset
         AxesZoom double {mustBeGreaterThanOrEqual(AxesZoom, 0), mustBeLessThanOrEqual(AxesZoom, 1)} = 0.7 % Axes scale
         AxesHorzAlign char {mustBeMember(AxesHorzAlign, {'center', 'left', 'right', 'quadrant'})} = 'center' % Horizontal alignment of axes labels
         AxesVertAlign char {mustBeMember(AxesVertAlign, {'middle', 'top', 'cap', 'bottom', 'baseline', 'quadrant'})} = 'middle' % Vertical alignment of axes labels
@@ -847,11 +847,6 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
         end
 
         function axes_offset = get.AxesOffset(obj)
-            % Check if axes offset is valid
-            if obj.AxesOffset > obj.AxesInterval
-                error('Error: Invalid axes offset entry. Please enter in an integer value that is between [0, axes_interval].');
-            end
-
             % Get property
             axes_offset = obj.AxesOffset;
         end
@@ -1309,8 +1304,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             % Polar increments
             theta_increment = 2*pi/obj.NumDataPoints;
-            full_interval = obj.AxesInterval+1;
-            rho_offset = obj.AxesOffset/full_interval;
+            rho_offset = obj.AxesOffset;
 
             %%% Scale Data %%%
             % Number of shaded rows
@@ -1422,8 +1416,9 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
 
             %%% Polar Axes %%%
             % Polar coordinates
-            rho_increment = 1/full_interval;
+            rho_increment = 1/obj.AxesInterval;
             rho = 0:rho_increment:1;
+            rho = rho * (1 - rho_offset) + rho_offset;
 
             % Check specified direction of rotation
             switch obj.Direction
@@ -1443,7 +1438,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 % Iterate through each theta
                 for ii = 1:length(theta)-1
                     % Convert polar to cartesian coordinates
-                    [x_axes, y_axes] = pol2cart(theta(ii), rho);
+                    [x_axes, y_axes] = pol2cart(theta(ii), [0, 1]);
 
                     % Plot
                     obj.ThetaAxesLines(ii) = line(x_axes, y_axes,...
@@ -1465,12 +1460,12 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Check if axes web is toggled on
             if strcmp(obj.AxesWeb, 'on')
                 % Iterate through each rho
-                for ii = 2:length(rho)
+                for ii = 1:length(rho)
                     % Convert polar to cartesian coordinates
                     [x_axes, y_axes] = pol2cart(theta_web, rho(ii));
 
                     % Plot
-                    obj.RhoAxesLines(ii-1) = line(x_axes, y_axes,...
+                    obj.RhoAxesLines(ii) = line(x_axes, y_axes,...
                         'Parent', ax,...
                         'LineStyle', obj.AxesWebLineStyle,...
                         'LineWidth', obj.AxesWebLineWidth,...
@@ -1482,7 +1477,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
             % Check if minor grid is toggled on
             if strcmp(obj.MinorGrid, 'on')
                 % Polar coordinates
-                rho_minor_increment = 1/(full_interval*obj.MinorGridInterval);
+                rho_minor_increment = 1/(obj.AxesInterval*obj.MinorGridInterval);
                 rho_minor = rho(2):rho_minor_increment:1;
                 rho_minor = setdiff(rho_minor, rho(2:end));
 
@@ -1540,10 +1535,6 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 case 'data-percent'
                     theta_end_index = 0;
             end
-
-            % Rho start index and offset interval
-            rho_start_index = obj.AxesOffset+1;
-            offset_interval = full_interval - obj.AxesOffset;
 
             %%% Plot %%%
             % Initialize data children
@@ -1838,7 +1829,7 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                 end
 
                 % Iterate through points on isocurve
-                for jj = rho_start_index:length(rho)
+                for jj = 1:length(rho)
                     % Axes increment value
                     min_value = axes_range(1, ii);
                     range = axes_range(3, ii);
@@ -1846,10 +1837,10 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                     % If reverse axes direction is specified
                     if axes_direction_index(ii)
                         % Axes increment value
-                        axes_value = min_value - (range/offset_interval) * (jj-rho_start_index);
+                        axes_value = min_value - (range/obj.AxesInterval) * (jj-1);
                     else
                         % Axes increment value
-                        axes_value = min_value + (range/offset_interval) * (jj-rho_start_index);
+                        axes_value = min_value + (range/obj.AxesInterval) * (jj-1);
                     end
 
                     % Check for log axes scaling option
@@ -1870,10 +1861,6 @@ classdef spider_plot_class < matlab.graphics.chartcontainer.ChartContainer & ...
                         'Visible', 'off');
                 end
             end
-
-            % Keep only valid entries
-            obj.AxesValues = obj.AxesValues(:, rho_start_index:end);
-            obj.AxesTickText = obj.AxesTickText(:, rho_start_index:end);
         end
 
         function update_plot(obj)
